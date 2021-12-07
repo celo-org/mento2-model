@@ -7,7 +7,7 @@ Validator processes such as validator activation, staking, and uptime.
 import typing
 
 import model.constants as constants
-import model.parts.utils.ethereum_spec as spec
+import model.parts.utils.mento2_spec as spec
 from model.parts.utils import get_number_of_awake_validators
 from model.types import ETH, Gwei
 

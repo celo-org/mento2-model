@@ -6,7 +6,7 @@ Calculation of PoS incentives such as attestation and block proposal rewards and
 
 import typing
 
-import model.parts.utils.ethereum_spec as spec
+import model.parts.utils.mento2_spec as spec
 from model.parts.utils import get_number_of_awake_validators
 from model.types import Gwei
 
