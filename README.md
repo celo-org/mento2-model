@@ -1,11 +1,10 @@
-# CADLabs Ethereum Economic Model
+# cLabs Mento2 Model
 
-[![Python package](https://github.com/CADLabs/ethereum-model/actions/workflows/python.yml/badge.svg)](https://github.com/CADLabs/ethereum-model/actions/workflows/python.yml)
+[![Python package](https://github.com/celo-org/mento2-model/actions/workflows/python.yml/badge.svg)](https://github.com/celo-org/mento2-model/actions/workflows/python.yml)
 
-A modular dynamical-systems model of Ethereum's validator economics, based on the open-source Python library [radCAD](https://github.com/CADLabs/radCAD), an extension to [cadCAD](https://cadcad.org).
+A modular dynamical-systems model of the Mento2.0 design, based on the open-source Python library [radCAD](https://github.com/CADLabs/radCAD), an extension to [cadCAD](https://cadcad.org).
 
-* Latest model release version: [Subgraph / v1.1.7](https://github.com/CADLabs/ethereum-economic-model/releases/tag/v1.1.7)
-* Implements the official Ethereum [Altair](https://github.com/ethereum/eth2.0-specs#altair) spec updates in the [Blue Loop / v1.1.0-alpha.7](https://github.com/ethereum/eth2.0-specs/releases/tag/v1.1.0-alpha.7) release
+* Latest model release version: [Private fork of Ethereum Economic Model / v0.0.0](https://github.com/celo-org/mento2-model/releases/tag/v0.0.0)
 
 ## Table of Contents
 
@@ -29,7 +28,7 @@ A modular dynamical-systems model of Ethereum's validator economics, based on th
 
 ## Introduction
 
-This open-source model was developed in collaboration with the Ethereum Robust Incentives Group and funded by an Ethereum ESP (Ecosystem Support Program) grant. While originally scoped with purely modelling-educational intent as part of the cadCAD Edu online course "[cadCAD Masterclass: Ethereum Validator Economics](https://www.cadcad.education/course/masterclass-ethereum)", it has evolved to become a highly versatile, customizable and extensible research model that includes a list of [model extension ideas](#Model-Extension-Roadmap). The model is focused on epoch- and population-level Ethereum validator economics across different deployment types and – at least in its initial setup – abstracts from slot- and agent-level dynamics. Please see [Model Assumptions](ASSUMPTIONS.md) for further context.
+This repo features a cadCAD model for Mento2.0. The structure of this repo is heavily based on the [Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model) which was developed as part of the "[cadCAD Masterclass: Ethereum Validator Economics](https://www.cadcad.education/course/masterclass-ethereum)" and is focused on epoch- and population-level Ethereum validator economics. Please see [Mento2.0 Model Assumptions](ASSUMPTIONS.md) for further context.
 
 ### Model Features
 
@@ -45,7 +44,7 @@ This open-source model was developed in collaboration with the Ethereum Robust I
 
 ### Directory Structure
 
-* [data/](data/): Datasets and API data sources (such as Etherscan.io and Beaconcha.in) used in the model
+* [data/](data/): Datasets and API data sources used in the model
 * [docs/](docs/): Misc. documentation such as auto-generated docs from Python docstrings and Markdown docs
 * [experiments/](experiments/): Analysis notebooks and experiment workflow (such as configuration and execution)
 * [logs/](logs/): Experiment runtime log files
@@ -96,8 +95,7 @@ The [Differential Model Specification](https://hackmd.io/@CADLabs/HyENPQ36u) dep
 
 ## Environment Setup
 
-1. Clone or download the Git repository: `git clone https://github.com/CADLabs/ethereum-model` or using GitHub Desktop
-2. If completing the cadCAD Edu Masterclass MOOC, find and check out the latest ["Masterclass 🎓" release version](https://github.com/CADLabs/ethereum-economic-model/releases): e.g. `git checkout v.1.1.7`
+1. Clone or download the Git repository: `git clone https://github.com/celo-org/mento2-model` or using GitHub Desktop
 3. Set up your development environment using one of the following three options:
 
 ### Option 1: Anaconda Development Environment
@@ -137,10 +135,10 @@ pip install -r requirements.txt
 
 To create a new Jupyter Kernel specifically for this environment, execute the following command:
 ```bash
-python3 -m ipykernel install --user --name python-cadlabs-eth-model --display-name "Python (CADLabs Ethereum Economic Model)"
+python3 -m ipykernel install --user --name python-cadlabs-eth-model --display-name "Python (cLabs Mento2)"
 ```
 
-You'll then be able to select the kernel with display name `Python (CADLabs Ethereum Economic Model)` to use for your notebook from within Jupyter.
+You'll then be able to select the kernel with display name `Python (cLabs Mento2)` to use for your notebook from within Jupyter.
 
 To start Jupyter Notebook or Lab (see notes about issues with [using Plotly with Jupyter Lab](#Known-Issues)):
 ```bash
@@ -159,7 +157,8 @@ make start-lab
 
 ### Option 3: Docker Development Environment
 
-Alternatively, you can set up your development environment using the pre-built Docker image with all the dependencies you need: [CADLabs Jupyter Lab Environment](https://github.com/CADLabs/jupyter-lab-environment)
+Not yet available for the Mento 2.0 model. 
+# Alternatively, you can set up your development environment using the pre-built Docker image with all the dependencies you need: [CADLabs Jupyter Lab Environment](https://github.com/CADLabs/jupyter-lab-environment)
 
 ### Known Issues
 
@@ -189,27 +188,32 @@ The [Experiment README notebook](experiments/notebooks/0_README.ipynb) contains 
 
 #### Notebook 1. Model Validation
 
-The purpose of this notebook is to recreate selected simulations from the widely acknowledged Hoban/Borgers Ethereum 2.0 Economic Model using the CADLabs model, and to compare the results. We suggest that the CADLabs model has a high degree of validity.
+Could potentially contain a backtest of a Mento 1.0 model against empirical data.
 
-#### Notebook 2. Validator Revenue and Profit Yields (Validator-level Analysis)
+#### Notebook 2. Stability Provider Analysis
 
-The purpose of this notebook is to explore the returns validators can expect from staking in the Ethereum protocol across different time horizons, adoption scenarios, ETH price scenarios and validator environments.
+The purpose of this notebook is to explore the risks & returns that stability providers can expect.
 
-* Analysis 1: Revenue and Profit Yields Over Time
-* Analysis 2: Revenue and Profit Yields Over ETH Staked
-* Analysis 3: Revenue and Profit Yields Over ETH Price
-* Analysis 4: Profit Yields Over ETH Staked vs. ETH Price (Yield Surface)
-* Analysis 5: Profit Yields By Validator Environment Over Time
+[comment]: <> (* Analysis 1: Revenue and Profit Yields Over Time)
 
-#### Notebook 3. Network Issuance and Inflation Rate (Network-level Analysis)
+[comment]: <> (* Analysis 2: Revenue and Profit Yields Over ETH Staked)
 
-The purpose of this notebook is to explore ETH issuance and the resulting annualized inflation rate across different time horizons and scenarios.
+[comment]: <> (* Analysis 3: Revenue and Profit Yields Over ETH Price)
 
-* Analysis: Inflation Rate and ETH Supply Over Time
+[comment]: <> (* Analysis 4: Profit Yields Over ETH Staked vs. ETH Price &#40;Yield Surface&#41;)
+
+[comment]: <> (* Analysis 5: Profit Yields By Validator Environment Over Time)
+
+#### Notebook 3. Arbitrage Provider Analysis
+
+The purpose of this notebook is to explore the risks & returns that arbitrage providers can expect.
+
+[comment]: <> (* Analysis: Inflation Rate and ETH Supply Over Time)
 
 ## Model Extension Roadmap
 
-The modular nature of the model makes structural and experiment-level extensions straightforward. The [Model Extension Roadmap](ROADMAP.md) provides some inspiration.
+Nothing here yet.
+[comment]: <> (The modular nature of the model makes structural and experiment-level extensions straightforward. The [Model Extension Roadmap]&#40;ROADMAP.md&#41; provides some inspiration.)
 
 ## Tests
 
@@ -233,67 +237,92 @@ See [CHANGELOG.md](CHANGELOG.md) for notable changes and versions.
 
 ## Acknowledgements
 
-* [Ethereum Ecosystem Support Program](https://esp.ethereum.foundation/en/) for sponsoring this work.
-* Barnabé Monnot and the Ethereum Robust Incentives Group for the invaluable guidance.
-* Lakshman Sankar and Danny Ryan for milestone reviews.
-* Tanner Hoban and Thomas Borgers for their extensive work on [Ethereum 2.0 Economic Review. July 16, 2020. "An Analysis of Ethereum’s Proof of Stake Incentive Model](https://drive.google.com/file/d/1pwt-EdnjhDLc_Mi2ydHus0_Cm14rs1Aq/view), which inspired many design decisions and assumptions we adopted, and the generous time spent on the phone with us. 
-* Other notable Ethereum Models (list not comprehensive):
-  * Barnabé Monnot's **BeaconRunner** model: https://github.com/barnabemonnot/beaconrunner
-  * Justin Drake's **Modelling Ultrasound Money**: https://www.pscp.tv/w/1LyxBdyOdMbGN?s=09, https://docs.google.com/spreadsheets/d/1ZN444__qkPWPjMJQ_t6FfqbhllkWNhHF-06ivRF73nQ/edit#gid=0, https://docs.google.com/spreadsheets/d/1TsrdbdusUop4NJbvjGBbOWTUwYH-Jgg1QBkQ5CtY_-k/edit#gid=0, https://docs.google.com/spreadsheets/d/1FslqTnECKvi7_l4x6lbyRhNtzW9f6CVEzwDf04zprfA/edit#gid=0  
-  * Pintail's **Beacon Chain Validator Rewards** model: https://pintail.xyz/posts/beacon-chain-validator-rewards/
-  * Flashbots **Eth2 Research** model - "Assessing the nature and impact of MEV in eth2.": https://github.com/flashbots/eth2-research
+This Mento 2.0 analysis is a fork of the [Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model). We actively try to stay as close as possible to the structure of the Ethereum Economic Model to make it easier for the broader community to follow our analysis.
+
+Since we borrow so heavily from previous work, we would like to thank:
+* [Ethereum Ecosystem Support Program](https://esp.ethereum.foundation/en/) for sponsoring the work on the Ethereum Economic Model and everyone who contributed to it..
 
 ## Contributors ✨
 
-Thanks goes to these wonderful contributors (see [emoji key](https://allcontributors.org/docs/en/emoji-key)):
+[comment]: <> (Thanks goes to these wonderful contributors &#40;see [emoji key]&#40;https://allcontributors.org/docs/en/emoji-key&#41;&#41;:)
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tr>
-    <td align="center"><a href="https://github.com/AntoineRondelet"><img src="https://avatars.githubusercontent.com/u/17513145?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Antoine Rondelet</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AAntoineRondelet" title="Reviewed Pull Requests">👀</a></td>
-    <td align="center"><a href="http://barnabemonnot.com"><img src="https://avatars.githubusercontent.com/u/4910325?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Barnabé Monnot</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=barnabemonnot" title="Code">💻</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Abarnabemonnot" title="Reviewed Pull Requests">👀</a> <a href="#ideas-barnabemonnot" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="http://bitsofether.com"><img src="https://avatars.githubusercontent.com/u/13078998?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benjamin Scholtz</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=BenSchZA" title="Code">💻</a> <a href="#infra-BenSchZA" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3ABenSchZA" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=BenSchZA" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3ABenSchZA" title="Bug reports">🐛</a> <a href="#ideas-BenSchZA" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="http://danlessa.github.io/"><img src="https://avatars.githubusercontent.com/u/15021144?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Danillo Lessa Bernardineli</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Adanlessa" title="Reviewed Pull Requests">👀</a> <a href="#ideas-danlessa" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="https://github.com/JGBSci"><img src="https://avatars.githubusercontent.com/u/35999312?v=4?s=100" width="100px;" alt=""/><br /><sub><b>JGBSci</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=JGBSci" title="Code">💻</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AJGBSci" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=JGBSci" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3AJGBSci" title="Bug reports">🐛</a> <a href="#ideas-JGBSci" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="https://joranhonig.nl"><img src="https://avatars.githubusercontent.com/u/8710366?v=4?s=100" width="100px;" alt=""/><br /><sub><b>JoranHonig</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AJoranHonig" title="Reviewed Pull Requests">👀</a></td>
-    <td align="center"><a href="https://github.com/rogervs"><img src="https://avatars.githubusercontent.com/u/4959125?v=4?s=100" width="100px;" alt=""/><br /><sub><b>RogerVs</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=rogervs" title="Code">💻</a> <a href="#infra-rogervs" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Arogervs" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=rogervs" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3Arogervs" title="Bug reports">🐛</a> <a href="#ideas-rogervs" title="Ideas, Planning, & Feedback">🤔</a></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="https://github.com/nardleram"><img src="https://avatars.githubusercontent.com/u/18208637?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Toby Russell</b></sub></a><br /><a href="#content-nardleram" title="Content">🖋</a></td>
-    <td align="center"><a href="https://marthendalnunes.github.io/"><img src="https://avatars.githubusercontent.com/u/18421017?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vitor Marthendal Nunes</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=marthendalnunes" title="Code">💻</a> <a href="#infra-marthendalnunes" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Amarthendalnunes" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=marthendalnunes" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3Amarthendalnunes" title="Bug reports">🐛</a> <a href="#ideas-marthendalnunes" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="https://github.com/carlwafe"><img src="https://avatars.githubusercontent.com/u/87176407?v=4?s=100" width="100px;" alt=""/><br /><sub><b>carlwafe</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Acarlwafe" title="Reviewed Pull Requests">👀</a></td>
-    <td align="center"><a href="https://github.com/casparschwa"><img src="https://avatars.githubusercontent.com/u/31305984?v=4?s=100" width="100px;" alt=""/><br /><sub><b>casparschwa</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Acasparschwa" title="Reviewed Pull Requests">👀</a></td>
-    <td align="center"><a href="http://clayming.space"><img src="https://avatars.githubusercontent.com/u/3201174?v=4?s=100" width="100px;" alt=""/><br /><sub><b>witwiki</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Awitwiki" title="Reviewed Pull Requests">👀</a></td>
-  </tr>
-</table>
+[comment]: <> (<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->)
 
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
+[comment]: <> (<!-- prettier-ignore-start -->)
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+[comment]: <> (<!-- markdownlint-disable -->)
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+[comment]: <> (<table>)
+
+[comment]: <> (  <tr>)
+
+[comment]: <> (    <td align="center"><a href="https://github.com/AntoineRondelet"><img src="https://avatars.githubusercontent.com/u/17513145?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Antoine Rondelet</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AAntoineRondelet" title="Reviewed Pull Requests">👀</a></td>)
+
+[comment]: <> (    <td align="center"><a href="http://barnabemonnot.com"><img src="https://avatars.githubusercontent.com/u/4910325?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Barnabé Monnot</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=barnabemonnot" title="Code">💻</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Abarnabemonnot" title="Reviewed Pull Requests">👀</a> <a href="#ideas-barnabemonnot" title="Ideas, Planning, & Feedback">🤔</a></td>)
+
+[comment]: <> (    <td align="center"><a href="http://bitsofether.com"><img src="https://avatars.githubusercontent.com/u/13078998?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benjamin Scholtz</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=BenSchZA" title="Code">💻</a> <a href="#infra-BenSchZA" title="Infrastructure &#40;Hosting, Build-Tools, etc&#41;">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3ABenSchZA" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=BenSchZA" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3ABenSchZA" title="Bug reports">🐛</a> <a href="#ideas-BenSchZA" title="Ideas, Planning, & Feedback">🤔</a></td>)
+
+[comment]: <> (    <td align="center"><a href="http://danlessa.github.io/"><img src="https://avatars.githubusercontent.com/u/15021144?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Danillo Lessa Bernardineli</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Adanlessa" title="Reviewed Pull Requests">👀</a> <a href="#ideas-danlessa" title="Ideas, Planning, & Feedback">🤔</a></td>)
+
+[comment]: <> (    <td align="center"><a href="https://github.com/JGBSci"><img src="https://avatars.githubusercontent.com/u/35999312?v=4?s=100" width="100px;" alt=""/><br /><sub><b>JGBSci</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=JGBSci" title="Code">💻</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AJGBSci" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=JGBSci" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3AJGBSci" title="Bug reports">🐛</a> <a href="#ideas-JGBSci" title="Ideas, Planning, & Feedback">🤔</a></td>)
+
+[comment]: <> (    <td align="center"><a href="https://joranhonig.nl"><img src="https://avatars.githubusercontent.com/u/8710366?v=4?s=100" width="100px;" alt=""/><br /><sub><b>JoranHonig</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AJoranHonig" title="Reviewed Pull Requests">👀</a></td>)
+
+[comment]: <> (    <td align="center"><a href="https://github.com/rogervs"><img src="https://avatars.githubusercontent.com/u/4959125?v=4?s=100" width="100px;" alt=""/><br /><sub><b>RogerVs</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=rogervs" title="Code">💻</a> <a href="#infra-rogervs" title="Infrastructure &#40;Hosting, Build-Tools, etc&#41;">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Arogervs" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=rogervs" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3Arogervs" title="Bug reports">🐛</a> <a href="#ideas-rogervs" title="Ideas, Planning, & Feedback">🤔</a></td>)
+
+[comment]: <> (  </tr>)
+
+[comment]: <> (  <tr>)
+
+[comment]: <> (    <td align="center"><a href="https://github.com/nardleram"><img src="https://avatars.githubusercontent.com/u/18208637?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Toby Russell</b></sub></a><br /><a href="#content-nardleram" title="Content">🖋</a></td>)
+
+[comment]: <> (    <td align="center"><a href="https://marthendalnunes.github.io/"><img src="https://avatars.githubusercontent.com/u/18421017?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vitor Marthendal Nunes</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=marthendalnunes" title="Code">💻</a> <a href="#infra-marthendalnunes" title="Infrastructure &#40;Hosting, Build-Tools, etc&#41;">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Amarthendalnunes" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=marthendalnunes" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3Amarthendalnunes" title="Bug reports">🐛</a> <a href="#ideas-marthendalnunes" title="Ideas, Planning, & Feedback">🤔</a></td>)
+
+[comment]: <> (    <td align="center"><a href="https://github.com/carlwafe"><img src="https://avatars.githubusercontent.com/u/87176407?v=4?s=100" width="100px;" alt=""/><br /><sub><b>carlwafe</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Acarlwafe" title="Reviewed Pull Requests">👀</a></td>)
+
+[comment]: <> (    <td align="center"><a href="https://github.com/casparschwa"><img src="https://avatars.githubusercontent.com/u/31305984?v=4?s=100" width="100px;" alt=""/><br /><sub><b>casparschwa</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Acasparschwa" title="Reviewed Pull Requests">👀</a></td>)
+
+[comment]: <> (    <td align="center"><a href="http://clayming.space"><img src="https://avatars.githubusercontent.com/u/3201174?v=4?s=100" width="100px;" alt=""/><br /><sub><b>witwiki</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Awitwiki" title="Reviewed Pull Requests">👀</a></td>)
+
+[comment]: <> (  </tr>)
+
+[comment]: <> (</table>)
+
+[comment]: <> (<!-- markdownlint-restore -->)
+
+[comment]: <> (<!-- prettier-ignore-end -->)
+
+[comment]: <> (<!-- ALL-CONTRIBUTORS-LIST:END -->)
+
+[comment]: <> (This project follows the [all-contributors]&#40;https://github.com/all-contributors/all-contributors&#41; specification. Contributions of any kind welcome!)
 
 ## License
 
-The code repository `CADLabs/ethereum-economic-model` is licensed under the GNU General Public License v3.0.
+[comment]: <> (The code repository `CADLabs/ethereum-economic-model` is licensed under the GNU General Public License v3.0.)
 
-Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
+[comment]: <> (Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.)
 
-If you'd like to cite this code and/or research, we suggest the following format:
+[comment]: <> (If you'd like to cite this code and/or research, we suggest the following format:)
 
-> CADLabs, Ethereum Economic Model, (2021), GitHub repository, https://github.com/CADLabs/ethereum-economic-model
+[comment]: <> (> CADLabs, Ethereum Economic Model, &#40;2021&#41;, GitHub repository, https://github.com/CADLabs/ethereum-economic-model)
 
 ```latex
-@misc{CADLabs2021,
-  author = {CADLabs},
-  title = {Ethereum Economic Model},
-  year = {2021},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/CADLabs/ethereum-economic-model}},
-  version = {v1.1.7}
-}
+
+[comment]: <> (@misc{CADLabs2021,)
+
+[comment]: <> (  author = {CADLabs},)
+
+[comment]: <> (  title = {Ethereum Economic Model},)
+
+[comment]: <> (  year = {2021},)
+
+[comment]: <> (  publisher = {GitHub},)
+
+[comment]: <> (  journal = {GitHub repository},)
+
+[comment]: <> (  howpublished = {\url{https://github.com/CADLabs/ethereum-economic-model}},)
+
+[comment]: <> (  version = {v1.1.7})
+
+[comment]: <> (})
 ```
