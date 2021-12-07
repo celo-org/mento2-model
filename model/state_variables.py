@@ -14,7 +14,7 @@ from datetime import datetime
 
 import model.constants as constants
 import data.api.beaconchain as beaconchain
-import data.api.etherscan as etherscan
+import data.api.celo_explorer as etherscan
 import model.system_parameters as system_parameters
 from model.system_parameters import validator_environments
 from model.types import (
