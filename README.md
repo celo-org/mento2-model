@@ -33,14 +33,14 @@ This repo features a cadCAD model for Mento2.0. The structure of this repo is he
 ### Model Features
 
 * Configurable to reflect protocol behaviour at different points in time of the development roadmap (referred to as "upgrade stages"):
-  * Post Beacon Chain launch, pre EIP-1559, pre PoS (validators receive PoS incentives, EIP-1559 disabled, and PoW still in operation)
-  * Post Beacon Chain launch, post EIP-1559, pre PoS (validators receive PoS incentives, EIP-1559 enabled with miners receiving priority fees, and PoW still in operation)
-  * Post Beacon Chain launch, post EIP-1559, post PoS (validators receive PoS incentives, EIP-1559 enabled with validators receiving priority fees, and PoW deprecated)
-* Flexible calculation granularity: By default, State Variables, System Metrics, and System Parameters are calculated at epoch level and aggregated daily (~= 225 epochs). Users can easily change epoch aggregation using the delta-time (`dt`) parameter. The model can be extended for slot-level granularity and analysis if that is desired (see [Model Extension Roadmap](#Model-Extension-Roadmap)).
+  * Exchange update?
+  * Reserve update?
+  * ...
+* Flexible calculation granularity: By default, State Variables, System Metrics, and System Parameters are calculated at block level and aggregated per epoch. Users can easily change epoch aggregation using the delta-time (`dt`) parameter. The model can be extended for slot-level granularity and analysis if that is desired (see [Model Extension Roadmap](#Model-Extension-Roadmap)).
 * Supports [state-space analysis](https://en.wikipedia.org/wiki/State-space_representation) (i.e. simulation of system state over time) and [phase-space analysis](https://en.wikipedia.org/wiki/Phase_space) (i.e. generation of all unique system states in a given experimental setup).
-* Customizable processes to set important variables such as ETH price, ETH staked, and EIP-1559 transaction pricing.
-* Modular model structure for convenient extension and modification. This allows different user groups to refactor the model for different purposes, rapidly test new incentive mechanisms, or update the model as Ethereum implements new protocol improvements.
-* References to official [Eth2 specs](https://github.com/ethereum/eth2.0-specs) in Policy and State Update Function logic. This enables seamless onboarding of protocol developers and allows the more advanced cadCAD user to dig into the underlying protocol design that inspired the logic.
+* Customizable processes to set important variables such as CELO price, CELO staked, and gas pricing.
+* Modular model structure for convenient extension and modification. This allows different user groups to refactor the model for different purposes, rapidly test new incentive mechanisms, or update the model as CELO implements new protocol improvements.
+* References to official [Mento 2.0 specs](https://github.com/still-to-be-created) in Policy and State Update Function logic. This enables seamless onboarding of protocol developers and allows the more advanced cadCAD user to dig into the underlying protocol design that inspired the logic.
 
 ### Directory Structure
 
@@ -61,11 +61,11 @@ The model is composed of several structural modules in the [model/parts/](model/
 
 | Module | Description |
 | --- | --- |
-| [ethereum_system.py](model/parts/ethereum_system.py) | General Ethereum mechanisms, such as managing the system upgrade process, the EIP-1559 transaction pricing mechanism, and updating the ETH price and ETH supply |
-| [pos_incentives.py](model/parts/pos_incentives.py) | Calculation of PoS incentives such as attestation and block proposal rewards and penalties |
-| [system_metrics.py](model/parts/system_metrics.py) | Calculation of metrics such as validator operational costs and yields |
-| [validators.py](model/parts/validators.py) | Validator processes such as validator activation, staking, and uptime |
-| [utils/ethereum_spec.py](model/parts/utils/ethereum_spec.py) | Relevant extracts from the official Eth2 spec |
+| [celo_system.py](model/parts/celo_system.py) | General CELO mechanisms, such as managing the system upgrade process, the gas pricing mechanism, and updating the CELO price and CELO supply |
+| [reserve.py](model/parts/reserve.py) | Calculation of the mechanics when interacting with the CELO reserve |
+| [system_metrics.py](model/parts/system_metrics.py) | Calculation of metrics such as stability provider rewards |
+| [stability_providers.py](model/parts/stability_providers.py) | Stability provider processes such as providing collateral and withdrawing collateral |
+| [utils/mento2_spec.py](model/parts/utils/mento2_spec.py) | Relevant extracts from the official Mento2.0 spec (when we have one) |
 
 #### Configuration Modules
 
@@ -73,7 +73,7 @@ The model is configured using several configuration modules in the [model/](mode
 
 | Module | Description |
 | --- | --- |
-| [constants.py](model/constants.py) | Constants used in the model, e.g. number of epochs in a year, Gwei in 1 Ether |
+| [constants.py](model/constants.py) | Constants used in the model, e.g. number of blocks per epoch, Gwei in 1 CELO |
 | [state_update_blocks.py](model/state_update_blocks.py) | cadCAD model State Update Block structure, composed of Policy and State Update Functions |
 | [state_variables.py](model/state_variables.py) | Model State Variable definition, configuration, and defaults |
 | [stochastic_processes.py](model/stochastic_processes.py) | Helper functions to generate stochastic environmental processes |
@@ -240,71 +240,17 @@ See [CHANGELOG.md](CHANGELOG.md) for notable changes and versions.
 This Mento 2.0 analysis is a fork of the [Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model). We actively try to stay as close as possible to the structure of the Ethereum Economic Model to make it easier for the broader community to follow our analysis.
 
 Since we borrow so heavily from previous work, we would like to thank:
-* [Ethereum Ecosystem Support Program](https://esp.ethereum.foundation/en/) for sponsoring the work on the Ethereum Economic Model and everyone who contributed to it..
+* [Ethereum Ecosystem Support Program](https://esp.ethereum.foundation/en/) for sponsoring the work on the Ethereum Economic Model and everyone who contributed to it.
 
 ## Contributors ✨
 
-[comment]: <> (Thanks goes to these wonderful contributors &#40;see [emoji key]&#40;https://allcontributors.org/docs/en/emoji-key&#41;&#41;:)
-
-[comment]: <> (<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->)
-
-[comment]: <> (<!-- prettier-ignore-start -->)
-
-[comment]: <> (<!-- markdownlint-disable -->)
-
-[comment]: <> (<table>)
-
-[comment]: <> (  <tr>)
-
-[comment]: <> (    <td align="center"><a href="https://github.com/AntoineRondelet"><img src="https://avatars.githubusercontent.com/u/17513145?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Antoine Rondelet</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AAntoineRondelet" title="Reviewed Pull Requests">👀</a></td>)
-
-[comment]: <> (    <td align="center"><a href="http://barnabemonnot.com"><img src="https://avatars.githubusercontent.com/u/4910325?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Barnabé Monnot</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=barnabemonnot" title="Code">💻</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Abarnabemonnot" title="Reviewed Pull Requests">👀</a> <a href="#ideas-barnabemonnot" title="Ideas, Planning, & Feedback">🤔</a></td>)
-
-[comment]: <> (    <td align="center"><a href="http://bitsofether.com"><img src="https://avatars.githubusercontent.com/u/13078998?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benjamin Scholtz</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=BenSchZA" title="Code">💻</a> <a href="#infra-BenSchZA" title="Infrastructure &#40;Hosting, Build-Tools, etc&#41;">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3ABenSchZA" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=BenSchZA" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3ABenSchZA" title="Bug reports">🐛</a> <a href="#ideas-BenSchZA" title="Ideas, Planning, & Feedback">🤔</a></td>)
-
-[comment]: <> (    <td align="center"><a href="http://danlessa.github.io/"><img src="https://avatars.githubusercontent.com/u/15021144?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Danillo Lessa Bernardineli</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Adanlessa" title="Reviewed Pull Requests">👀</a> <a href="#ideas-danlessa" title="Ideas, Planning, & Feedback">🤔</a></td>)
-
-[comment]: <> (    <td align="center"><a href="https://github.com/JGBSci"><img src="https://avatars.githubusercontent.com/u/35999312?v=4?s=100" width="100px;" alt=""/><br /><sub><b>JGBSci</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=JGBSci" title="Code">💻</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AJGBSci" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=JGBSci" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3AJGBSci" title="Bug reports">🐛</a> <a href="#ideas-JGBSci" title="Ideas, Planning, & Feedback">🤔</a></td>)
-
-[comment]: <> (    <td align="center"><a href="https://joranhonig.nl"><img src="https://avatars.githubusercontent.com/u/8710366?v=4?s=100" width="100px;" alt=""/><br /><sub><b>JoranHonig</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3AJoranHonig" title="Reviewed Pull Requests">👀</a></td>)
-
-[comment]: <> (    <td align="center"><a href="https://github.com/rogervs"><img src="https://avatars.githubusercontent.com/u/4959125?v=4?s=100" width="100px;" alt=""/><br /><sub><b>RogerVs</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=rogervs" title="Code">💻</a> <a href="#infra-rogervs" title="Infrastructure &#40;Hosting, Build-Tools, etc&#41;">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Arogervs" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=rogervs" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3Arogervs" title="Bug reports">🐛</a> <a href="#ideas-rogervs" title="Ideas, Planning, & Feedback">🤔</a></td>)
-
-[comment]: <> (  </tr>)
-
-[comment]: <> (  <tr>)
-
-[comment]: <> (    <td align="center"><a href="https://github.com/nardleram"><img src="https://avatars.githubusercontent.com/u/18208637?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Toby Russell</b></sub></a><br /><a href="#content-nardleram" title="Content">🖋</a></td>)
-
-[comment]: <> (    <td align="center"><a href="https://marthendalnunes.github.io/"><img src="https://avatars.githubusercontent.com/u/18421017?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vitor Marthendal Nunes</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=marthendalnunes" title="Code">💻</a> <a href="#infra-marthendalnunes" title="Infrastructure &#40;Hosting, Build-Tools, etc&#41;">🚇</a> <a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Amarthendalnunes" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/CADLabs/ethereum-economic-model/commits?author=marthendalnunes" title="Documentation">📖</a> <a href="https://github.com/CADLabs/ethereum-economic-model/issues?q=author%3Amarthendalnunes" title="Bug reports">🐛</a> <a href="#ideas-marthendalnunes" title="Ideas, Planning, & Feedback">🤔</a></td>)
-
-[comment]: <> (    <td align="center"><a href="https://github.com/carlwafe"><img src="https://avatars.githubusercontent.com/u/87176407?v=4?s=100" width="100px;" alt=""/><br /><sub><b>carlwafe</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Acarlwafe" title="Reviewed Pull Requests">👀</a></td>)
-
-[comment]: <> (    <td align="center"><a href="https://github.com/casparschwa"><img src="https://avatars.githubusercontent.com/u/31305984?v=4?s=100" width="100px;" alt=""/><br /><sub><b>casparschwa</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Acasparschwa" title="Reviewed Pull Requests">👀</a></td>)
-
-[comment]: <> (    <td align="center"><a href="http://clayming.space"><img src="https://avatars.githubusercontent.com/u/3201174?v=4?s=100" width="100px;" alt=""/><br /><sub><b>witwiki</b></sub></a><br /><a href="https://github.com/CADLabs/ethereum-economic-model/pulls?q=is%3Apr+reviewed-by%3Awitwiki" title="Reviewed Pull Requests">👀</a></td>)
-
-[comment]: <> (  </tr>)
-
-[comment]: <> (</table>)
-
-[comment]: <> (<!-- markdownlint-restore -->)
-
-[comment]: <> (<!-- prettier-ignore-end -->)
-
-[comment]: <> (<!-- ALL-CONTRIBUTORS-LIST:END -->)
-
-[comment]: <> (This project follows the [all-contributors]&#40;https://github.com/all-contributors/all-contributors&#41; specification. Contributions of any kind welcome!)
-
 ## License
+Needs to be updated to account for Mento 2.0 fork!
 
-[comment]: <> (The code repository `CADLabs/ethereum-economic-model` is licensed under the GNU General Public License v3.0.)
-
-[comment]: <> (Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.)
-
-[comment]: <> (If you'd like to cite this code and/or research, we suggest the following format:)
-
-[comment]: <> (> CADLabs, Ethereum Economic Model, &#40;2021&#41;, GitHub repository, https://github.com/CADLabs/ethereum-economic-model)
+The code repository `CADLabs/ethereum-economic-model` is licensed under the GNU General Public License v3.0.
+Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
+If you'd like to cite this code and/or research, we suggest the following format:
+> CADLabs, Ethereum Economic Model, (2021), GitHub repository, https://github.com/CADLabs/ethereum-economic-model
 
 ```latex
 

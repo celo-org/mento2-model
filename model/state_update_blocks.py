@@ -2,10 +2,10 @@
 cadCAD model State Update Block structure, composed of Policy and State Update Functions
 """
 
-import model.parts.ethereum_system as ethereum
-import model.parts.pos_incentives as incentives
+import model.parts.celo_system as ethereum
+import model.parts.reserve as incentives
 import model.parts.system_metrics as metrics
-import model.parts.validators as validators
+import model.parts.stability_providers as validators
 from model.system_parameters import parameters
 from model.utils import update_from_signal
 
