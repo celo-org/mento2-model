@@ -20,7 +20,7 @@ from model.system_parameters import validator_environments
 from model.types import (
     Gwei,
     Gwei_per_Gas,
-    ETH,
+    CELO,
     USD,
     USD_per_ETH,
     Percentage,
@@ -34,10 +34,10 @@ number_of_validator_environments = len(validator_environments)
 
 # Initial state from external live data source, setting a default in case API call fails
 number_of_active_validators: int = beaconchain.get_validators_count(default=156_250)
-eth_staked: ETH = (
+eth_staked: CELO = (
     beaconchain.get_total_validator_balance(default=5_000_000e9) / constants.gwei
 )
-eth_supply: ETH = etherscan.get_eth_supply(default=116_250_000e18) / constants.wei
+eth_supply: CELO = etherscan.get_eth_supply(default=116_250_000e18) / constants.wei
 
 
 @dataclass
@@ -62,17 +62,17 @@ class StateVariables:
 
     # Ethereum state variables
     eth_price: USD_per_ETH = eth_price_mean
-    """The ETH spot price"""
-    eth_supply: ETH = eth_supply
-    """The total ETH supply"""
-    eth_staked: ETH = eth_staked
-    """The total ETH staked as part of the Proof of Stake system"""
+    """The CELO spot price"""
+    eth_supply: CELO = eth_supply
+    """The total CELO supply"""
+    eth_staked: CELO = eth_staked
+    """The total CELO staked as part of the Proof of Stake system"""
     supply_inflation: Percentage = 0
-    """The annualized ETH supply inflation rate"""
-    network_issuance: ETH = 0
-    """The total network issuance in ETH"""
-    pow_issuance: ETH = 0
-    """The total Proof of Work issuance in ETH"""
+    """The annualized CELO supply inflation rate"""
+    network_issuance: CELO = 0
+    """The total network issuance in CELO"""
+    pow_issuance: CELO = 0
+    """The total Proof of Work issuance in CELO"""
 
     # Validator state variables
     number_of_validators_in_activation_queue: int = 0
@@ -131,16 +131,16 @@ class StateVariables:
     """"The total priority fee to validators post Proof-of-Stake for all transactions included in blockspace"""
 
     # Maximum Extractable Value (MEV) state variables
-    total_realized_mev_to_miners: ETH = 0
+    total_realized_mev_to_miners: CELO = 0
     """The total realized MEV to miners pre Proof-of-Stake"""
-    total_realized_mev_to_validators: ETH = 0
+    total_realized_mev_to_validators: CELO = 0
     """The total realized MEV to validators post Proof-of-Stake"""
 
     # System metric state variables
     validator_eth_staked: np.ndarray = np.zeros(
         (number_of_validator_environments, 1), dtype=int
     )
-    """The ETH staked per validator environment"""
+    """The CELO staked per validator environment"""
     validator_revenue: np.ndarray = np.zeros(
         (number_of_validator_environments, 1), dtype=int
     )

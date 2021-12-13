@@ -28,7 +28,7 @@ Gas = int
 Wei = int
 Gwei = float
 Gwei_per_Gas = float
-ETH = float
+CELO = float
 
 
 class Stage(Enum):

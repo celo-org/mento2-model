@@ -22,7 +22,7 @@ from model.types import (
     Gwei,
     Gas,
     Gwei_per_Gas,
-    ETH,
+    CELO,
     USD_per_epoch,
     Percentage_per_epoch,
     ValidatorEnvironment,
@@ -31,12 +31,6 @@ from model.types import (
     Epoch,
     Stage,
 )
-from model.utils import default
-from data.historical_values import (
-    eth_price_mean,
-    eth_block_rewards_mean,
-)
-from data.api import subgraph
 
 
 mean_validator_deposits_per_epoch = (
@@ -188,25 +182,25 @@ class Parameters:
     """
 
     # Environmental processes
-    eth_price_process: List[Callable[[Run, Timestep], ETH]] = default(
+    eth_price_process: List[Callable[[Run, Timestep], CELO]] = default(
         [lambda _run, _timestep: eth_price_mean]
     )
     """
-    A process that returns the ETH spot price at each epoch.
+    A process that returns the CELO spot price at each epoch.
     
-    By default set to average ETH price over the last 12 months from Etherscan.
+    By default set to average CELO price over the last 12 months from Etherscan.
     """
 
-    eth_staked_process: List[Callable[[Run, Timestep], ETH]] = default(
+    eth_staked_process: List[Callable[[Run, Timestep], CELO]] = default(
         [lambda _run, _timestep: None]
     )
     """
-    A process that returns the ETH staked at each epoch.
+    A process that returns the CELO staked at each epoch.
 
     If set to `none`, the model is driven by the validator process,
     where new validators enter the system and stake accordingly.
 
-    This process is used for simulating a series of ETH staked values directly.
+    This process is used for simulating a series of CELO staked values directly.
     """
 
     validator_process: List[Callable[[Run, Timestep], int]] = default(
@@ -228,14 +222,14 @@ class Parameters:
     """
 
     # Ethereum system parameters
-    daily_pow_issuance: List[ETH] = default([eth_block_rewards_mean])
+    daily_pow_issuance: List[CELO] = default([eth_block_rewards_mean])
     """
-    The average daily Proof-of-Work issuance in ETH.
+    The average daily Proof-of-Work issuance in CELO.
 
     See https://etherscan.io/chart/blockreward
     """
 
-    mev_per_block: List[ETH] = default([0])
+    mev_per_block: List[CELO] = default([0])
     """
     By default the realized Maximum Extractable Value (MEV) per block is set to zero
     to only consider the influence of Proof-of-Stake (PoS) incentives on validator yields.
@@ -265,7 +259,7 @@ class Parameters:
     A validators effective balance is used to calculate incentives, and for voting,
     and is a value less than the total stake/balance.
 
-    The max effective balance of a validator is 32 ETH.
+    The max effective balance of a validator is 32 CELO.
     """
     EFFECTIVE_BALANCE_INCREMENT: List[Gwei] = default([1 * constants.gwei])
     """

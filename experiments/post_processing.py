@@ -61,7 +61,7 @@ def post_process(df: pd.DataFrame, drop_timestep_zero=True, parameters=parameter
     # Calculate revenue-profit yield spread
     df['revenue_profit_yield_spread_pct'] = df['total_revenue_yields_pct'] - df['total_profit_yields_pct']
 
-    # Convert validator rewards from Gwei to ETH
+    # Convert validator rewards from Gwei to CELO
     validator_rewards = [
         'validating_rewards',
         'validating_penalties',
@@ -76,7 +76,7 @@ def post_process(df: pd.DataFrame, drop_timestep_zero=True, parameters=parameter
     ]
     df[[reward + '_eth' for reward in validator_rewards]] = df[validator_rewards] / constants.gwei
 
-    # Convert validator penalties from Gwei to ETH
+    # Convert validator penalties from Gwei to CELO
     validator_penalties = ['validating_penalties', 'amount_slashed']
     df[[penalty + '_eth' for penalty in validator_penalties]] = df[validator_penalties] / constants.gwei
 

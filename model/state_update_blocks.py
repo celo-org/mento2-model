@@ -23,8 +23,8 @@ state_update_block_stages = {
 state_update_block_ethereum = {
     "description": """
         Environmental Ethereum processes:
-        * ETH price update
-        * Staking of ETH for new validators
+        * CELO price update
+        * Staking of CELO for new validators
     """,
     "policies": {
         "staking": validators.policy_staking,
@@ -239,7 +239,7 @@ _state_update_blocks = [
 
 # Conditionally update the order of the State Update Blocks using a ternary operator
 _state_update_blocks = (
-    # If driving with environmental ETH staked process, structure as follows:
+    # If driving with environmental CELO staked process, structure as follows:
     [
         state_update_block_stages,
         state_update_block_ethereum,
@@ -247,7 +247,7 @@ _state_update_blocks = (
     ]
     + _state_update_blocks
     if parameters["eth_staked_process"][0](0, 0) is not None
-    # Otherwise, if driving with validator adoption (implied ETH staked) process, switch Ethereum and validator blocks:
+    # Otherwise, if driving with validator adoption (implied CELO staked) process, switch Ethereum and validator blocks:
     else [
         state_update_block_stages,
         state_update_block_validators,

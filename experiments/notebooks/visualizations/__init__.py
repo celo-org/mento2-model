@@ -32,9 +32,9 @@ validator_environment_name_mapping = {
 
 legend_state_variable_name_mapping = {
     "timestamp": "Date",
-    "eth_price": "ETH Price",
-    "eth_staked": "ETH Staked",
-    "eth_supply": "ETH Supply",
+    "eth_price": "CELO Price",
+    "eth_staked": "CELO Staked",
+    "eth_supply": "CELO Supply",
     "source_reward_eth": "Source Reward",
     "target_reward_eth": "Target Reward",
     "head_reward_eth": "Head Reward",
@@ -42,7 +42,7 @@ legend_state_variable_name_mapping = {
     "sync_reward_eth": "Sync Reward",
     "total_priority_fee_to_validators_eth": "Priority Fees",
     "total_realized_mev_to_validators": "Realized MEV",
-    "supply_inflation_pct": "ETH Supply inflation",
+    "supply_inflation_pct": "CELO Supply inflation",
     "total_revenue_yields_pct": "Total Revenue Yields",
     "total_profit_yields_pct": "Total Profit Yields",
     "revenue_profit_yield_spread_pct": "Revenue/Profit Yield Spread",
@@ -59,9 +59,9 @@ legend_state_variable_name_mapping = {
 
 axis_state_variable_name_mapping = {
     **legend_state_variable_name_mapping,
-    "eth_price": "ETH Price (USD/ETH)",
-    "eth_staked": "ETH Staked (ETH)",
-    "eth_supply": "ETH Supply (ETH)",
+    "eth_price": "CELO Price (USD/CELO)",
+    "eth_staked": "CELO Staked (CELO)",
+    "eth_supply": "CELO Supply (CELO)",
 }
 
 millnames = ["", " k", " m", " bn", " tn"]
@@ -177,7 +177,7 @@ def plot_validating_rewards(df, subplot_titles=[]):
     fig.update_layout(
         title="Validating Rewards",
         xaxis_title="Date",
-        yaxis_title="Reward (ETH)",
+        yaxis_title="Reward (CELO)",
         legend_title="",
     )
 
@@ -220,7 +220,7 @@ def plot_validator_incentives_pie_chart(df):
     fig.update_layout(
         title=title,
         xaxis_title="Date",
-        yaxis_title="Reward (ETH)",
+        yaxis_title="Reward (CELO)",
         height=600,
         showlegend=False,
     )
@@ -248,7 +248,7 @@ def plot_revenue_profit_yields_over_eth_staked(df):
         go.Scatter(
             x=df_subset_0.eth_staked,
             y=df_subset_0.total_profit_yields_pct,
-            name=f"Profit Yields @ {df_subset_0.eth_price.iloc[0]:.0f} USD/ETH",
+            name=f"Profit Yields @ {df_subset_0.eth_price.iloc[0]:.0f} USD/CELO",
             line=dict(color=cadlabs_colorway_sequence[4], dash="dash"),
         ),
     )
@@ -257,7 +257,7 @@ def plot_revenue_profit_yields_over_eth_staked(df):
         go.Scatter(
             x=df_subset_1.eth_staked,
             y=df_subset_1.total_profit_yields_pct,
-            name=f"Profit Yields @ {df_subset_1.eth_price.iloc[0]:.0f} USD/ETH",
+            name=f"Profit Yields @ {df_subset_1.eth_price.iloc[0]:.0f} USD/CELO",
             line=dict(color=cadlabs_colorway_sequence[5], dash="dash"),
         ),
     )
@@ -265,8 +265,8 @@ def plot_revenue_profit_yields_over_eth_staked(df):
     update_legend_names(fig)
 
     fig.update_layout(
-        title="Revenue and Profit Yields Over ETH Staked",
-        xaxis_title="ETH Staked (ETH)",
+        title="Revenue and Profit Yields Over CELO Staked",
+        xaxis_title="CELO Staked (CELO)",
         # yaxis_title="",
         legend_title="",
     )
@@ -286,7 +286,7 @@ def plot_revenue_profit_yields_over_eth_price(df):
         go.Scatter(
             x=df.eth_price,
             y=df.total_revenue_yields_pct,
-            name=f"Revenue Yields @ ({millify(df.eth_staked.iloc[0])} ETH Staked)",
+            name=f"Revenue Yields @ ({millify(df.eth_staked.iloc[0])} CELO Staked)",
             line=dict(color=cadlabs_colorway_sequence[3]),
         )
     )
@@ -295,7 +295,7 @@ def plot_revenue_profit_yields_over_eth_price(df):
         go.Scatter(
             x=df.eth_price,
             y=df.total_profit_yields_pct,
-            name=f"Profit Yields @ ({millify(df.eth_staked.iloc[0])} ETH Staked)",
+            name=f"Profit Yields @ ({millify(df.eth_staked.iloc[0])} CELO Staked)",
             line=dict(color=cadlabs_colorway_sequence[4], dash="dash"),
         ),
     )
@@ -303,8 +303,8 @@ def plot_revenue_profit_yields_over_eth_price(df):
     update_legend_names(fig)
 
     fig.update_layout(
-        title="Revenue and Profit Yields Over ETH Price",
-        xaxis_title="ETH Price (USD/ETH)",
+        title="Revenue and Profit Yields Over CELO Price",
+        xaxis_title="CELO Price (USD/CELO)",
         # yaxis_title="",
         legend_title="",
     )
@@ -331,18 +331,18 @@ def plot_validator_environment_yields(df):
 
     fig.for_each_annotation(
         lambda a: a.update(
-            text=f"ETH Staked = {df.query(f'subset == {a.text.split(chr(61))[1]}').eth_staked.iloc[0]:.0f} ETH"
+            text=f"CELO Staked = {df.query(f'subset == {a.text.split(chr(61))[1]}').eth_staked.iloc[0]:.0f} CELO"
         )
     )
 
     fig.update_layout(
         title=f"Profit Yields of Validator Environments",
-        xaxis_title="ETH Price (USD/ETH)",
+        xaxis_title="CELO Price (USD/CELO)",
         yaxis_title="Profit Yields (%/year)",
         legend_title="",
     )
 
-    fig.for_each_xaxis(lambda x: x["title"].update({"text": "ETH Price (USD/ETH)"}))
+    fig.for_each_xaxis(lambda x: x["title"].update({"text": "CELO Price (USD/CELO)"}))
     fig.update_yaxes(matches=None)
     fig.update_yaxes(showticklabels=True)
 
@@ -384,8 +384,8 @@ def plot_three_region_yield_analysis(fig_df):
     update_legend_names(fig)
 
     fig.update_layout(
-        title=f"Three Region Yield Analysis @ {millify(fig_df.eth_staked.iloc[0])} ETH Staked",
-        xaxis_title="ETH Price (USD/ETH)",
+        title=f"Three Region Yield Analysis @ {millify(fig_df.eth_staked.iloc[0])} CELO Staked",
+        xaxis_title="CELO Price (USD/CELO)",
         yaxis_title="Revenue Yields (%/year)",
         legend_title="",
     )
@@ -414,7 +414,7 @@ def plot_revenue_yields_vs_network_inflation(df):
         go.Scatter(
             x=df_subset_0.eth_staked,
             y=df_subset_0.total_profit_yields_pct,
-            name=f"Profit Yields @ {df_subset_0.eth_price.iloc[0]} USD/ETH",
+            name=f"Profit Yields @ {df_subset_0.eth_price.iloc[0]} USD/CELO",
         ),
         secondary_y=False,
     )
@@ -423,7 +423,7 @@ def plot_revenue_yields_vs_network_inflation(df):
         go.Scatter(
             x=df_subset_1.eth_staked,
             y=df_subset_1.total_profit_yields_pct,
-            name=f"Profit Yields @ {df_subset_1.eth_price.iloc[0]} USD/ETH",
+            name=f"Profit Yields @ {df_subset_1.eth_price.iloc[0]} USD/CELO",
         ),
         secondary_y=False,
     )
@@ -441,7 +441,7 @@ def plot_revenue_yields_vs_network_inflation(df):
 
     fig.update_layout(
         title="Revenue Yields vs. Network Inflation",
-        xaxis_title="ETH Staked (ETH)",
+        xaxis_title="CELO Staked (CELO)",
         # yaxis_title="",
         legend_title="",
     )
@@ -487,9 +487,9 @@ def plot_validator_environment_yield_contour(df):
     update_legend_names(fig)
 
     fig.update_layout(
-        title="Profit Yields Over ETH Price vs. ETH Staked",
-        xaxis_title="ETH Price (USD/ETH)",
-        yaxis_title="ETH Staked (ETH)",
+        title="Profit Yields Over CELO Price vs. CELO Staked",
+        xaxis_title="CELO Price (USD/CELO)",
+        yaxis_title="CELO Staked (CELO)",
         width=1000,
         legend_title="",
         autosize=False,
@@ -539,9 +539,9 @@ def plot_revenue_profit_yield_spread(df):
     update_legend_names(fig)
 
     fig.update_layout(
-        title="Revenue/Profit Yield Spread Over ETH Price vs. ETH Staked",
-        xaxis_title="ETH Price (USD/ETH)",
-        yaxis_title="ETH Staked (ETH)",
+        title="Revenue/Profit Yield Spread Over CELO Price vs. CELO Staked",
+        xaxis_title="CELO Price (USD/CELO)",
+        yaxis_title="CELO Staked (CELO)",
         width=1000,
         legend_title="",
         autosize=False,
@@ -585,16 +585,16 @@ def plot_validator_environment_yield_surface(df):
     update_legend_names(fig)
 
     fig.update_layout(
-        title="Profit Yields Over ETH Price vs. ETH Staked",
+        title="Profit Yields Over CELO Price vs. CELO Staked",
         autosize=False,
         legend_title="",
         margin=dict(l=65, r=50, b=65, t=90),
         scene={
             "xaxis": {
-                "title": {"text": "ETH Price (USD/ETH)"},
+                "title": {"text": "CELO Price (USD/CELO)"},
                 "type": "log",
             },
-            "yaxis": {"title": {"text": "ETH Staked (ETH)"}},
+            "yaxis": {"title": {"text": "CELO Staked (CELO)"}},
             "zaxis": {"title": {"text": "Profit Yields (%/year)"}},
         },
     )
@@ -721,7 +721,7 @@ def plot_eth_supply_over_all_stages(df):
     fig = go.Figure()
 
     fig.add_trace(
-        go.Scatter(x=df.timestamp, y=df.eth_supply, name="ETH Supply"),
+        go.Scatter(x=df.timestamp, y=df.eth_supply, name="CELO Supply"),
     )
 
     fig_add_stage_markers(df, "eth_supply", fig)
@@ -733,9 +733,9 @@ def plot_eth_supply_over_all_stages(df):
     update_legend_names(fig)
 
     fig.update_layout(
-        title="ETH Supply Over Time",
+        title="CELO Supply Over Time",
         xaxis_title="Date",
-        yaxis_title="ETH Supply (ETH)",
+        yaxis_title="CELO Supply (CELO)",
         legend_title="",
     )
 
@@ -769,7 +769,7 @@ def plot_eth_supply_and_inflation(df_historical, df_simulated, parameters=parame
         go.Scatter(
             x=df_historical.timestamp,
             y=df_historical.eth_supply,
-            name="Historical ETH Supply",
+            name="Historical CELO Supply",
             line=dict(color="#3283FE"),
             legendgroup="historical",
         ),
@@ -794,7 +794,7 @@ def plot_eth_supply_and_inflation(df_historical, df_simulated, parameters=parame
             go.Scatter(
                 x=df_subset.timestamp,
                 y=df_subset.eth_supply,
-                name="Simulated ETH Supply",
+                name="Simulated CELO Supply",
                 line=dict(color="#3283FE", dash="dot"),
                 showlegend=(True if subset == 0 else False),
                 legendgroup="simulated",
@@ -848,7 +848,7 @@ def plot_eth_supply_and_inflation(df_historical, df_simulated, parameters=parame
 
     fig.update_layout(
         xaxis_title="Date",
-        title="ETH Supply Simulator",
+        title="CELO Supply Simulator",
         legend_title="",
         height=550,
         legend=dict(
@@ -876,7 +876,7 @@ def plot_eth_supply_and_inflation(df_historical, df_simulated, parameters=parame
 
     # Set secondary y-axes titles
     fig.update_yaxes(title_text="Network Inflation Rate (%/year)", secondary_y=False)
-    fig.update_yaxes(title_text="ETH Supply (ETH)", secondary_y=True)
+    fig.update_yaxes(title_text="CELO Supply (CELO)", secondary_y=True)
 
     return fig
 
@@ -923,9 +923,9 @@ def plot_eth_staked_over_all_stages(df):
     update_legend_names(fig)
 
     fig.update_layout(
-        title="ETH Staked",
+        title="CELO Staked",
         xaxis_title="Date",
-        yaxis_title="ETH Staked (ETH)",
+        yaxis_title="CELO Staked (CELO)",
         legend_title="",
     )
 
@@ -1577,9 +1577,9 @@ def plot_network_issuance_scenarios(df, simulation_names):
     )
 
     fig.update_layout(
-        yaxis_title="ETH Supply (ETH)",
+        yaxis_title="CELO Supply (CELO)",
         xaxis_title="Date",
-        title="Inflation Rate and ETH Supply Analysis Scenarios",
+        title="Inflation Rate and CELO Supply Analysis Scenarios",
         hovermode="x unified",
     )
 

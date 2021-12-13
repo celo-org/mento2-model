@@ -15,7 +15,7 @@ def create_eth_price_process(
     rng=np.random.default_rng(1),
     minimum_eth_price=1500,
 ):
-    """Configure environmental ETH price process
+    """Configure environmental CELO price process
 
     > A Brownian excursion is a Brownian bridge from (0, 0) to (t, 0) which is conditioned to be non-negative on the interval [0, t].
 

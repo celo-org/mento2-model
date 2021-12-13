@@ -2,14 +2,14 @@
 # Ethereum System
 
 General Ethereum mechanisms, such as managing the system upgrade process,
-the EIP-1559 transaction pricing mechanism, and updating the ETH price and ETH supply.
+the EIP-1559 transaction pricing mechanism, and updating the CELO price and CELO supply.
 """
 
 import typing
 import datetime
 
 from model import constants as constants
-from model.types import ETH, USD_per_ETH, Gwei, Stage
+from model.types import CELO, USD_per_ETH, Gwei, Stage
 
 
 def policy_upgrade_stages(params, substep, state_history, previous_state):
@@ -82,7 +82,7 @@ def policy_upgrade_stages(params, substep, state_history, previous_state):
 
 def policy_network_issuance(
     params, substep, state_history, previous_state
-) -> typing.Dict[str, ETH]:
+) -> typing.Dict[str, CELO]:
     """
     ## Network Issuance Policy Function
 
@@ -102,9 +102,9 @@ def policy_network_issuance(
     ]
     total_online_validator_rewards = previous_state["total_online_validator_rewards"]
 
-    # Calculate network issuance in ETH
+    # Calculate network issuance in CELO
     network_issuance = (
-        # Remove priority fee to validators which is not issuance (ETH transferred rather than minted)
+        # Remove priority fee to validators which is not issuance (CELO transferred rather than minted)
         (total_online_validator_rewards - total_priority_fee_to_validators)
         - amount_slashed
         - total_base_fee
@@ -124,7 +124,7 @@ def policy_network_issuance(
     }
 
 
-def policy_mev(params, substep, state_history, previous_state) -> typing.Dict[str, ETH]:
+def policy_mev(params, substep, state_history, previous_state) -> typing.Dict[str, CELO]:
     """
     ## Maximum Extractable Value (MEV) Policy
 
@@ -245,9 +245,9 @@ def update_eth_price(
     params, substep, state_history, previous_state, policy_input
 ) -> typing.Tuple[str, USD_per_ETH]:
     """
-    ## ETH Price State Update Function
+    ## CELO Price State Update Function
 
-    Update the ETH price from the `eth_price_process`.
+    Update the CELO price from the `eth_price_process`.
     """
 
     # Parameters
@@ -258,7 +258,7 @@ def update_eth_price(
     run = previous_state["run"]
     timestep = previous_state["timestep"]
 
-    # Get the ETH price sample for the current run and timestep
+    # Get the CELO price sample for the current run and timestep
     eth_price_sample = eth_price_process(run, timestep * dt)
 
     return "eth_price", eth_price_sample
@@ -266,11 +266,11 @@ def update_eth_price(
 
 def update_eth_supply(
     params, substep, state_history, previous_state, policy_input
-) -> typing.Tuple[str, ETH]:
+) -> typing.Tuple[str, CELO]:
     """
-    ## ETH Supply State Update Function
+    ## CELO Supply State Update Function
 
-    Update the ETH supply from the Network Issuance Policy Function.
+    Update the CELO supply from the Network Issuance Policy Function.
     """
 
     # Policy Inputs
