@@ -40,7 +40,7 @@ This repo features a cadCAD model for Mento2.0. The structure of this repo is he
 * Supports [state-space analysis](https://en.wikipedia.org/wiki/State-space_representation) (i.e. simulation of system state over time) and [phase-space analysis](https://en.wikipedia.org/wiki/Phase_space) (i.e. generation of all unique system states in a given experimental setup).
 * Customizable processes to set important variables such as CELO price, CELO staked, and gas pricing.
 * Modular model structure for convenient extension and modification. This allows different user groups to refactor the model for different purposes, rapidly test new incentive mechanisms, or update the model as CELO implements new protocol improvements.
-* References to official [Mento 2.0 specs](https://github.com/still-to-be-created) in Policy and State Update Function logic. This enables seamless onboarding of protocol developers and allows the more advanced cadCAD user to dig into the underlying protocol design that inspired the logic.
+* References to official [Mento 2.0 specs (non-existent at this point!)](https://github.com/still-to-be-created) in Policy and State Update Function logic. This enables seamless onboarding of protocol developers and allows the more advanced cadCAD user to dig into the underlying protocol design that inspired the logic.
 
 ### Directory Structure
 
