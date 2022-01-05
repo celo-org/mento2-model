@@ -14,7 +14,7 @@ from experiments.run import run
 from data.historical_values import df_ether_supply
 
 
-# Fetch the ETH Supply Analysis experiment
+# Fetch the CELO Supply Analysis experiment
 experiment = eth_supply_analysis.experiment
 # Create a copy of the experiment simulation
 simulation = copy.deepcopy(experiment.simulations[0])

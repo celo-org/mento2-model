@@ -1,8 +1,8 @@
 """
-# ETH Staked Sweep Analysis
+# CELO Staked Sweep Analysis
 
-Creates a parameter sweep of the ETH staked process, with a static value for ETH price set to
-the current maximum ETH price value over the last 6 months from Etherscan.io.
+Creates a parameter sweep of the CELO staked process, with a static value for CELO price set to
+the current maximum CELO price value over the last 6 months from Etherscan.io.
 """
 
 import numpy as np
@@ -17,7 +17,7 @@ experiment = copy.deepcopy(experiment)
 
 eth_staked_samples = np.linspace(
     eth_staked,
-    eth_supply * 0.3,  # 30% of current total ETH supply
+    eth_supply * 0.3,  # 30% of current total CELO supply
     50
 )
 
@@ -26,7 +26,7 @@ parameter_overrides = {
         lambda run, _timestep: eth_staked_samples[run - 1],
     ],
     "eth_price_process": [
-        # A sweep of two fixed ETH price points
+        # A sweep of two fixed CELO price points
         lambda _run, _timestep: 100,
         lambda _run, _timestep: eth_price_max,
     ]

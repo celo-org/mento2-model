@@ -9,12 +9,12 @@ import typing
 import model.constants as constants
 import model.parts.utils.mento2_spec as spec
 from model.parts.utils import get_number_of_awake_validators
-from model.types import ETH, Gwei
+from model.types import CELO, Gwei
 
 
 def policy_staking(
     params, substep, state_history, previous_state
-) -> typing.Dict[str, ETH]:
+) -> typing.Dict[str, CELO]:
     """
     ## Staking Policy
     A policy used when driving the model with the `eth_staked_process`,
@@ -36,14 +36,14 @@ def policy_staking(
 
     # If the eth_staked_process is defined
     if eth_staked_process(0, 0) is not None:
-        # Get the ETH staked sample for the current run and timestep
+        # Get the CELO staked sample for the current run and timestep
         eth_staked = eth_staked_process(run, timestep * dt)
     # Else, calculate from the number of validators
     else:
         eth_staked = number_of_validators * average_effective_balance / constants.gwei
 
     # Assert expected conditions
-    assert eth_staked <= eth_supply, f"ETH staked can't be more than ETH supply"
+    assert eth_staked <= eth_supply, f"CELO staked can't be more than CELO supply"
 
     return {"eth_staked": eth_staked}
 
@@ -51,7 +51,7 @@ def policy_staking(
 def policy_validators(params, substep, state_history, previous_state):
     """
     ## Validator Policy Function
-    Calculate the number of validators driven by the ETH staked or validator processes.
+    Calculate the number of validators driven by the CELO staked or validator processes.
     """
     # Parameters
     dt = params["dt"]
@@ -68,7 +68,7 @@ def policy_validators(params, substep, state_history, previous_state):
     ]
     average_effective_balance = previous_state["average_effective_balance"]
 
-    # Calculate the number of validators using ETH staked
+    # Calculate the number of validators using CELO staked
     if eth_staked_process(0, 0) is not None:
         eth_staked = eth_staked_process(run, timestep * dt)
         number_of_active_validators = int(

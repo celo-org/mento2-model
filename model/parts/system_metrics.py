@@ -49,8 +49,8 @@ def policy_validator_costs(
         * validator_third_party_costs_per_epoch  # % of total
         * total_online_validator_rewards
     )
-    validator_third_party_costs /= constants.gwei  # Convert from Gwei to ETH
-    validator_third_party_costs *= eth_price  # Convert from ETH to Dollars
+    validator_third_party_costs /= constants.gwei  # Convert from Gwei to CELO
+    validator_third_party_costs *= eth_price  # Convert from CELO to Dollars
 
     # Calculate total validator costs per validator type and total network costs
     validator_costs = (
@@ -88,16 +88,16 @@ def policy_validator_yields(
     validator_count_distribution = previous_state["validator_count_distribution"]
     average_effective_balance = previous_state["average_effective_balance"]
 
-    # Calculate ETH staked per validator type
+    # Calculate CELO staked per validator type
     validator_eth_staked = validator_count_distribution * average_effective_balance
-    validator_eth_staked /= constants.gwei  # Convert from Gwei to ETH
+    validator_eth_staked /= constants.gwei  # Convert from Gwei to CELO
 
     # Calculate the revenue per validator type
     validator_revenue = (
         validator_percentage_distribution * total_online_validator_rewards
     )
-    validator_revenue /= constants.gwei  # Convert from Gwei to ETH
-    validator_revenue *= eth_price  # Convert from ETH to Dollars
+    validator_revenue /= constants.gwei  # Convert from Gwei to CELO
+    validator_revenue *= eth_price  # Convert from CELO to Dollars
 
     # Calculate the profit per validator type
     validator_profit = validator_revenue - validator_costs
@@ -174,7 +174,7 @@ def update_supply_inflation(
 ) -> typing.Tuple[str, Percentage]:
     """
     ## Supply Inflation State Update Function
-    Update the annualized ETH supply inflation.
+    Update the annualized CELO supply inflation.
     """
     # Policy Inputs
     network_issuance = policy_input["network_issuance"]
@@ -185,7 +185,7 @@ def update_supply_inflation(
     # State Variables
     eth_supply = previous_state["eth_supply"]
 
-    # Calculate the ETH supply inflation
+    # Calculate the CELO supply inflation
     supply_inflation = network_issuance / eth_supply
     supply_inflation *= constants.epochs_per_year / dt  # Annualize value
 

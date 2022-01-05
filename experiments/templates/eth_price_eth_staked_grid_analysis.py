@@ -1,7 +1,7 @@
 """
-# ETH Price / ETH Staked Grid Analysis
+# CELO Price / CELO Staked Grid Analysis
 
-Creates a cartesian product grid of ETH price and ETH staked processes, for phase-space analyses.
+Creates a cartesian product grid of CELO price and CELO staked processes, for phase-space analyses.
 """
 
 import numpy as np
@@ -16,9 +16,9 @@ from experiments.default_experiment import experiment, TIMESTEPS, DELTA_TIME
 experiment = copy.deepcopy(experiment)
 
 sweep = generate_cartesian_product_parameter_sweep({
-    # ETH price range from 100 USD/ETH to the maximum over the last 12 months
+    # CELO price range from 100 USD/CELO to the maximum over the last 12 months
     "eth_price_samples": np.linspace(start=100, stop=eth_price_max, num=20),
-    # ETH staked range from current ETH staked to minimum of 2 x ETH staked and 30% of total ETH supply
+    # CELO staked range from current CELO staked to minimum of 2 x CELO staked and 30% of total CELO supply
     "eth_staked_samples": np.linspace(start=eth_staked, stop=min(eth_staked * 2, eth_supply * 0.3), num=20),
 })
 

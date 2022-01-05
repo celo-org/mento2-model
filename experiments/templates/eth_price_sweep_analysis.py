@@ -1,8 +1,8 @@
 """
-# ETH Price Sweep Analysis
+# CELO Price Sweep Analysis
 
-Creates a parameter sweep of the ETH price process,
-with a static value for ETH staked set to the current ETH staked value from Beaconcha.in.
+Creates a parameter sweep of the CELO price process,
+with a static value for CELO staked set to the current CELO staked value from Beaconcha.in.
 """
 
 import numpy as np
@@ -16,7 +16,7 @@ from experiments.default_experiment import experiment, TIMESTEPS, DELTA_TIME
 # Make a copy of the default experiment to avoid mutation
 experiment = copy.deepcopy(experiment)
 
-# ETH price range from 100 USD/ETH to the maximum over the last 12 months
+# CELO price range from 100 USD/CELO to the maximum over the last 12 months
 eth_price_samples = np.linspace(start=100, stop=eth_price_max, num=50)
 
 parameter_overrides = {

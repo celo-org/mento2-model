@@ -1,8 +1,8 @@
 """
-# Genesis ETH Price / ETH Staked Grid Analysis
+# Genesis CELO Price / CELO Staked Grid Analysis
 
-Creates a cartesian product grid of ETH price and ETH staked processes, for phase-space analyses,
-starting from the ETH staked genesis requirement of 524,288 ETH staked.
+Creates a cartesian product grid of CELO price and CELO staked processes, for phase-space analyses,
+starting from the CELO staked genesis requirement of 524,288 CELO staked.
 """
 
 import numpy as np
@@ -18,9 +18,9 @@ from model.types import Stage
 experiment = copy.deepcopy(experiment)
 
 sweep = generate_cartesian_product({
-    # ETH price range from 100 USD/ETH to the maximum over the last 12 months
+    # CELO price range from 100 USD/CELO to the maximum over the last 12 months
     "eth_price_samples": np.linspace(start=100, stop=eth_price_max, num=20),
-    # ETH staked range from genesis requirement to current ETH staked
+    # CELO staked range from genesis requirement to current CELO staked
     "eth_staked_samples": np.linspace(start=524_288, stop=eth_staked, num=20),
 })
 
