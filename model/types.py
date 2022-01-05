@@ -5,14 +5,13 @@ Various Python types used in the model
 # See https://docs.python.org/3/library/dataclasses.html
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TypedDict, List, Callable, NamedTuple
+from typing import TypedDict, List
 
-# Ethereum system types
+# Celo system types
 Gas = int
 Wei = int
 Gwei = float
 Gwei_per_Gas = float
-CELO = float  # Should we use decimals package for these types?
 
 
 class Stage(Enum):
@@ -27,6 +26,10 @@ CELO = float
 CUSD = float
 USD = float
 
+# Price types
+USD_per_CELO = float
+USD_per_CUSD = float
+
 # Simulation types
 Run = int
 Timestep = int
@@ -37,11 +40,19 @@ Day = int
 
 
 @dataclass
-class Account(TypedDict):
+class Account:
     """
     Class for an on-chain account
     """
     account_id: int
+    cusd: CUSD
+    celo: CELO
+
+@dataclass
+class MentoBuckets:
+    """
+    Class for mento buckets
+    """
     cusd: CUSD
     celo: CELO
 

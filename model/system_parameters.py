@@ -19,6 +19,7 @@ from model.types import (
 from model.utils import default
 
 
+
 @dataclass
 class Parameters:
     """System Parameters
@@ -27,10 +28,9 @@ class Parameters:
 
     Because lists are mutable, we need to wrap each parameter list in the `default(...)` method.
 
-    For default value assumptions, see the ASSUMPTIONS.md document.
     """
 
-    # Time parameters
+    # Time-related parameters
     dt: List[Block] = default([simulation.DELTA_TIME])
     """
     Simulation timescale / timestep unit of time, in blocks.
@@ -44,8 +44,7 @@ class Parameters:
     stage: List[Stage] = default([Stage.ALL])
     """
     Which stage or stages of the Mento1.0 -> Mento2.0 upgrade process to simulate.
-
-    See model.types.Stage Enum for further documentation.
+    
     """
 
     date_start: List[datetime] = default([datetime.now()])
@@ -62,8 +61,13 @@ class Parameters:
     """
     Expected date for when IRPs can be used to mint stabletokens
     
-    See ASSUMPTIONS.md doc for further details about default value assumption.
     """
+
+    # Mento-related parameters
+    reserve_fraction: List[float] = default([0.01])
+    spread: List[float] = default([0.005])
+    max_sell_amount: List[float] = default([100])
+    bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
 
 # Initialize Parameters instance with default values

@@ -13,9 +13,15 @@ df_celo_price_cap_volume_supply['supply'] = (
         df_celo_price_cap_volume_supply['market_cap'] / df_celo_price_cap_volume_supply['price']
 )
 
+celo_price_mean = df_celo_price_cap_volume_supply['price'].mean()
+celo_supply_mean = df_celo_price_cap_volume_supply['supply'].mean()
+
 # Get df for historical cUSD data
 df_cusd_price_cap_volume_supply = pd.read_csv(file_cusd_price_cap_volume_csv, na_values=[0])
 df_cusd_price_cap_volume_supply = df_cusd_price_cap_volume_supply.set_index(['snapped_at'], drop=False)
 df_cusd_price_cap_volume_supply['supply'] = (
         df_cusd_price_cap_volume_supply['market_cap'] / df_cusd_price_cap_volume_supply['price']
 )
+
+cusd_price_mean = df_cusd_price_cap_volume_supply['price'].mean()
+cusd_supply_mean = df_cusd_price_cap_volume_supply['supply'].mean()
