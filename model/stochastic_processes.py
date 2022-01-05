@@ -9,11 +9,11 @@ import experiments.simulation_configuration as simulation
 from experiments.utils import rng_generator
 
 
-def create_eth_price_process(
+def create_cusd_demand_process(
     timesteps=simulation.TIMESTEPS,
     dt=simulation.DELTA_TIME,
     rng=np.random.default_rng(1),
-    minimum_eth_price=1500,
+    initial_cusd_demand=1500,
 ):
     """Configure environmental CELO price process
 

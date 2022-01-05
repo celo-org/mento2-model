@@ -22,11 +22,9 @@ from model.types import (
     Gwei_per_Gas,
     CELO,
     USD,
-    USD_per_ETH,
-    Percentage,
     Stage,
 )
-from data.historical_values import eth_price_mean, eth_price_min, eth_price_max
+from data.historical_values import celo_price_mean, celo_price_min, celo_price_max
 
 
 # Get number of validator environments for initializing Numpy array size
@@ -61,7 +59,7 @@ class StateVariables:
     """
 
     # Ethereum state variables
-    eth_price: USD_per_ETH = eth_price_mean
+    eth_price: USD_per_ETH = celo_price_mean
     """The CELO spot price"""
     eth_supply: CELO = eth_supply
     """The total CELO supply"""
