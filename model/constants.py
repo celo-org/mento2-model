@@ -1,5 +1,5 @@
 """
-Constants used in the model e.g. number of epochs in a year, Gwei in 1 Ether
+Constants used in the model e.g. number of epochs in a year, Gwei in 1 CELO
 """
 
 gwei = 1e9

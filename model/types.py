@@ -5,7 +5,6 @@ Various Python types used in the model
 # See https://docs.python.org/3/library/dataclasses.html
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TypedDict, List
 
 # Celo system types
 Gas = int
@@ -22,13 +21,12 @@ class Stage(Enum):
 
 
 # Balance types
-CELO = float
-CUSD = float
-USD = float
+Tokens = float
+Usd = float
 
 # Price types
-USD_per_CELO = float
-USD_per_CUSD = float
+Usd_per_token = float
+Token_per_token = float
 
 # Simulation types
 Run = int
