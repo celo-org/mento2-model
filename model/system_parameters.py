@@ -12,12 +12,10 @@ from datetime import datetime
 import experiments.simulation_configuration as simulation
 from model.types import (
     List,
-    Block,
-    Stage,
+    Blocknumber
 )
 
 from model.utils import default
-
 
 
 @dataclass
@@ -31,7 +29,7 @@ class Parameters:
     """
 
     # Time-related parameters
-    dt: List[Block] = default([simulation.DELTA_TIME])
+    dt: List[Blocknumber] = default([simulation.DELTA_TIME])
     """
     Simulation timescale / timestep unit of time, in blocks.
 
@@ -63,7 +61,7 @@ class Parameters:
     
     """
 
-    # Mento-related parameters
+    # Mento1.0-related parameters
     reserve_fraction: List[float] = default([0.01])
     spread: List[float] = default([0.005])
     max_sell_amount: List[float] = default([100])

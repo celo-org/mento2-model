@@ -11,14 +11,9 @@ By using a dataclass to represent the State Variables:
 from dataclasses import dataclass, fields
 from datetime import datetime
 
-import model.constants as constants
-import data.api.beaconchain as beaconchain
-import data.api.celo_explorer as etherscan
-from model.system_parameters import validator_environments
 from model.types import (
     CELO,
     CUSD,
-    Stage,
     USD_per_CELO,
     Account,
     MentoBuckets
@@ -31,17 +26,6 @@ from data.historical_values import (
 )
 
 
-# Get number of validator environments for initializing Numpy array size
-number_of_validator_environments = len(validator_environments)
-
-# Initial state from external live data source, setting a default in case API call fails
-number_of_active_validators: int = beaconchain.get_validators_count(default=156_250)
-eth_staked: CELO = (
-    beaconchain.get_total_validator_balance(default=5_000_000e9) / constants.gwei
-)
-eth_supply: CELO = etherscan.get_eth_supply(default=116_250_000e18) / constants.wei
-
-
 @dataclass
 class StateVariables:
     """State Variables
@@ -50,13 +34,6 @@ class StateVariables:
     """
 
     # Time state variables
-    stage: Stage = None
-    """
-    The stage of the Mento1.0 to Mento2.0 upgrade process.
-
-    See "stage" System Parameter in model.system_parameters
-    & model.types.Stage Enum for further documentation.
-    """
     timestamp: datetime = None
     """
     The timestamp for each timestep as a Python `datetime` object, starting from `date_start` Parameter.

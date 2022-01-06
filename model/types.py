@@ -35,7 +35,7 @@ Run = int
 Timestep = int
 
 # Time-related types
-Block = int
+Blocknumber = int
 Day = int
 
 

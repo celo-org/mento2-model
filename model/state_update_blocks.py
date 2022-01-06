@@ -1,9 +1,9 @@
 """
-cadCAD model State Update Block structure, composed of Policy and State Update Functions
+cadCAD model State Update Blocknumber structure, composed of Policy and State Update Functions
 """
 
 import model.parts.celo_system as ethereum
-import model.parts.reserve as incentives
+import model.parts.mento1 as mento1
 import model.parts.system_metrics as metrics
 import model.parts.stability_providers as validators
 from model.system_parameters import parameters
@@ -89,7 +89,7 @@ _state_update_blocks = [
     },
     {
         "description": """
-            Block proposal reward
+            Blocknumber proposal reward
         """,
         "policies": {
             "block_proposal": incentives.policy_block_proposal_reward,
