@@ -1,5 +1,5 @@
 """
-Mento2.0 Model
+Mento2 Model
 """
 __version__ = "0.0.1"
 

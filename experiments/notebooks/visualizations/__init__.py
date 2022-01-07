@@ -38,7 +38,7 @@ legend_state_variable_name_mapping = {
     "source_reward_eth": "Source Reward",
     "target_reward_eth": "Target Reward",
     "head_reward_eth": "Head Reward",
-    "block_proposer_reward_eth": "Block Proposer Reward",
+    "block_proposer_reward_eth": "Blocknumber Proposer Reward",
     "sync_reward_eth": "Sync Reward",
     "total_priority_fee_to_validators_eth": "Priority Fees",
     "total_realized_mev_to_validators": "Realized MEV",
@@ -203,7 +203,7 @@ def plot_validator_incentives_pie_chart(df):
         "Source Reward",
         "Target Reward",
         "Head Reward",
-        "Block Proposer Reward",
+        "Blocknumber Proposer Reward",
         "Sync Reward",
     ]
 

@@ -21,7 +21,6 @@ from model.types import (
 from data.historical_values import (
     celo_price_mean,
     celo_supply_mean,
-    cusd_price_mean,
     cusd_supply_mean
 )
 
@@ -44,7 +43,7 @@ class StateVariables:
     """The CELO spot price"""
     celo_supply: CELO = celo_supply_mean
     """The total CELO supply"""
-    cusd_price: USD_per_CUSD= cusd_price_mean
+    cusd_price: USD_per_CUSD = 1.0
     """The CELO spot price"""
     cusd_supply: CUSD = cusd_supply_mean
     """The total CELO supply"""
