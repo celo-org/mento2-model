@@ -10,13 +10,13 @@ By using a dataclass to represent the State Variables:
 
 from dataclasses import dataclass, fields
 from datetime import datetime
+from model.utils import default
 
 from model.types import (
-    CELO,
-    CUSD,
-    USD_per_CELO,
-    Account,
-    MentoBuckets
+    Usd_per_token,
+    Token_per_token,
+    TokenBalance,
+    Account
 )
 from data.historical_values import (
     celo_price_mean,
@@ -39,30 +39,36 @@ class StateVariables:
     """
 
     # Celo state variables
-    celo_price: USD_per_CELO = celo_price_mean
+    celo_price: Usd_per_token = celo_price_mean
+    """The CELO spot price in USD"""
+    cusd_price: Usd_per_token = 1.0
     """The CELO spot price"""
-    celo_supply: CELO = celo_supply_mean
-    """The total CELO supply"""
-    cusd_price: USD_per_CUSD = 1.0
-    """The CELO spot price"""
-    cusd_supply: CUSD = cusd_supply_mean
-    """The total CELO supply"""
+    mento_rate: Token_per_token = celo_price_mean
+    """The Mento CELO/cUSD rate """
 
     # Reserve state variable
-    reserve_account: Account = fields(
-        Account(
-            account_id=0,
-            celo=120000000,
-            cusd=0
-        )
+    reserve_account: Account = default(
+        {
+            'account_id': 0,
+            'celo': 120000000.0,
+            'cusd': 0.0
+        }
     )
 
     # Mento state variables
-    mento_buckets: MentoBuckets = fields(
-        MentoBuckets(
-            celo=0,
-            cusd=0
-        )
+    mento_buckets: TokenBalance = default(
+        {
+            'celo': 0.0,
+            'cusd': 0.0
+        }
+    )
+
+    # Mento state variables
+    floating_supply: TokenBalance = default(
+        {
+            'celo': celo_supply_mean,
+            'cusd': cusd_supply_mean
+        }
     )
 
 

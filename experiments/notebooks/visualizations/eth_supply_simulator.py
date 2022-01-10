@@ -16,7 +16,7 @@ from data.historical_values import df_ether_supply
 
 # Fetch the CELO Supply Analysis experiment
 experiment = eth_supply_analysis.experiment
-# Create a copy of the experiment simulation
+# Create a copy of the experiment simulation_configuration
 simulation = copy.deepcopy(experiment.simulations[0])
 # Default Values
 default_pos_launch_date = '2022/03/1'

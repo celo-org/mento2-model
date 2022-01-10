@@ -7,3 +7,4 @@ wei = 1e18
 blocktime_seconds = 5
 blocks_per_day = 24 * 60 // blocktime_seconds
 blocks_per_month = blocks_per_day * 30
+blocks_per_year = blocks_per_month * 12

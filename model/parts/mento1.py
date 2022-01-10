@@ -4,10 +4,8 @@
 Calculation of changes in Mento buckets sizes, floating supply and reserve balances.
 """
 
-import typing
 import numpy as np
-from model import constants as constants
-from model.types import TOKENS
+from model.constants import blocktime_seconds
 
 
 def exchange(params, prev_state, sell_amount, sell_gold, min_buy_amount=0):
@@ -15,11 +13,11 @@ def exchange(params, prev_state, sell_amount, sell_gold, min_buy_amount=0):
     reduced_sell_amount = sell_amount * (1 - spread)
 
     if sell_gold:
-        buy_token_bucket = prev_state['mento_buckets']['cusd_bucket']
-        sell_token_bucket = prev_state['mento_buckets']['celo_bucket']
+        buy_token_bucket = prev_state['mento_buckets']['cusd']
+        sell_token_bucket = prev_state['mento_buckets']['celo']
     else:
-        buy_token_bucket = prev_state['mento_buckets']['cusd_bucket']
-        sell_token_bucket = prev_state['mento_buckets']['celo_bucket']
+        buy_token_bucket = prev_state['mento_buckets']['cusd']
+        sell_token_bucket = prev_state['mento_buckets']['celo']
 
     numerator = sell_amount * (1 - spread) * buy_token_bucket
     denominator = sell_token_bucket + reduced_sell_amount
@@ -57,17 +55,17 @@ def p_random_exchange(params, substep, state_history, prev_state):
         'celo': prev_state['floating_supply']['celo'] - delta_celo
     }
 
-    reserve_assets = {
-        'celo': prev_state['reserve_assets']['celo'] + delta_celo
+    reserve_account = {
+        'celo': prev_state['reserve_account']['celo'] + delta_celo
     }
 
-    mento_price = mento_buckets['cusd'] / mento_buckets['celo']
+    mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
 
     return {
         'mento_buckets': mento_buckets,
         'floating_supply': floating_supply,
-        'reserve_assets': reserve_assets,
-        'mento_price': mento_price
+        'reserve_account': reserve_account,
+        'mento_rate': mento_rate
     }
 
 
@@ -75,9 +73,9 @@ def p_bucket_update(params, substep, state_history, prev_state):
     """
     Only update buckets every update_frequency_seconds
     """
-    if (params['block_time_seconds'] * prev_state['timestep']) % params['update_frequency_seconds'] == 0:
-        celo_bucket = params['reserve_fraction'] * prev_state['reserve_assets']['celo']
-        cusd_bucket = prev_state['mento_price'] * celo_bucket
+    if (blocktime_seconds * prev_state['timestep']) % params['bucket_update_frequency_seconds'] == 0:
+        celo_bucket = params['reserve_fraction'] * prev_state['reserve_account']['celo']
+        cusd_bucket = prev_state['mento_rate'] * celo_bucket
         mento_buckets = {
             'cusd': cusd_bucket,
             'celo': celo_bucket

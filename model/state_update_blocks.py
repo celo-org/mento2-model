@@ -19,9 +19,9 @@ state_update_block_mento1_trade = {
     },
     'variables': {
         'mento_buckets': update_from_signal('mento_buckets'),
-        'reserve_assets': update_from_signal('reserve_assets'),
+        'reserve_account': update_from_signal('reserve_account'),
         'floating_supply': update_from_signal('floating_supply'),
-        'mento_price': update_from_signal('mento_price')
+        'mento_rate': update_from_signal('mento_rate')
     }
 }
 
@@ -47,7 +47,7 @@ _state_update_blocks = (
     ]
 )
 
-# Split the state update blocks into those used during the simulation (state_update_blocks)
+# Split the state update blocks into those used during the simulation_configuration (state_update_blocks)
 # and those used in post-processing to calculate the system metrics (post_processing_blocks)
 state_update_blocks = [
     block for block in _state_update_blocks if not block.get("post_processing", False)

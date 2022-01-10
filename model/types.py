@@ -3,8 +3,9 @@ Various Python types used in the model
 """
 
 # See https://docs.python.org/3/library/dataclasses.html
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
+from typing import TypedDict
 
 # Celo system types
 Gas = int
@@ -21,8 +22,8 @@ class Stage(Enum):
 
 
 # Balance types
-Tokens = float
-Usd = float
+Token_balance = float
+Usd_balance = float
 
 # Price types
 Usd_per_token = float
@@ -37,26 +38,22 @@ Blocknumber = int
 Day = int
 
 
-@dataclass
-class Account:
+class TokenBalance(TypedDict):
+    """
+    Class for an on-chain token balance
+    """
+    cusd: Token_balance
+    celo: Token_balance
+
+
+class Account(TokenBalance):
     """
     Class for an on-chain account
     """
     account_id: int
-    cusd: CUSD
-    celo: CELO
-
-@dataclass
-class MentoBuckets:
-    """
-    Class for mento buckets
-    """
-    cusd: CUSD
-    celo: CELO
 
 
-@dataclass
-class Actor:
+class Actor(TypedDict):
     """
     Class for a single actor
     """

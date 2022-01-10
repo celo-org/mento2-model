@@ -10,6 +10,10 @@ from functools import partial
 def _update_from_signal(
     state_variable,
     signal_key,
+    params,
+    substep,
+    state_history,
+    previous_state,
     policy_input,
 ):
     return state_variable, policy_input[signal_key]

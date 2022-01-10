@@ -9,10 +9,11 @@ By using a dataclass to represent the System Parameters:
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import List
 import experiments.simulation_configuration as simulation
 from model.types import (
-    List,
-    Blocknumber
+    Blocknumber,
+    Stage
 )
 
 from model.utils import default
@@ -39,14 +40,14 @@ class Parameters:
 
     """
 
-    stage: List[Stage] = default([Stage.ALL])
+    stage: List[Stage] = default([Stage.Mento1])
     """
     Which stage or stages of the Mento1.0 -> Mento2.0 upgrade process to simulate.
     
     """
 
     date_start: List[datetime] = default([datetime.now()])
-    """Start date for simulation as Python datetime"""
+    """Start date for simulation_configuration as Python datetime"""
 
     date_stability_providers: List[datetime] = default(
         [datetime.strptime("2022/10/01", "%Y/%m/%d")]
@@ -62,6 +63,7 @@ class Parameters:
     """
 
     # Mento1.0-related parameters
+    initial_cusd_demand: List[float] = default([10000000])
     reserve_fraction: List[float] = default([0.01])
     spread: List[float] = default([0.005])
     max_sell_amount: List[float] = default([100])
