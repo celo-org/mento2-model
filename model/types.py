@@ -2,70 +2,60 @@
 Various Python types used in the model
 """
 
-import numpy as np
-import sys
-
 # See https://docs.python.org/3/library/dataclasses.html
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
+from typing import TypedDict
 
-# If Python version is greater than equal to 3.8, import from typing module
-# Else also import from typing_extensions module
-if sys.version_info >= (3, 8):
-    from typing import TypedDict, List, Callable, NamedTuple
-else:
-    from typing import List, NamedTuple
-    from typing_extensions import TypedDict, Callable
-
-
-# Generic types
-Uninitialized = np.nan
-Percentage = float
-Percentage_per_epoch = float
-
-# Ethereum system types
+# Celo system types
 Gas = int
 Wei = int
 Gwei = float
 Gwei_per_Gas = float
-CELO = float
 
 
 class Stage(Enum):
-    """Stages of the Ethereum network upgrade process finite-state machine"""
+    """Stages of the Mento1.0 -> Mento2.0 upgrade process network upgrade process"""
 
-    ALL = 1
-    """Transition through all stages"""
-    BEACON_CHAIN = 2
-    """Beacon Chain implemented; EIP1559 disabled; POW issuance enabled"""
-    EIP1559 = 3
-    """Beacon Chain implemented; EIP1559 enabled; POW issuance enabled"""
-    PROOF_OF_STAKE = 4
-    """Beacon Chain implemented; EIP1559 enabled; POW issuance disabled"""
+    Mento1 = 1
+    Mento1_plus_stability_providers = 2
 
 
-# US Dollar types
-USD = float
-USD_per_ETH = float
-USD_per_epoch = float
+# Balance types
+Token_balance = float
+Usd_balance = float
+
+# Price types
+Usd_per_token = float
+Token_per_token = float
 
 # Simulation types
 Run = int
 Timestep = int
 
-# BeaconState types
-Epoch = int
-
-# Validator types
-ValidatorIndex = int
+# Time-related types
+Blocknumber = int
+Day = int
 
 
-# Validator environment class used for configuring distribution of validators as parameters
-@dataclass
-class ValidatorEnvironment:
-    # Set the type (e.g. Percentage) and default value (e.g. 0.0) for each field
-    type: str = ""
-    percentage_distribution: Percentage = 0.0
-    hardware_costs_per_epoch: USD_per_epoch = 0.0
-    cloud_costs_per_epoch: USD_per_epoch = 0.0
-    third_party_costs_per_epoch: Percentage_per_epoch = 0.0
+class TokenBalance(TypedDict):
+    """
+    Class for an on-chain token balance
+    """
+    cusd: Token_balance
+    celo: Token_balance
+
+
+class Account(TokenBalance):
+    """
+    Class for an on-chain account
+    """
+    account_id: int
+
+
+class Actor(TypedDict):
+    """
+    Class for a single actor
+    """
+    actor_id: int
+    account: Account

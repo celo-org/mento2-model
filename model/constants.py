@@ -1,12 +1,10 @@
 """
-Constants used in the model e.g. number of epochs in a year, Gwei in 1 Ether
+Constants used in the model e.g. number of epochs in a year, Gwei in 1 CELO
 """
 
 gwei = 1e9
 wei = 1e18
-slots_per_epoch = 32
-epochs_per_day = 225
-epochs_per_month = 6750
-epochs_per_year = 82180
-pow_blocks_per_epoch = 32.0 * 12 / 13
-eth_deposited_per_validator = 32
+blocktime_seconds = 5
+blocks_per_day = 24 * 60 // blocktime_seconds
+blocks_per_month = blocks_per_day * 30
+blocks_per_year = blocks_per_month * 12

@@ -1,7 +1,7 @@
 """
-CADLabs Ethereum Economic Model
+Mento2 Model
 """
-__version__ = "1.1.7"
+__version__ = "0.0.1"
 
 from radcad import Model
 
@@ -14,5 +14,5 @@ from model.state_update_blocks import state_update_blocks
 model = Model(
     params=parameters,
     initial_state=initial_state,
-    state_update_blocks=state_update_blocks,
+    state_update_blocks=state_update_blocks
 )
