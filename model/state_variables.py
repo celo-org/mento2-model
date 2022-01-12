@@ -24,7 +24,6 @@ from data.historical_values import (
     cusd_supply_mean
 )
 
-
 @dataclass
 class StateVariables:
     """State Variables

@@ -40,15 +40,6 @@ class Parameters:
 
     """
 
-    stage: List[Stage] = default([Stage.Mento1])
-    """
-    Which stage or stages of the Mento1.0 -> Mento2.0 upgrade process to simulate.
-    
-    """
-
-    date_start: List[datetime] = default([datetime.now()])
-    """Start date for simulation_configuration as Python datetime"""
-
     date_stability_providers: List[datetime] = default(
         [datetime.strptime("2022/10/01", "%Y/%m/%d")]
     )

@@ -17,3 +17,4 @@ import model.constants as constants
 
 
 # Set plotly as the default plotting backend for pandas
+pd.options.plotting.backend = "plotly"
