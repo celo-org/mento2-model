@@ -66,7 +66,7 @@ class Parameters:
     initial_cusd_demand: List[float] = default([10000000])
     reserve_fraction: List[float] = default([0.01])
     spread: List[float] = default([0.005])
-    max_sell_amount: List[float] = default([100])
+    max_sell_amount: List[float] = default([0.10])
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
 

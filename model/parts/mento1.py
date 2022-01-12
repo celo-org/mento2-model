@@ -29,13 +29,15 @@ def exchange(params, prev_state, sell_amount, sell_gold, min_buy_amount=0):
     return buy_amount
 
 
-def get_random_sell_amount(params):
+def get_random_sell_amount_in_cusd(params):
     return np.random.rand() * params['max_sell_amount']
 
 
 def p_random_exchange(params, substep, state_history, prev_state):
-    sell_amount = get_random_sell_amount(params)
+    sell_amount = get_random_sell_amount_in_cusd(params)
     sell_gold = np.random.rand() > 0.5
+    if sell_gold:
+        sell_amount = sell_amount / prev_state['mento_rate']
     buy_amount = exchange(params, prev_state, sell_amount, sell_gold)
 
     if sell_gold:
