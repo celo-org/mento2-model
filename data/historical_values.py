@@ -18,8 +18,6 @@ def create_dataframes(input_data: str):
 df_celo_price_cap_volume_supply = create_dataframes(input_data="celo_price_cap_volume.csv")
 df_cusd_price_cap_volume_supply = create_dataframes(input_data="cusd_price_cap_volume.csv")
 
-print(df_cusd_price_cap_volume_supply)
-
 celo_price_mean = df_celo_price_cap_volume_supply['price'].mean()
 celo_supply_mean = df_celo_price_cap_volume_supply['supply'].mean()
 cusd_price_mean = df_cusd_price_cap_volume_supply['price'].mean()
