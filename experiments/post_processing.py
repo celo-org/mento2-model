@@ -11,8 +11,6 @@ def assign_parameters(df: pd.DataFrame, parameters: Parameters, set_params=[]):
 
         for subset_index in df['subset'].unique():
             for (key, value) in parameter_sweep[subset_index].items():
-                print(key)
-                print(value)
                 df.loc[df.eval(f'subset == {subset_index}'), key] = value
     return df
 

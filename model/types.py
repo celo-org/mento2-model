@@ -17,8 +17,9 @@ Gwei_per_Gas = float
 class Stage(Enum):
     """Stages of the Mento1.0 -> Mento2.0 upgrade process network upgrade process"""
 
-    Mento1 = 1
-    Mento1_plus_stability_providers = 2
+    Mento1 = 1  # Celo mainnet Mento1
+    Mento1_SPs = 2  # Mento1 plus stability providers
+    Mento1_SPs_IRPs = 3  # Mento1 + stability providers + IRPs
 
 
 # Balance types

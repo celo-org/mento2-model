@@ -12,8 +12,7 @@ from datetime import datetime
 from typing import List
 import experiments.simulation_configuration as simulation
 from model.types import (
-    Blocknumber,
-    Stage
+    Blocknumber
 )
 
 from model.utils import default
@@ -54,7 +53,7 @@ class Parameters:
     """
 
     # Mento1.0-related parameters
-    initial_cusd_demand: List[float] = default([10000000])
+    cusd_demand: List[float] = default([10000000])
     reserve_fraction: List[float] = default([0.01])
     spread: List[float] = default([0.005])
     max_sell_amount: List[float] = default([0.10])
