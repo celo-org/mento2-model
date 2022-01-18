@@ -25,4 +25,4 @@ experiment = Experiment([simulation])
 simulation.engine = experiment.engine
 experiment.engine.backend = Backend.SINGLE_PROCESS
 experiment.engine.deepcopy = False
-experiment.engine.drop_substeps = True  # Do not store data fpr substeps
+experiment.engine.drop_substeps = True  # Do not store data for substeps

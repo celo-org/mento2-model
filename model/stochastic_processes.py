@@ -4,6 +4,7 @@ Helper functions to generate stochastic environmental processes
 
 import numpy as np
 import experiments.simulation_configuration as simulation_configuration
+from model.constants import blocktime_seconds
 from stochastic import processes
 from data import historical_values
 from experiments.utils import rng_generator
@@ -11,7 +12,6 @@ from experiments.utils import rng_generator
 
 def create_cusd_demand_process(
     timesteps=simulation_configuration.TIMESTEPS,
-    timesteps_per_year=simulation_configuration.TIMESTEPS_PER_YEAR,
     dt=simulation_configuration.DELTA_TIME,
     initial_cusd_demand=historical_values.cusd_supply_mean,
     cusd_demand_returns_vola_annually=historical_values.cusd_supply_returns_vola_annually,
@@ -19,14 +19,20 @@ def create_cusd_demand_process(
 ):
     """Configure environmental cUSD demand process
 
-    > A GBM with starting value of initial_cusd_demand
+    > A GBM with starting value of cusd_demand
     See https://stochastic.readthedocs.io/en/latest/continuous.html
     """
-    per_timestep_volatility = cusd_demand_returns_vola_annually / timesteps_per_year
-    process = processes.continuous.GeometricBrownianMotion(drift=0.0, volatility=1.0, t=(timesteps * dt), rng=rng)
+    blocks_per_year = 365 * 24 * 60 * 60 // blocktime_seconds
+    timesteps_per_year = blocks_per_year // dt
+    per_timestep_volatility = cusd_demand_returns_vola_annually / np.sqrt(timesteps_per_year)
+    process = processes.continuous.GeometricBrownianMotion(
+        drift=0.0,
+        volatility=per_timestep_volatility,
+        t=(timesteps * dt),
+        rng=rng
+    )
     samples = process.sample(timesteps * dt + 1)
     samples = np.multiply(initial_cusd_demand, samples)
-
     return samples
 
 
