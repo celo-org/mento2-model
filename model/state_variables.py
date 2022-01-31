@@ -10,9 +10,6 @@ By using a dataclass to represent the State Variables:
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Iterator
-from model.model_components.markets import MarketPriceGenerator
-from model.system_parameters import parameters
 from model.utils import default
 
 from model.types import (
@@ -87,9 +84,6 @@ class StateVariables:
             'cusd_usd': 1
         }
     )
-
-    _market_price_generator: MarketPriceGenerator = default(
-        MarketPriceGenerator.parse_from_parameters(parameters))
 
     # _demand_generator: Demand = default(
     #     {

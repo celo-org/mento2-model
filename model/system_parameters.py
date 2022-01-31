@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Dict
 import experiments.simulation_configuration as simulation
-from model.model_components.markets import MarketPriceModel
+from model.components.markets import MarketPriceModel
 from model.types import (
     Blocknumber
 )
@@ -62,7 +62,7 @@ class Parameters:
 
     # Market parameters for MarketPriceGenerator
     model:   List[MarketPriceModel] = default([MarketPriceModel.GBM])
-    volatility_market_price: List[float] = default([1])
+    volatility_market_price: List[float] = default([0.1])
     drift_market_price: List[float] = default([0])
 
 
