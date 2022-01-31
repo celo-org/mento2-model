@@ -9,8 +9,9 @@ By using a dataclass to represent the System Parameters:
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 import experiments.simulation_configuration as simulation
+from model.model_components.markets import MarketPriceModel
 from model.types import (
     Blocknumber
 )
@@ -58,6 +59,11 @@ class Parameters:
     spread: List[float] = default([0.005])
     max_sell_amount: List[float] = default([0.10])
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
+
+    # Market parameters for MarketPriceGenerator
+    model:   List[MarketPriceModel] = default([MarketPriceModel.GBM])
+    volatility_market_price: List[float] = default([1])
+    drift_market_price: List[float] = default([0])
 
 
 # Initialize Parameters instance with default values

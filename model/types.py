@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TypedDict
 
+from model.model_components.markets import DemandGenerator, MarketPriceGenerator
+
 # Celo system types
 Gas = int
 Wei = int
@@ -54,9 +56,34 @@ class Account(TokenBalance):
     account_id: int
 
 
+class MarketPrice(TypedDict):
+    cusd_usd: float
+
+# Todo Solve naming conflict
+
+
+class MarketPriceG(TypedDict):
+    cusd_usd: MarketPriceGenerator
+
+
+class VirtualTanks(TypedDict):
+    usd: float
+
+
 class Actor(TypedDict):
     """
     Class for a single actor
     """
     actor_id: int
     account: Account
+
+
+class Demand(TypedDict):
+    cusd: DemandGenerator
+
+
+class OrderBook(TypedDict):
+    ask_price: float
+    bid_price: float
+    last_price: float
+    volume: float

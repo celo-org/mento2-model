@@ -3,6 +3,7 @@ cadCAD model State Update Block structure, composed of Policy and State Update F
 """
 
 import model.parts.mento1 as mento1
+import model.parts.market_prices as market_price
 from model.system_parameters import parameters
 from model.utils import update_from_signal
 
@@ -21,7 +22,25 @@ state_update_block_mento1_trade = {
         'mento_buckets': update_from_signal('mento_buckets'),
         'reserve_account': update_from_signal('reserve_account'),
         'floating_supply': update_from_signal('floating_supply'),
-        'mento_rate': update_from_signal('mento_rate')
+        'mento_rate': update_from_signal('mento_rate')        
+    }
+}
+
+# Todo update block that applies the supply change to the market and calculates new price 
+# according to impact timing function
+state_update_block_mento_impact = {
+
+}
+
+state_update_block_market_price_change = {
+    "description": """        
+    """,
+    'policies': {
+        'market_price': market_price.p_market_price
+    },
+    'variables': {
+        'market_price': update_from_signal('market_price'),
+        'virtual_tanks': update_from_signal('virtual_tanks')
     }
 }
 
@@ -43,7 +62,9 @@ _state_update_blocks = (
     # Structure state update blocks as follows:
     [
         state_update_block_periodic_mento_bucket_update,
-        state_update_block_mento1_trade
+        state_update_block_mento1_trade,
+        state_update_block_market_price_change
+
     ]
 )
 

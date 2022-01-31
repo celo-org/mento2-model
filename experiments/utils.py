@@ -37,16 +37,20 @@ def get_simulation_hash(sim):
     runs = sim.runs
 
     # Filter out unhashable types
-    initial_state = filter(lambda x: isinstance(x, collections.Hashable), model.initial_state.items())
+    initial_state = filter(lambda x: isinstance(
+        x, collections.Hashable), model.initial_state.items())
     # Create a hashable frozen set from dictionary
     initial_state = frozenset({key: value for key, value in initial_state})
 
     param_keys = tuple(model.params.keys())
-    param_values = [value for param_list in model.params.values() for value in param_list]
+    param_values = [value for param_list in model.params.values()
+                    for value in param_list]
     # Convert unhashable types to code
-    param_values = [value.__code__ if isinstance(value, types.FunctionType) else None for value in param_values]
+    param_values = [value.__code__ if isinstance(
+        value, types.FunctionType) else None for value in param_values]
     # Filter out unhashable types
-    param_values = tuple(filter(lambda x: isinstance(x, collections.Hashable), param_values))
+    param_values = tuple(filter(lambda x: isinstance(
+        x, collections.Hashable), param_values))
 
     # Create tuple of all hash inputs
     to_hash = (initial_state, param_keys, param_values, timesteps, runs)

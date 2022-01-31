@@ -6,7 +6,8 @@ from IPython import get_ipython
 ipython = get_ipython()
 
 # Find performance bottlenecks by timing Python cell execution
-ipython.magic("load_ext autotime") # ipython.magic("...") is equivalent to % in Jupyter cell
+# ipython.magic("...") is equivalent to % in Jupyter cell
+ipython.magic("load_ext autotime")
 
 # Reload all modules (except those excluded by %aimport) every time before executing the Python code typed
 # See https://ipython.org/ipython-doc/stable/config/extensions/autoreload.html

@@ -6,6 +6,7 @@ Calculation of changes in Mento buckets sizes, floating supply and reserve balan
 
 import numpy as np
 from model.constants import blocktime_seconds
+from model.model_components.markets import PriceImpact, MarketPriceGenerator
 
 
 def exchange(params, prev_state, sell_amount, sell_gold, min_buy_amount=0):
@@ -35,6 +36,7 @@ def get_random_sell_amount_in_cusd(params):
 
 def p_random_exchange(params, substep, state_history, prev_state):
     sell_amount = get_random_sell_amount_in_cusd(params)
+    # TODO: control seed and track RN
     sell_gold = np.random.rand() > 0.5
     if sell_gold:
         sell_amount = sell_amount / prev_state['mento_rate']
@@ -61,13 +63,21 @@ def p_random_exchange(params, substep, state_history, prev_state):
         'celo': prev_state['reserve_account']['celo'] + delta_celo
     }
 
+    virtual_tanks = {
+        'usd': prev_state['virtual_tanks']['usd']
+    }
+
     mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
+
+    # market_price = {'cusd_usd': prev_state['_market_price_generator'].valuate(
+    #    floating_supply['cusd'], virtual_tanks['usd'])}
 
     return {
         'mento_buckets': mento_buckets,
         'floating_supply': floating_supply,
         'reserve_account': reserve_account,
-        'mento_rate': mento_rate
+        'mento_rate': mento_rate,
+        #    'market_price': market_price
     }
 
 

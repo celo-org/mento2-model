@@ -1,0 +1,32 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[scripts]
+linter = "flake8 --show-source ."
+format = "autopep8 -ivr ."
+
+[packages]
+jupyterlab = "==2.2.0"
+matplotlib = "==3.3.0"
+seaborn = "==0.10.1"
+jupyter = "==1.0.0"
+notebook = "==6.0.3"
+ipykernel = "==5.3.2"
+ipywidgets = ">=7.5"
+plotly = ">4.13.3"
+statsmodels = "==0.12.0"
+cadCAD = "==0.4.23"
+ipython = "*"
+"ipython.autotime" = "*"
+radcad = "*"
+stochastic = "*"
+
+[dev-packages]
+flake8-import-order = "*"
+flake8 = "*"
+autopep8 = "*"
+
+[requires]
+python_version = "3.8"

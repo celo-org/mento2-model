@@ -24,7 +24,8 @@ def create_cusd_demand_process(
     """
     blocks_per_year = 365 * 24 * 60 * 60 // blocktime_seconds
     timesteps_per_year = blocks_per_year // dt
-    per_timestep_volatility = cusd_demand_returns_vola_annually / np.sqrt(timesteps_per_year)
+    per_timestep_volatility = cusd_demand_returns_vola_annually / \
+        np.sqrt(timesteps_per_year)
     process = processes.continuous.GeometricBrownianMotion(
         drift=0.0,
         volatility=per_timestep_volatility,
