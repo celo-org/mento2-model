@@ -16,8 +16,8 @@ def exchange(params, prev_state, sell_amount, sell_gold, min_buy_amount=0):
         buy_token_bucket = prev_state['mento_buckets']['cusd']
         sell_token_bucket = prev_state['mento_buckets']['celo']
     else:
-        buy_token_bucket = prev_state['mento_buckets']['cusd']
-        sell_token_bucket = prev_state['mento_buckets']['celo']
+        buy_token_bucket = prev_state['mento_buckets']['celo']
+        sell_token_bucket = prev_state['mento_buckets']['cusd']
 
     numerator = sell_amount * (1 - spread) * buy_token_bucket
     denominator = sell_token_bucket + reduced_sell_amount
