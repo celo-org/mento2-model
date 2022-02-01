@@ -3,8 +3,22 @@ cadCAD model State Update Block structure, composed of Policy and State Update F
 """
 
 import model.parts.mento1 as mento1
+import model.parts.celo_system as celo_system
 from model.system_parameters import parameters
 from model.utils import update_from_signal
+
+state_update_block_target_epoch_rewards = {
+    "description": """
+        epoch rewards propagation:
+        * floating supply increase by epoch rewards
+    """,
+    'policies': {
+        'target_epoch_rewards': celo_system.p_target_epoch_rewards
+    },
+    'variables': {
+        'floating_supply': update_from_signal('floating_supply'),
+    }
+}
 
 state_update_block_mento1_trade = {
     "description": """
@@ -43,7 +57,8 @@ _state_update_blocks = (
     # Structure state update blocks as follows:
     [
         state_update_block_periodic_mento_bucket_update,
-        state_update_block_mento1_trade
+        state_update_block_mento1_trade,
+        state_update_block_target_epoch_rewards,
     ]
 )
 

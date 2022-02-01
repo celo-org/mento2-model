@@ -23,6 +23,8 @@ celo_supply_mean = df_celo_price_cap_volume_supply['supply'].mean()
 cusd_price_mean = df_cusd_price_cap_volume_supply['price'].mean()
 cusd_supply_mean = df_cusd_price_cap_volume_supply['supply'].mean()
 
+celo_last_supply = df_celo_price_cap_volume_supply['supply'][-1]
+
 df_cusd_price_cap_volume_supply['return'] = df_cusd_price_cap_volume_supply['price'].pct_change()
 cusd_supply_returns_vola_daily = df_cusd_price_cap_volume_supply['return'] .std()
 cusd_supply_returns_vola_annually = cusd_supply_returns_vola_daily * np.sqrt(365)

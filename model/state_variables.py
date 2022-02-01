@@ -21,7 +21,8 @@ from model.types import (
 from data.historical_values import (
     celo_price_mean,
     celo_supply_mean,
-    cusd_supply_mean
+    cusd_supply_mean,
+    celo_last_supply
 )
 
 @dataclass
@@ -66,6 +67,14 @@ class StateVariables:
     floating_supply: TokenBalance = default(
         {
             'celo': celo_supply_mean,
+            'cusd': cusd_supply_mean
+        }
+    )
+
+    # Celo supply
+    floating_supply: TokenBalance = default(
+        {
+            'celo': celo_last_supply,
             'cusd': cusd_supply_mean
         }
     )
