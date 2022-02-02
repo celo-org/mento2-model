@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod, abstractclassmethod
  
-class ModelComponent(ABC):
+class Generator(ABC):
     @abstractclassmethod
-    def from_parameters(cls, params) -> "ModelComponent":
+    def from_parameters(cls, params) -> "Generator":
         pass
 
     @abstractmethod

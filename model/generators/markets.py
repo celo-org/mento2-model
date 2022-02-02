@@ -12,7 +12,7 @@ from statsmodels.distributions.empirical_distribution import ECDF
 
 import experiments.simulation_configuration as simulation_configuration
 
-from model.components import ModelComponent
+from model.generators import Generator
 from model.constants import blocktime_seconds
 
 from data import historical_values
@@ -30,7 +30,7 @@ class PriceImpact(Enum):
     CONSTANT_PRODUCT = 'constant_product'
 
 
-class MarketPriceComponent(ModelComponent):
+class MarketPriceGenerator(Generator):
     def __init__(self, model, drift, volatility, price_impact_model=PriceImpact.CONSTANT_PRODUCT, increments=[None]):
         self.price_impact_model = price_impact_model
         self.model = model

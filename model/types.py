@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TypedDict
 
-from model.components.markets import DemandGenerator, MarketPriceComponent
+from model.generators.markets import DemandGenerator, MarketPriceGenerator
 
 # Celo system types
 Gas = int
@@ -63,7 +63,7 @@ class MarketPrice(TypedDict):
 
 
 class MarketPriceG(TypedDict):
-    cusd_usd: MarketPriceComponent
+    cusd_usd: MarketPriceGenerator
 
 
 class VirtualTanks(TypedDict):
