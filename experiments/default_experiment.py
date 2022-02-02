@@ -25,9 +25,10 @@ simulation = Simulation(
     timesteps=TIMESTEPS,
     runs=MONTE_CARLO_RUNS,
 )
+simulation.before_subset = generator_factory.before_subset
+
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])
-experiment.before_subset = generator_factory.before_subset
 
 # Configure Simulation & Experiment engine
 simulation.engine = experiment.engine
