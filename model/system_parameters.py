@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import List, Dict
 import experiments.simulation_configuration as simulation
 from model.generators.markets import MarketPriceModel
+
 from model.types import (
     Blocknumber
 )

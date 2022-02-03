@@ -14,10 +14,9 @@ from radcad import Simulation, Experiment, Backend
 
 from model import model
 from experiments.simulation_configuration import TIMESTEPS, MONTE_CARLO_RUNS
-from model.generators.factroy import GeneratorFactory
 from model.generators.markets import MarketPriceGenerator
+from model.generators.container import container
 
-generator_factory = GeneratorFactory(components=[MarketPriceGenerator])
 
 # Create Model Simulation
 simulation = Simulation(
@@ -25,7 +24,8 @@ simulation = Simulation(
     timesteps=TIMESTEPS,
     runs=MONTE_CARLO_RUNS,
 )
-simulation.before_subset = generator_factory.before_subset
+
+container.hook_to_simulation(simulation, [MarketPriceGenerator])
 
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])

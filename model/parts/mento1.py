@@ -68,7 +68,8 @@ def p_random_exchange(params, substep, state_history, prev_state):
 
     mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
 
-    # market_price = {'cusd_usd': prev_state['_market_price_generator'].valuate(
+    # market_price_generator = params['generators'].get(MarketPriceGenerator)
+    # market_price = {'cusd_usd': market_price_generator.valuate(
     #    floating_supply['cusd'], virtual_tanks['usd'])}
 
     return {
