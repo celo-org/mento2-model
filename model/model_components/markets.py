@@ -7,6 +7,7 @@ from pstats import Stats
 import random
 import numpy as np
 from stochastic import processes
+import dask.dataframe as dd
 import experiments.simulation_configuration as simulation_configuration
 from model.constants import blocktime_seconds
 from data import historical_values
@@ -32,21 +33,23 @@ class MarketPriceGenerator():
     # Todo multi currency
     # Todo in particular delay for Celo supply
     # Todo typing
-    # Todo All seeds as params 
+    # Todo All seeds as params
     # Todo check thhat not 'entire' object bis saved in state history
 
     def __init__(self, model, drift, volatility,
                  price_impact_model=PriceImpact.CONSTANT_PRODUCT,
-                 historical_data=[None], increments=[None],
-                                  ):
+                 historical_data=[None], increments=[None], seed=1
+                 ):
+        self.seed = seed
         self.price_impact_model = price_impact_model
         self.model = model
         self.drift = drift
         self.volatility = volatility
         self.historical_data = historical_data
         self.increments = increments
-        self.supply_changes = np.zeros(simulation_configuration.DELTA_TIME * simulation_configuration.TIMESTEPS)
-        # todo replace step by corresponding simulation counter 
+        self.supply_changes = np.zeros(
+            simulation_configuration.DELTA_TIME * simulation_configuration.TIMESTEPS)
+        # todo replace step by corresponding simulation counter
         self.step = 0
 
     @classmethod
@@ -69,10 +72,12 @@ class MarketPriceGenerator():
             market_price_generator.load_historical_data(parameters['data_file'][0])
             return market_price_generator
 
-    def load_historical_data(self, file):
+    def load_historical_data(self, file_name):
         """
         Parser to read prices and turn them into log-returns"""
-        return None
+        # TODO parser
+        df = dd.read_csv(file_name)
+        self.historical_data = list(df['log_returns'])
 
     def observe_market_states(self, state):
         """
@@ -83,13 +88,13 @@ class MarketPriceGenerator():
                 'market_price': state['market_price']['cusd_usd']}
 
     def market_price(self, state):
-        step = state['timestep']
-        if self.model == MarketPriceModel.GBM:       
-            return state['market_price']['cusd_usd'] * self.increments[step]
+        self.step += 1
+        if self.model == MarketPriceModel.GBM:
+            return state['market_price']['cusd_usd'] * self.increments[self.step-1]
         elif self.model == MarketPriceModel.PRICE_IMPACT:
             return self.valuate_price_impact(state['supply'], state['virtual_tank'])
         elif self.model == MarketPriceModel.HIST_SIM:
-            return state['market_price']['cusd_usd'] * self.increments[step]
+            return state['market_price']['cusd_usd'] * self.increments[self.step-1]
 
     def price_impact_function(self, mode):
         return lambda asset_1, asset_2: asset_1 / asset_2
@@ -117,19 +122,22 @@ class MarketPriceGenerator():
 
     # Todo add delay that creates time lag between Mento trades and price impact
 
-    def impact_delay(self,block_supply_change, impact_delay = ImpactDelay.INSTANT, dt=simulation_configuration.DELTA_TIME, timesteps=simulation_configuration.TIMESTEPS):
+    def impact_delay(self, block_supply_change,
+                     impact_delay=ImpactDelay.INSTANT,
+                     dt=simulation_configuration.DELTA_TIME,
+                     timesteps=simulation_configuration.TIMESTEPS):
         if impact_delay == ImpactDelay.INSTANT:
             unit_array = np.zeros(timesteps * dt + 1)
-            delay_envelope = lambda x: x * unit_array
+            def delay_envelope(x): return x * unit_array
             self.supply_changes += delay_envelope(block_supply_change)
 
-    def historical_returns(self, sample_size):
+    def historical_returns(self, sample_size, seed):
         """Creates a random sample from a set of historical log-returns
         """
-    # TODO Consider different sampling options  
-        sample = random.choices(self.historical_data, sample_size)
-
-        self.increments = sample
+    # TODO Consider different sampling options
+        random.seed(seed)
+        samples = random.choices(self.historical_data, sample_size)
+        self.increments = samples
 
     @property
     def cusd_usd_price(self):

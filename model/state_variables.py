@@ -77,10 +77,10 @@ class StateVariables:
     )
     # Part of floating supply that is effecting the price
     effective_supply: TokenBalance = default(
-       {
+        {
             'celo': celo_supply_mean,
             'cusd': cusd_supply_mean
-        } 
+        }
     )
     # Virtual Fiat Market Tank
     virtual_tanks: VirtualTanks = default(
