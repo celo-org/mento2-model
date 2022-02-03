@@ -22,13 +22,22 @@ state_update_block_mento1_trade = {
         'mento_buckets': update_from_signal('mento_buckets'),
         'reserve_account': update_from_signal('reserve_account'),
         'floating_supply': update_from_signal('floating_supply'),
-        'mento_rate': update_from_signal('mento_rate')        
+        'mento_rate': update_from_signal('mento_rate')
     }
 }
 
-# Todo update block that applies the supply change to the market and calculates new price 
+# Todo update block that applies the supply change to the market and calculates new price
 # according to impact timing function
-state_update_block_mento_impact = {
+state_update_block_effective_supply = {
+    "description": """        
+    """,
+    'policies': {
+        'market_price': market_price.p_effective_supply
+    },
+    'variables': {
+        'effective_supply': update_from_signal('effective_supply'),
+        # 'virtual_tanks': update_from_signal('virtual_tanks')
+    }
 
 }
 
@@ -63,6 +72,7 @@ _state_update_blocks = (
     [
         state_update_block_periodic_mento_bucket_update,
         state_update_block_mento1_trade,
+        # state_update_block_effective_supply,
         state_update_block_market_price_change
 
     ]
