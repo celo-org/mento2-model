@@ -3,7 +3,6 @@ Various Python types used in the model
 """
 
 # See https://docs.python.org/3/library/dataclasses.html
-from dataclasses import dataclass
 from enum import Enum
 from typing import TypedDict
 
@@ -14,14 +13,8 @@ Gwei = float
 Gwei_per_Gas = float
 
 
-class Stage(Enum):
-    """Stages of the Mento1.0 -> Mento2.0 upgrade process network upgrade process"""
-
-    Mento1 = 1  # Celo mainnet Mento1
-    Mento1_SPs = 2  # Mento1 plus stability providers
-    Mento1_SPs_IRPs = 3  # Mento1 + stability providers + IRPs
-
-
+# TODO: Do not rely on types Token_balance and TokenBalance, confusing
+# TODO: Can we use positive-value-only datatypes for balances?
 # Balance types
 Token_balance = float
 Usd_balance = float
@@ -38,7 +31,23 @@ Timestep = int
 Blocknumber = int
 Day = int
 
+# General types
+Account_id = int
 
+
+# Feature types
+class Features(Enum):
+    """Feature categories of Mento2"""
+
+    BUY_AND_SELL_STABLES = 1
+    """Mento1 like exchange that allows to buy (sell) stables into (out of) existence"""
+    BORROW_AND_REPAY_STABLES = 2
+    """IRPs that allow to borrow (repay) stables into (out of) existence """
+    SECURE_STABLES = 3
+    """Stability providers"""
+
+
+# TODO: Is there a better type for the below classes then TypedDicts?
 class TokenBalance(TypedDict):
     """
     Class for an on-chain token balance
@@ -51,12 +60,4 @@ class Account(TokenBalance):
     """
     Class for an on-chain account
     """
-    account_id: int
-
-
-class Actor(TypedDict):
-    """
-    Class for a single actor
-    """
-    actor_id: int
-    account: Account
+    account_id: Account_id

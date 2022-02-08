@@ -3,7 +3,7 @@ cadCAD model State Update Block structure, composed of Policy and State Update F
 """
 
 import model.parts.mento1 as mento1
-from model.system_parameters import parameters
+import model.parts.borrow as borrow
 from model.utils import update_from_signal
 
 state_update_block_mento1_trade = {
@@ -38,14 +38,27 @@ state_update_block_periodic_mento_bucket_update = {
     }
 }
 
-# Conditionally update the order of the State Update Blocks using a ternary operator
-_state_update_blocks = (
-    # Structure state update blocks as follows:
-    [
-        state_update_block_periodic_mento_bucket_update,
-        state_update_block_mento1_trade
-    ]
-)
+state_update_block_create_random_irp = {
+    "description": """
+        Creates a new IRP with probability probability_of_new_irp_per_block:
+        * Mento1 buckets updated
+    """,
+    'policies': {
+        'create_random_irp': borrow.p_create_random_irp
+    },
+    'variables': {
+        'total_celo_lend': update_from_signal('total_celo_lend'),
+        'total_cusd_borrowed': update_from_signal('total_cusd_borrowed')
+    }
+}
+
+# Create state_update blocks list
+# TODO: Can we do this in a way such that we only take the update blocks for the enabled features?
+_state_update_blocks = [
+    state_update_block_periodic_mento_bucket_update,
+    state_update_block_mento1_trade,
+    state_update_block_create_random_irp
+]
 
 # Split the state update blocks into those used during the simulation_configuration (state_update_blocks)
 # and those used in post-processing to calculate the system metrics (post_processing_blocks)

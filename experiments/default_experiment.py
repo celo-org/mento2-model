@@ -1,6 +1,12 @@
 """
 The default experiment with default model, Initial State, System Parameters, and Simulation Configuration.
 
+In the default experiment, all features besides Buy/Sell
+* Borrow/lend
+* Secure
+* ....
+are turned off!
+
 The defaults are defined in their respective modules:
 * Initial State in `model/state_variables.py`
 * System Parameters in `model/system_parameters.py`

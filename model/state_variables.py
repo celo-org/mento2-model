@@ -8,13 +8,14 @@ By using a dataclass to represent the State Variables:
 """
 
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 from datetime import datetime
 from model.utils import default
 
 from model.types import (
     Usd_per_token,
     Token_per_token,
+    Token_balance,
     TokenBalance,
     Account
 )
@@ -24,6 +25,7 @@ from data.historical_values import (
     cusd_supply_mean
 )
 
+
 @dataclass
 class StateVariables:
     """State Variables
@@ -31,19 +33,12 @@ class StateVariables:
     state variable key: state variable type = default state variable value
     """
 
-    # Time state variables
-    timestamp: datetime = None
-    """
-    The timestamp for each timestep as a Python `datetime` object, starting from `date_start` Parameter.
-    """
-
     # Celo state variables
     celo_price: Usd_per_token = celo_price_mean
     """The CELO spot price in USD"""
     cusd_price: Usd_per_token = 1.0
     """The CELO spot price"""
-    mento_rate: Token_per_token = celo_price_mean
-    """The Mento CELO/cUSD rate """
+    num_accounts: int = 0
 
     # Reserve state variable
     reserve_account: Account = default(
@@ -62,13 +57,21 @@ class StateVariables:
         }
     )
 
-    # Mento state variables
+    mento_rate: Token_per_token = celo_price_mean
+    """The Mento CELO/cUSD rate """
+
+    # Floating supply state variables
+    # TODO: Bring this in line with the account manager tracking total supplies
     floating_supply: TokenBalance = default(
         {
             'celo': celo_supply_mean,
             'cusd': cusd_supply_mean
         }
     )
+
+    # IRP related state variables
+    total_celo_lend: Token_balance = default(0)
+    total_cusd_borrowed: Token_balance = default(0)
 
 
 # Initialize State Variables instance with default values

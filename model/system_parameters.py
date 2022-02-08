@@ -8,7 +8,6 @@ By using a dataclass to represent the System Parameters:
 """
 
 from dataclasses import dataclass
-from datetime import datetime
 from typing import List
 import experiments.simulation_configuration as simulation
 from model.types import (
@@ -18,6 +17,7 @@ from model.types import (
 from model.utils import default
 
 
+# TODO: Substructure for the parameters (like parameters.irps.liquidation_threshold)
 @dataclass
 class Parameters:
     """System Parameters
@@ -39,18 +39,10 @@ class Parameters:
 
     """
 
-    date_stability_providers: List[datetime] = default(
-        [datetime.strptime("2022/10/01", "%Y/%m/%d")]
-    )
-    """
-    Expected date for when stability providers can become active
-    """
-
-    date_irps: List[datetime] = default([datetime.strptime("2022/03/1", "%Y/%m/%d")])
-    """
-    Expected date for when IRPs can be used to mint stabletokens
-    
-    """
+    # Enabled features
+    feature_buy_and_sell_stables_enabled: List[bool] = default([True])
+    feature_borrow_and_repay_stables_enabled: List[bool] = default([False])
+    feature_secure_stables_enabled: List[bool] = default([False])
 
     # Mento1.0-related parameters
     cusd_demand: List[float] = default([10000000])
@@ -58,6 +50,12 @@ class Parameters:
     spread: List[float] = default([0.0025])
     max_sell_amount: List[float] = default([0.10])
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
+
+    # IRPS related parameters
+    liquidation_threshold: List[float] = default([0.8])
+    probability_of_new_irp_per_block: List[float] = default([0.001])
+    initial_irp_user_celo_balance: List[float] = default([1000])
+    initial_collateralization_ratio: List[float] = default([1.5])
 
 
 # Initialize Parameters instance with default values

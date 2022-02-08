@@ -34,6 +34,16 @@ def get_random_sell_amount_in_cusd(params):
 
 
 def p_random_exchange(params, substep, state_history, prev_state):
+
+    # TODO: Check this earlier if possible
+    if not params['feature_buy_and_sell_stables_enabled']:
+        return {
+            'mento_buckets': prev_state['mento_buckets'],
+            'floating_supply': prev_state['floating_supply'],
+            'reserve_account': prev_state['reserve_account'],
+            'mento_rate': prev_state['mento_rate']
+        }
+
     sell_amount = get_random_sell_amount_in_cusd(params)
     sell_gold = np.random.rand() > 0.5
     if sell_gold:
@@ -60,7 +70,6 @@ def p_random_exchange(params, substep, state_history, prev_state):
     reserve_account = {
         'celo': prev_state['reserve_account']['celo'] + delta_celo
     }
-
     mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
 
     return {
@@ -75,6 +84,17 @@ def p_bucket_update(params, substep, state_history, prev_state):
     """
     Only update buckets every update_frequency_seconds
     """
+
+    # TODO: Check this earlier if possible
+    if not params['feature_buy_and_sell_stables_enabled']:
+        mento_buckets = {
+            'cusd': prev_state['mento_buckets']['cusd'],
+            'celo': prev_state['mento_buckets']['celo']
+        }
+        return {
+            'mento_buckets': mento_buckets
+        }
+
     if (blocktime_seconds * prev_state['timestep']) % params['bucket_update_frequency_seconds'] == 0:
         celo_bucket = params['reserve_fraction'] * prev_state['reserve_account']['celo']
         cusd_bucket = prev_state['mento_rate'] * celo_bucket
