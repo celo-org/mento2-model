@@ -46,3 +46,7 @@ class AccountManager:
     def check_account_valid(self, account_id):
         assert len(self.all_accounts) > 0, ' No accounts exist'
         assert self.all_accounts[account_id]['account_id'] == account_id, 'Account_id mismatch'
+
+
+# Initialize AccountManager instance
+account_manager = AccountManager()

@@ -9,15 +9,13 @@ By using a dataclass to represent the State Variables:
 
 
 from dataclasses import dataclass
-from datetime import datetime
 from model.utils import default
 
 from model.types import (
     Usd_per_token,
     Token_per_token,
     Token_balance,
-    TokenBalance,
-    Account
+    TokenBalance
 )
 from data.historical_values import (
     celo_price_mean,
@@ -34,16 +32,15 @@ class StateVariables:
     """
 
     # Celo state variables
-    celo_price: Usd_per_token = celo_price_mean
+    celo_usd_price: Usd_per_token = celo_price_mean
     """The CELO spot price in USD"""
-    cusd_price: Usd_per_token = 1.0
+    cusd_usd_price: Usd_per_token = 1.0
     """The CELO spot price"""
     num_accounts: int = 0
 
     # Reserve state variable
-    reserve_account: Account = default(
+    reserve_balance: TokenBalance = default(
         {
-            'account_id': 0,
             'celo': 120000000.0,
             'cusd': 0.0
         }

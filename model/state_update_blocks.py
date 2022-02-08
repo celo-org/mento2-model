@@ -2,8 +2,8 @@
 cadCAD model State Update Block structure, composed of Policy and State Update Functions
 """
 
-import model.parts.mento1 as mento1
-import model.parts.borrow as borrow
+import model.parts.buy_and_sell as mento1
+import model.parts.borrow_and_repay as borrow
 from model.utils import update_from_signal
 
 state_update_block_mento1_trade = {
@@ -19,7 +19,7 @@ state_update_block_mento1_trade = {
     },
     'variables': {
         'mento_buckets': update_from_signal('mento_buckets'),
-        'reserve_account': update_from_signal('reserve_account'),
+        'reserve_balance': update_from_signal('reserve_balance'),
         'floating_supply': update_from_signal('floating_supply'),
         'mento_rate': update_from_signal('mento_rate')
     }

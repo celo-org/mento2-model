@@ -44,14 +44,14 @@ class Parameters:
     feature_borrow_and_repay_stables_enabled: List[bool] = default([False])
     feature_secure_stables_enabled: List[bool] = default([False])
 
-    # Mento1.0-related parameters
+    # Buy_and_sell-related parameters
     cusd_demand: List[float] = default([10000000])
     reserve_fraction: List[float] = default([0.01])
     spread: List[float] = default([0.0025])
-    max_sell_amount: List[float] = default([0.10])
+    max_sell_fraction_of_float: List[float] = default([0.0001])  # Max 0.01% of CELO or cUSD float sold in every block
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
-    # IRPS related parameters
+    # Borrow_and_repay related parameters
     liquidation_threshold: List[float] = default([0.8])
     probability_of_new_irp_per_block: List[float] = default([0.001])
     initial_irp_user_celo_balance: List[float] = default([1000])

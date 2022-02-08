@@ -15,6 +15,7 @@ Gwei_per_Gas = float
 
 # TODO: Do not rely on types Token_balance and TokenBalance, confusing
 # TODO: Can we use positive-value-only datatypes for balances?
+# TODO: Use decimal precision according to celo account balance precision
 # Balance types
 Token_balance = float
 Usd_balance = float
@@ -60,4 +61,4 @@ class Account(TokenBalance):
     """
     Class for an on-chain account
     """
-    account_id: Account_id
+    account_id: int
