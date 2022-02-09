@@ -102,9 +102,20 @@ class IRPManager:
             self.total_cusd_from_liquidated_irps
         )
 
+    def reset(self):
+        self.__init__()
+        print('irp_manager reset!')
+
 
 # Initialize IRPManager instance
 irp_manager = IRPManager()
+
+
+# TODO: Improve this!
+# Must be used at beginning of first policy of all borrow_and_repay state_update_block
+def reset_irp_manager_if_new_parameter_subset(state_history):
+    if len(state_history) == 1:
+        irp_manager.reset()
 
 
 def p_create_random_irp(params, substep, state_history, prev_state):
@@ -119,6 +130,9 @@ def p_create_random_irp(params, substep, state_history, prev_state):
             'total_cusd_borrowed': prev_state['total_cusd_borrowed']
         }
 
+    # TODO: Find better solution
+    reset_irp_manager_if_new_parameter_subset(state_history)
+
     if np.random.uniform() > params['probability_of_new_irp_per_block']:
         return {
             'total_celo_deposited': prev_state['total_celo_deposited'],
@@ -127,9 +141,9 @@ def p_create_random_irp(params, substep, state_history, prev_state):
 
     celo_lend = params['initial_irp_user_celo_balance']  # TODO: Allow less than full balance amount
 
-    # TODO: Should we really use the mento rate here or rather the CELO/USD rate?
+    # TODO: Should we really use the CELO/USD rate here or rather the mento rate?
     cusd_borrowed = (
-            celo_lend * prev_state['mento_rate'] / params['initial_collateralization_ratio']
+            celo_lend * prev_state['celo_usd_price'] / params['initial_collateralization_ratio']
     )
 
     # Initialize a new, funded account for _IRP creator
@@ -157,7 +171,6 @@ def p_liquidate_undercollateralized_irps(params, substep, state_history, prev_st
     """
     Liquidates all IRPs that are below the liquidation threshold
     """
-
     # TODO: Check this earlier if possible / do this with a decorator
     if not params['feature_borrow_and_repay_stables_enabled']:
         return {
@@ -168,7 +181,7 @@ def p_liquidate_undercollateralized_irps(params, substep, state_history, prev_st
         }
 
     irp_manager.liquidate_irps_if_undercollaterlized(
-        celo_usd_price=prev_state['mento_rate'],  # TODO: USE CELO/USD price here!!
+        celo_usd_price=prev_state['celo_usd_price'],
         liquidation_threshold=params['liquidation_threshold']
     )
     total_celo_deposited, total_cusd_borrowed, total_celo_liquidated, total_cusd_from_liquidated_irps = (

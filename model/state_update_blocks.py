@@ -2,8 +2,9 @@
 cadCAD model State Update Block structure, composed of Policy and State Update Functions
 """
 
-import model.parts.buy_and_sell as mento1
-import model.parts.borrow_and_repay as borrow
+import model.parts.buy_and_sell as buy_and_sell
+import model.parts.borrow_and_repay as borrow_and_repay
+import model.parts.celo_system as celo_system
 from model.utils import update_from_signal
 
 state_update_block_mento1_trade = {
@@ -11,7 +12,7 @@ state_update_block_mento1_trade = {
         Single Mento1 trade:
     """,
     'policies': {
-        'random_exchange': mento1.p_random_exchange
+        'random_exchange': buy_and_sell.p_random_exchange
     },
     'variables': {
         'mento_buckets': update_from_signal('mento_buckets'),
@@ -26,7 +27,7 @@ state_update_block_periodic_mento_bucket_update = {
         Updates blocks only when update bucket_update_frequency_seconds has passed since last update:
     """,
     'policies': {
-        'bucket_update': mento1.p_bucket_update
+        'bucket_update': buy_and_sell.p_bucket_update
     },
     'variables': {
         'mento_buckets': update_from_signal('mento_buckets')
@@ -38,7 +39,7 @@ state_update_block_create_random_irp = {
         Creates a new IRP with probability probability_of_new_irp_per_block:
     """,
     'policies': {
-        'create_random_irp': borrow.p_create_random_irp
+        'create_random_irp': borrow_and_repay.p_create_random_irp
     },
     'variables': {
         'total_celo_deposited': update_from_signal('total_celo_deposited'),
@@ -51,11 +52,25 @@ state_update_block_liquidate_undercollateralized_irps = {
         Liquidates all undercollateralized IRPs:
     """,
     'policies': {
-        'liquidate_undercollateralized_irps': borrow.p_liquidate_undercollateralized_irps
+        'liquidate_undercollateralized_irps': borrow_and_repay.p_liquidate_undercollateralized_irps
     },
     'variables': {
         'total_celo_deposited': update_from_signal('total_celo_deposited'),
-        'total_cusd_borrowed': update_from_signal('total_cusd_borrowed')
+        'total_cusd_borrowed': update_from_signal('total_cusd_borrowed'),
+        'total_celo_liquidated': update_from_signal('total_celo_liquidated'),
+        'total_cusd_from_liquidated_irps': update_from_signal('total_cusd_from_liquidated_irps')
+    }
+}
+
+state_update_block_random_celo_usd_price_change = {
+    "description": """
+        Create a random change in the celo_usd_price
+    """,
+    'policies': {
+        'random_celo_usd_price_change': celo_system.p_random_celo_usd_price_change
+    },
+    'variables': {
+        'celo_usd_price': update_from_signal('celo_usd_price')
     }
 }
 
@@ -65,7 +80,8 @@ _state_update_blocks = [
     state_update_block_periodic_mento_bucket_update,
     state_update_block_mento1_trade,
     state_update_block_create_random_irp,
-    state_update_block_liquidate_undercollateralized_irps
+    state_update_block_liquidate_undercollateralized_irps,
+    state_update_block_random_celo_usd_price_change
 ]
 
 # Split the state update blocks into those used during the simulation_configuration (state_update_blocks)

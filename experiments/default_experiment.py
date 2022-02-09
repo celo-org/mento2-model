@@ -1,8 +1,8 @@
 """
 The default experiment with default model, Initial State, System Parameters, and Simulation Configuration.
 
-In the default experiment, all features besides Buy/Sell
-* Borrow/lend
+In the default experiment, all features besides Buy&Sell
+* Borrow&Repay
 * Secure
 * ....
 are turned off!

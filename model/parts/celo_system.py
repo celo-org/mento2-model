@@ -3,8 +3,10 @@
 
 General Celo blockchain mechanisms, such as updating the CELO supply through epoch rewards.
 """
+import numpy as np
 from model.types import Account
 from typing import List
+
 
 
 # TODO: Should this live here?
@@ -46,6 +48,17 @@ class AccountManager:
     def check_account_valid(self, account_id):
         assert len(self.all_accounts) > 0, ' No accounts exist'
         assert self.all_accounts[account_id]['account_id'] == account_id, 'Account_id mismatch'
+
+
+def p_random_celo_usd_price_change(params, substep, state_history, prev_state):
+    """
+    Create some random changes in celo_usd_price
+    """
+    vola_per_block = 5.0 / np.sqrt(365*24*60*12)  # Annual vola of 500% for some action
+    pct_change = np.random.normal() * vola_per_block
+    return {
+        'celo_usd_price': prev_state['celo_usd_price'] * np.exp(pct_change)
+    }
 
 
 # Initialize AccountManager instance

@@ -43,7 +43,7 @@ class Features(Enum):
     BUY_AND_SELL_STABLES = 1
     """Mento1 like exchange that allows to buy (sell) stables into (out of) existence"""
     BORROW_AND_REPAY_STABLES = 2
-    """IRPs that allow to borrow (repay) stables into (out of) existence """
+    """IRPs that allow to borrow_and_repay (repay) stables into (out of) existence """
     SECURE_STABLES = 3
     """Stability providers"""
 

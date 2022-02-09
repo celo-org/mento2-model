@@ -6,7 +6,7 @@ Calculation of changes in Mento buckets sizes, floating supply and reserve balan
 
 import numpy as np
 from model.constants import blocktime_seconds
-
+import time
 
 # TODO: Should this live here?
 class Trade:
@@ -89,7 +89,6 @@ class Trade:
 # TODO: Should this live here?
 class BuyAndSellManager:
     def __init__(self):
-        self.total_number_of_exchange_events = 0
         self.total_celo_bought = 0
         self.total_celo_sold = 0
         self.total_cusd_bought = 0
@@ -120,7 +119,7 @@ class BuyAndSellManager:
     @staticmethod
     def calculate_reset_buckets(params, prev_state):
         celo_bucket = params['reserve_fraction'] * prev_state['reserve_balance']['celo']
-        cusd_bucket = prev_state['mento_rate'] * celo_bucket
+        cusd_bucket = prev_state['celo_usd_price'] * celo_bucket
         mento_buckets = {
             'cusd': cusd_bucket,
             'celo': celo_bucket
@@ -214,19 +213,33 @@ class BuyAndSellManager:
             'mento_rate': mento_rate
     }
 
+    def reset(self):
+        self.__init__()
+        print('buy_and_sell_manager reset!')
+
 
 # Initialize buy_and_sell_manager
 buy_and_sell_manager = BuyAndSellManager()
 
 
+# TODO: Improve this!
+# Must be used at beginning of first policy of all buy_and_sell state_update_block
+def reset_buy_and_sell_manager_if_new_parameter_subset(state_history):
+    if len(state_history) == 1:
+        buy_and_sell_manager.reset()
+
+
 def p_random_exchange(params, substep, state_history, prev_state):
 
-    # TODO: Check this earlier if possible
+    # TODO: Check this earlier if possible / use decorator
     if not buy_and_sell_manager.buy_and_sell_feature_enabled(params):
         return buy_and_sell_manager.leave_all_state_variables_unchanged(
             prev_state=prev_state,
             policy_type='p_random_exchange'
         )
+
+    # TODO: Find better solution
+    reset_buy_and_sell_manager_if_new_parameter_subset(state_history)
 
     random_trade = buy_and_sell_manager.create_random_trade(
         params=params, prev_state=prev_state
@@ -245,7 +258,7 @@ def p_bucket_update(params, substep, state_history, prev_state):
     Only update buckets every update_frequency_seconds
     """
 
-    # TODO: Check this earlier if possible
+    # TODO: Check this earlier if possible / use decorator
     if not buy_and_sell_manager.buy_and_sell_feature_enabled(params):
         return buy_and_sell_manager.leave_all_state_variables_unchanged(
             prev_state=prev_state,
