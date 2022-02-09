@@ -54,7 +54,7 @@ class Parameters:
     # Borrow_and_repay related parameters
     liquidation_threshold: List[float] = default([0.8])
     probability_of_new_irp_per_block: List[float] = default([0.001])
-    initial_irp_user_celo_balance: List[float] = default([1000])
+    initial_irp_user_celo_balance: List[float] = default([10000])
     initial_collateralization_ratio: List[float] = default([1.5])
 
 

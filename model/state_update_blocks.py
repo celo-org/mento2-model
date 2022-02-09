@@ -9,10 +9,6 @@ from model.utils import update_from_signal
 state_update_block_mento1_trade = {
     "description": """
         Single Mento1 trade:
-        * Mento buckets updated
-        * Reserve CELO balance updated
-        * Floating supply (cUSD and CELO) updated
-        * Mento price updated
     """,
     'policies': {
         'random_exchange': mento1.p_random_exchange
@@ -28,7 +24,6 @@ state_update_block_mento1_trade = {
 state_update_block_periodic_mento_bucket_update = {
     "description": """
         Updates blocks only when update bucket_update_frequency_seconds has passed since last update:
-        * Mento1 buckets updated
     """,
     'policies': {
         'bucket_update': mento1.p_bucket_update
@@ -41,13 +36,25 @@ state_update_block_periodic_mento_bucket_update = {
 state_update_block_create_random_irp = {
     "description": """
         Creates a new IRP with probability probability_of_new_irp_per_block:
-        * Mento1 buckets updated
     """,
     'policies': {
         'create_random_irp': borrow.p_create_random_irp
     },
     'variables': {
-        'total_celo_lend': update_from_signal('total_celo_lend'),
+        'total_celo_deposited': update_from_signal('total_celo_deposited'),
+        'total_cusd_borrowed': update_from_signal('total_cusd_borrowed')
+    }
+}
+
+state_update_block_liquidate_undercollateralized_irps = {
+    "description": """
+        Liquidates all undercollateralized IRPs:
+    """,
+    'policies': {
+        'liquidate_undercollateralized_irps': borrow.p_liquidate_undercollateralized_irps
+    },
+    'variables': {
+        'total_celo_deposited': update_from_signal('total_celo_deposited'),
         'total_cusd_borrowed': update_from_signal('total_cusd_borrowed')
     }
 }
@@ -57,7 +64,8 @@ state_update_block_create_random_irp = {
 _state_update_blocks = [
     state_update_block_periodic_mento_bucket_update,
     state_update_block_mento1_trade,
-    state_update_block_create_random_irp
+    state_update_block_create_random_irp,
+    state_update_block_liquidate_undercollateralized_irps
 ]
 
 # Split the state update blocks into those used during the simulation_configuration (state_update_blocks)

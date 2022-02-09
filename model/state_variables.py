@@ -66,9 +66,11 @@ class StateVariables:
         }
     )
 
-    # IRP related state variables
-    total_celo_lend: Token_balance = default(0)
+    # _IRP related state variables
+    total_celo_deposited: Token_balance = default(0)
     total_cusd_borrowed: Token_balance = default(0)
+    total_celo_liquidated: Token_balance = default(0)
+    total_cusd_from_liquidated_irps: Token_balance = default(0)
 
 
 # Initialize State Variables instance with default values
