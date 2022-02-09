@@ -29,7 +29,7 @@ class Parameters:
     """
 
     # Time-related parameters
-    dt: List[Blocknumber] = default([simulation.DELTA_TIME])
+    dt: List[Blocknumber] = default([simulation.BLOCKS_PER_TIMESTEP])
     """
     Simulation timescale / timestep unit of time, in blocks.
 

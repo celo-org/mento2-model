@@ -17,13 +17,13 @@ from experiments.default_experiment import experiment
 experiment = copy.deepcopy(experiment)
 
 # Change some simulation_configuration configuration settings
-DELTA_TIME = 1  # blocks per timestep
-TIMESTEPS = constants.blocks_per_year * 3 // DELTA_TIME
+BLOCKS_PER_TIMESTEP = 1  # blocks per timestep
+TIMESTEPS = constants.blocks_per_year * 3 // BLOCKS_PER_TIMESTEP
 
 # Generate stochastic process realizations
 MONTE_CARLO_RUNS = 5
 cusd_demand_samples = create_stochastic_process_realizations(
-    "cusd_demand_process", timesteps=TIMESTEPS, dt=DELTA_TIME, runs=MONTE_CARLO_RUNS
+    "cusd_demand_process", timesteps=TIMESTEPS, dt=BLOCKS_PER_TIMESTEP, runs=MONTE_CARLO_RUNS
 )
 
 parameter_overrides = {
