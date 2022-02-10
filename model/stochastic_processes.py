@@ -12,7 +12,7 @@ from experiments.utils import rng_generator
 
 def create_cusd_demand_process(
     timesteps=simulation_configuration.TIMESTEPS,
-    dt=simulation_configuration.DELTA_TIME,
+    dt=simulation_configuration.BLOCKS_PER_TIMESTEP,
     initial_cusd_demand=historical_values.cusd_supply_mean,
     cusd_demand_returns_vola_annually=historical_values.cusd_supply_returns_vola_annually,
     rng=np.random.default_rng(1)
@@ -39,7 +39,7 @@ def create_cusd_demand_process(
 def create_stochastic_process_realizations(
     process,
     timesteps=simulation_configuration.TIMESTEPS,
-    dt=simulation_configuration.DELTA_TIME,
+    dt=simulation_configuration.BLOCKS_PER_TIMESTEP,
     runs=5,
 ):
     """Create stochastic process realizations
