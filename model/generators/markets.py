@@ -1,22 +1,21 @@
 """
 # Market related policy and state update functions
 """
+import logging
 import random
 import numpy as np
 
 from enum import Enum
-from opcode import stack_effect
 from pstats import Stats
-from stochastic import processes
-from statsmodels.distributions.empirical_distribution import ECDF
+import time
 
+import dask
 import dask.dataframe as dd
 import experiments.simulation_configuration as simulation_configuration
+from model import constants
 
 from model.generators import Generator
-from model.constants import blocktime_seconds
 
-from data import historical_values
 from experiments.utils import rng_generator
 
 
@@ -30,32 +29,34 @@ class PriceImpact(Enum):
     CONSTANT_FIAT = 'constant_fiat'
     CONSTANT_PRODUCT = 'constant_product'
 
+
 class ImpactDelay(Enum):
     INSTANT = 'instant'
 
 
 class MarketPriceGenerator(Generator):
-    # Todo multi currency
-    # Todo in particular delay for Celo supply
-    # Todo typing
-    # Todo All seeds as params
-    # Todo check thhat not 'entire' object bis saved in state history
+    # TODO multi currency configurable
+    # TODO in particular delay for Celo supply
+    # TODO typing
+    # TODO All seeds as params
+    # TODO Comments
 
-    def __init__(self, model, drift, volatility,
+    def __init__(self, model, drift, covariance,
                  price_impact_model=PriceImpact.CONSTANT_PRODUCT,
-                 historical_data=[None], increments=[None], seed=1
+                 historical_data=None, increments=[None], seed=1
                  ):
         self.seed = seed
         self.price_impact_model = price_impact_model
         self.model = model
         self.drift = drift
-        self.volatility = volatility
+        self.covariance = covariance
         self.historical_data = historical_data
         self.increments = increments
-        self.supply_changes = np.zeros(
-            simulation_configuration.DELTA_TIME * simulation_configuration.TIMESTEPS)
-        # todo replace step by corresponding simulation counter
-        self.step = 0
+        self.supply_changes = {'cusd': np.zeros(
+            simulation_configuration.BLOCKS_PER_TIMESTEP * simulation_configuration.TIMESTEPS+1),
+            'celo': np.zeros(
+            simulation_configuration.BLOCKS_PER_TIMESTEP * simulation_configuration.TIMESTEPS+1)}
+        self.data_folder = '../../data/'
 
     @classmethod
     def from_parameters(cls, parameters):
@@ -63,87 +64,108 @@ class MarketPriceGenerator(Generator):
             print()
             market_price_generator = cls(parameters['model'],
                                          parameters['drift_market_price'],
-                                         parameters['volatility_market_price'])
-            market_price_generator.generate_gbm_increments()
+                                         parameters['covariance_market_price'])
+            market_price_generator.correlated_returns()
             return market_price_generator
         elif parameters['model'] == MarketPriceModel.PRICE_IMPACT:
             return cls(parameters['model'],
                        None,
                        None)
         elif parameters['model'] == MarketPriceModel.HIST_SIM:
-            market_price_generator = cls(None,
+            market_price_generator = cls(parameters['model'],
                                          None,
                                          None)
             market_price_generator.load_historical_data(parameters['data_file'])
+            sample_size = simulation_configuration.BLOCKS_PER_TIMESTEP * \
+                simulation_configuration.TIMESTEPS + 1
+            market_price_generator.historical_returns(sample_size=sample_size, seed=1)
+            logging.info('increments updated')
             return market_price_generator
-
 
     def load_historical_data(self, file_name):
         """
         Parser to read prices and turn them into log-returns"""
         # TODO parser
-        df = dd.read_csv(file_name)
-        self.historical_data = list(df['log_returns'])
 
-    def observe_market_states(self, state):
-        """
-        !!! probably not needed!!!
-        """
-        return {'virtual_tank': state['virtual_tanks']['usd'],
-                'supply': state['floating_supply']['cusd'],
-                'market_price': state['market_price']['cusd_usd']}
+        #df = dd.read_csv(self.data_folder + file_name)
+        df = dd.read_parquet(self.data_folder + file_name)
+        self.historical_data = df
 
     def market_price(self, state):
-        self.step += 1
+        step = state['timestep']
         if self.model == MarketPriceModel.GBM:
-            return state['market_price']['cusd_usd'] * self.increments[self.step-1]
+            return {'cusd_usd': state['market_price']['cusd_usd'] * self.increments['cusd_usd'][step-1],
+                    'celo_usd': state['market_price']['celo_usd'] * self.increments['celo_usd'][step-1]}
+
         elif self.model == MarketPriceModel.PRICE_IMPACT:
-            return self.valuate_price_impact(state['supply'], state['virtual_tank'])
+            # TODO  demand increment missing
+            return self.valuate_price_impact(state['supply'], state['virtual_tanks'], step-1)
         elif self.model == MarketPriceModel.HIST_SIM:
-            return state['market_price']['cusd_usd'] * self.increments[self.step-1]
+            increment = self.increments.loc[step-1]
+            return {'cusd_usd': state['market_price']['cusd_usd'] * increment['cusd_usd'],
+                    'celo_usd': state['market_price']['celo_usd'] * increment['celo_usd']}
 
     def price_impact_function(self, mode):
         return lambda asset_1, asset_2: asset_1 / asset_2
         # elif mode == PriceImpact.CONSTANT_FIAT
         #    return lambda
 
-    def valuate_price_impact(self, supply, virtual_tank):
-        delayed_supply = self.impact_delay(supply)
-        return self.price_impact_function(self.price_impact_model)(delayed_supply, virtual_tank)
+    def valuate_price_impact(self, floating_supply, pre_floating_supply, virtual_tanks, current_step):
+        block_supply_change = {
+            ccy: supply - pre_floating_supply[ccy] for ccy, supply in floating_supply.items()}
+        quote_ccy = list(virtual_tanks.keys())[0]
+        self.impact_delay(block_supply_change, current_step)
+        effective_supply = {ccy: self.supply_changes[ccy][current_step] +
+                            pre_supply for ccy, pre_supply in pre_floating_supply.items()}
 
-    def generate_gbm_increments(self, dt=simulation_configuration.DELTA_TIME,
-                                timesteps=simulation_configuration.TIMESTEPS):
-        # TODO remove hardcoded blocks per year use simulation_configuration
-        blocks_per_year = 365 * 24 * 60 * 60 // blocktime_seconds
-        timesteps_per_year = blocks_per_year // dt
-        per_timestep_volatility = self.volatility / np.sqrt(timesteps_per_year)
-        print(self.drift)
-        process = processes.continuous.GeometricBrownianMotion(
-            drift=self.drift,
-            volatility=per_timestep_volatility,
-            t=1,
-            rng=np.random.default_rng(1)
-        )
-        self. increments = process.sample(timesteps * dt + 1)[1:]
+        return {f'{ccy}_{quote_ccy}':
+                self.price_impact_function(self.price_impact_model)(
+                    supply, virtual_tanks[quote_ccy])
+                for ccy, supply in effective_supply.items()}
 
-    # Todo add delay that creates time lag between Mento trades and price impact
+    def correlated_returns(
+            self, dt=simulation_configuration.BLOCKS_PER_TIMESTEP,
+            timesteps=simulation_configuration.TIMESTEPS):
+        # TODO use quantlib
+        timesteps_per_year = constants.blocks_per_year // dt
+        sample_size = timesteps * dt + 1
+        mu = np.array(self.drift)
+        cov = np.array(self.covariance) / (timesteps_per_year)
+        increments = np.exp(np.random.multivariate_normal(mu, cov, sample_size))
+        self.increments = {'cusd_usd': increments[:, 0], 'celo_usd': increments[:, 1]}
 
-    def impact_delay(self, block_supply_change,
+        # return increments
+
+    # TODO add delay that creates time lag between Mento trades and price impact
+
+    def impact_delay(self, block_supply_change, current_step,
                      impact_delay=ImpactDelay.INSTANT,
-                     dt=simulation_configuration.DELTA_TIME,
+                     dt=simulation_configuration.BLOCKS_PER_TIMESTEP,
                      timesteps=simulation_configuration.TIMESTEPS):
-        if impact_delay == ImpactDelay.INSTANT:
-            unit_array = np.zeros(timesteps * dt + 1)
-            def delay_envelope(x): return x * unit_array
-            self.supply_changes += delay_envelope(block_supply_change)
+        for ccy in block_supply_change:
+            if impact_delay == ImpactDelay.INSTANT:
+                unit_array = np.zeros(timesteps * dt + 1)
+                unit_array[current_step] = 1
+                def delay_envelope(x): return x * unit_array
+                self.supply_changes[ccy] += delay_envelope(block_supply_change[ccy])
 
     def historical_returns(self, sample_size, seed):
         """Creates a random sample from a set of historical log-returns
         """
-    # TODO Consider different sampling options
-        random.seed(seed)
-        samples = random.choices(self.historical_data, sample_size)
-        self.increments = samples
+        # TODO move historical data handling into sperate class
+        # TODO Consider different sampling options
+        sample_size = simulation_configuration.BLOCKS_PER_TIMESTEP * \
+            simulation_configuration.TIMESTEPS
+        # TODO Hardcoded data length
+        samples = self.historical_data.sample(frac=(
+            simulation_configuration.BLOCKS_PER_TIMESTEP * simulation_configuration.TIMESTEPS + 1)/6307200)
+        #self.historical_data = [None]
+        samples = samples.reset_index(drop=True)
+        #samples_array = samples.to_dask_array(lengths = True)
+        # TODO conversion to pandas frame is slow!!!
+        self.increments = samples.compute()
+
+        logging.info(f'Historic increments created')
 
     @property
     def cusd_usd_price(self):
@@ -152,7 +174,7 @@ class MarketPriceGenerator(Generator):
     @cusd_usd_price.setter
     def cusd_usd_price(self, value):
         self.cusd_usd_price = value
-    
+
     def next_state(self, prev_state):
         pass
 
@@ -160,18 +182,3 @@ class MarketPriceGenerator(Generator):
 class DemandGenerator():
     def __init__(self):
         self.demand_increment = None
-
-    def gbm(self, dt=simulation_configuration.DELTA_TIME, timesteps=simulation_configuration.TIMESTEPS):
-        # dt=simulation_configuration.DELTA_TIME,):
-        blocks_per_year = 365 * 24 * 60 * 60 // blocktime_seconds
-        timesteps_per_year = blocks_per_year // dt
-        per_timestep_volatility = self.volatility / np.sqrt(timesteps_per_year)
-        process = processes.continuous.GeometricBrownianMotion(
-            drift=self.drift,
-            volatility=per_timestep_volatility,
-            t=1,
-            rng=np.random.default_rng(1)
-        )
-
-    def update(self):
-        self.demand = 0.5

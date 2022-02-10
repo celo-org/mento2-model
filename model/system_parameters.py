@@ -31,7 +31,7 @@ class Parameters:
     """
 
     # Time-related parameters
-    dt: List[Blocknumber] = default([simulation.DELTA_TIME])
+    dt: List[Blocknumber] = default([simulation.BLOCKS_PER_TIMESTEP])
     """
     Simulation timescale / timestep unit of time, in blocks.
 
@@ -58,15 +58,15 @@ class Parameters:
     cusd_demand: List[float] = default([10000000])
     reserve_fraction: List[float] = default([0.01])
     spread: List[float] = default([0.005])
-    max_sell_amount: List[float] = default([0.10])
+    max_sell_amount: List[float] = default([1000])
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    sweeps: List = default([1, 2])
     model:   List[MarketPriceModel] = default(
-        [MarketPriceModel.GBM, MarketPriceModel.GBM])
-    volatility_market_price: List[float] = default([1, 1000])
-    drift_market_price: List[float] = default([0, 100])
+        [MarketPriceModel.GBM])
+    covariance_market_price: List[float] = default([[[1, 0], [0, 1]]])
+    drift_market_price: List[float] = default([[0, 0]])
+    #data_file: List =  default(['mock_logreturns.prq'])
 
 
 # Initialize Parameters instance with default values

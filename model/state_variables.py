@@ -41,10 +41,10 @@ class StateVariables:
     """
 
     # Celo state variables
-    celo_price: Usd_per_token = celo_price_mean
-    """The CELO spot price in USD"""
-    cusd_price: Usd_per_token = 1.0
-    """The CELO spot price"""
+    #celo_price: Usd_per_token = celo_price_mean
+    #"""The CELO spot price in USD"""
+    #cusd_price: Usd_per_token = 1.0
+    #"""The CELO spot price"""
     mento_rate: Token_per_token = celo_price_mean
     """The Mento CELO/cUSD rate """
 
@@ -72,13 +72,7 @@ class StateVariables:
             'cusd': cusd_supply_mean
         }
     )
-    # Part of floating supply that is effecting the price
-    effective_supply: TokenBalance = default(
-        {
-            'celo': celo_supply_mean,
-            'cusd': cusd_supply_mean
-        }
-    )
+
     # Virtual Fiat Market Tank
     virtual_tanks: VirtualTanks = default(
         {
@@ -88,7 +82,8 @@ class StateVariables:
 
     market_price: MarketPrice = default(
         {
-            'cusd_usd': 1
+            'cusd_usd': 1,
+            'celo_usd': 3
         }
     )
 

@@ -6,6 +6,7 @@ from radcad.core import generate_parameter_sweep
 
 from . import Generator
 
+
 class GeneratorContainer():
     '''
     The GeneratorContainer used as a singleton
@@ -55,11 +56,11 @@ class GeneratorContainer():
         if self.generators_for_subset.get(subset_id) is None:
             raise RuntimeError(f"Generators not registered for subset {subset_id}")
         if self.generators_for_subset[subset_id].get(generator_class.__name__) is None:
-            raise RuntimeError(f"Generator {generator_class.__name__} not registered for subset {subset_id}")
+            raise RuntimeError(
+                f"Generator {generator_class.__name__} not registered for subset {subset_id}")
 
         return self.generators_for_subset[subset_id][generator_class.__name__]
-    
-    
+
     def __register_generators__(self, generator_classes: List[Generator]):
         '''
         Start generators before each subset of the simulation starts
@@ -72,7 +73,7 @@ class GeneratorContainer():
 
             self.generators_for_subset[subset_id] = {
                 generator.__class__.__name__: generator for generator in [
-                    generator_class.from_parameters(params) 
+                    generator_class.from_parameters(params)
                     for generator_class in generator_classes
                 ]
             }
@@ -94,9 +95,9 @@ class GeneratorContainer():
             return _hook
         else:
             return hook
-    
+
     def __clean__(self, context: Context):
         self.generators_for_subset = {}
-                
-    
+
+
 container = GeneratorContainer()

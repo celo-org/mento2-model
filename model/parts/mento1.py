@@ -62,10 +62,6 @@ def p_random_exchange(params, substep, state_history, prev_state):
         'celo': prev_state['reserve_account']['celo'] + delta_celo
     }
 
-    virtual_tanks = {
-        'usd': prev_state['virtual_tanks']['usd']
-    }
-
     mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
 
     # market_price_generator = params['generators'].get(MarketPriceGenerator)
@@ -77,7 +73,6 @@ def p_random_exchange(params, substep, state_history, prev_state):
         'floating_supply': floating_supply,
         'reserve_account': reserve_account,
         'mento_rate': mento_rate,
-        #    'market_price': market_price
     }
 
 
@@ -87,7 +82,7 @@ def p_bucket_update(params, substep, state_history, prev_state):
     """
     if (blocktime_seconds * prev_state['timestep']) % params['bucket_update_frequency_seconds'] == 0:
         celo_bucket = params['reserve_fraction'] * prev_state['reserve_account']['celo']
-        cusd_bucket = prev_state['mento_rate'] * celo_bucket
+        cusd_bucket = prev_state['market_price']['celo_usd'] * celo_bucket
         mento_buckets = {
             'cusd': cusd_bucket,
             'celo': celo_bucket

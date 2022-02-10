@@ -6,6 +6,7 @@ name = "pypi"
 [scripts]
 linter = "flake8 --show-source ."
 format = "autopep8 -ivr ."
+todo = "./collect_todos.sh"
 
 [packages]
 jupyterlab = "==2.2.0"
@@ -17,13 +18,15 @@ ipykernel = ">=6.0.0"
 ipywidgets = ">=7.5"
 plotly = ">4.13.3"
 statsmodels = "==0.12.0"
-cadCAD = "==0.4.23"
+cadCAD = "*"
 ipython = "*"
 "ipython.autotime" = "*"
 radcad = "*"
 stochastic = "*"
 dask = "*"
 sklearn = "*"
+numpy = "*"
+quantlib = "*"
 
 [dev-packages]
 flake8-import-order = "*"
