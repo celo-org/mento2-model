@@ -16,3 +16,7 @@ repos:
         language: system
         types: [python]
         require_serial: true
+-   repo: https://gitlab.com/iamlikeme/nbhooks
+    rev: 1.0.0  # Set to the most recent version
+    hooks:
+    -   id: nb-ensure-clean
