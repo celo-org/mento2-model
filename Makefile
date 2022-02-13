@@ -45,3 +45,6 @@ update-notebooks:
 
 clear-notebook-outputs:
 	jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace experiments/notebooks/*.ipynb
+
+todos:
+	grep -r TODO model/* > TODOS.md || true
