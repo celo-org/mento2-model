@@ -1,10 +1,7 @@
-setup: install kernel plotly
+setup: install plotly
 
 install:
-	pip install -r requirements.txt
-
-kernel:
-	python3 -m ipykernel install --user --name python-cadlabs-eth-model --display-name "Python (CADLabs Ethereum Model)"
+	pipenv install --dev
 
 plotly:
 	jupyter labextension install jupyterlab-plotly@4.14.3
