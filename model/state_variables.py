@@ -36,7 +36,6 @@ class StateVariables:
     """The CELO spot price in USD"""
     cusd_usd_price: Usd_per_token = 1.0
     """The CELO spot price"""
-    num_accounts: int = 0
 
     # Reserve state variable
     reserve_balance: TokenBalance = default(
@@ -67,10 +66,10 @@ class StateVariables:
     )
 
     # _IRP related state variables
-    total_celo_deposited: Token_balance = default(0)
-    total_cusd_borrowed: Token_balance = default(0)
-    total_celo_liquidated: Token_balance = default(0)
-    total_cusd_from_liquidated_irps: Token_balance = default(0)
+    total_celo_deposited: Token_balance = default(0.0)
+    total_cusd_borrowed: Token_balance = default(0.0)
+    total_celo_liquidated: Token_balance = default(0.0)
+    total_cusd_from_liquidated_irps: Token_balance = default(0.0)
 
 
 # Initialize State Variables instance with default values

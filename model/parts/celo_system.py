@@ -8,7 +8,6 @@ from model.types import Account
 from typing import List
 
 
-
 # TODO: Should this live here?
 class AccountManager:
     def __init__(self):

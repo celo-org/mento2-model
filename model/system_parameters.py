@@ -50,12 +50,17 @@ class Parameters:
     spread: List[float] = default([0.0025])
     max_sell_fraction_of_float: List[float] = default([0.0001])  # Max 0.01% of CELO or cUSD float sold in every block
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
+    arb_actor_init_celo_balance: List[int] = default([10000])
+    arb_actor_init_cusd_balance: List[int] = default([10000])
+
 
     # Borrow_and_repay related parameters
     liquidation_threshold: List[float] = default([0.8])
     probability_of_new_irp_per_block: List[float] = default([0.001])
     initial_irp_user_celo_balance: List[float] = default([10000])
     initial_collateralization_ratio: List[float] = default([1.5])
+
+    # Arb Actor
 
 
 # Initialize Parameters instance with default values

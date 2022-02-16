@@ -6,7 +6,9 @@ Calculation of changes in Mento buckets sizes, floating supply and reserve balan
 
 import numpy as np
 from model.constants import blocktime_seconds
-import time
+from model.types import Token_balance
+from actors import ActorManager
+
 
 # TODO: Should this live here?
 class Trade:
@@ -133,7 +135,7 @@ class BuyAndSellManager:
         return np.random.rand() * params['max_sell_fraction_of_float']
 
     @staticmethod
-    def exchange(params, prev_state, sell_amount, sell_gold, min_buy_amount=0):
+    def calculate_buy_amount_constant_product_amm(params, prev_state, sell_amount, sell_gold, min_buy_amount=0):
         spread = params['spread']
         reduced_sell_amount = sell_amount * (1 - spread)
 
@@ -164,19 +166,32 @@ class BuyAndSellManager:
         else:
             sell_amount = sell_fraction * prev_state['floating_supply']['cusd']
 
-        buy_amount = self.exchange(
+        buy_amount = self.calculate_buy_amount_constant_product_amm(
             params=params,
             prev_state=prev_state,
             sell_amount=sell_amount,
             sell_gold=sell_gold
         )
 
-        random_trade = Trade(
+        trade = self.create_trade(
             sell_gold=sell_gold,
             sell_amount=sell_amount,
             buy_amount=buy_amount
         )
-        return random_trade
+
+        return trade
+
+    @staticmethod
+    def create_trade(sell_gold, sell_amount, buy_amount):
+        """
+        Trade are given from perspective of a trader, i.e. sell_gold=True means a trader sells CELO to the reserve
+        """
+        trade = Trade(
+            sell_gold=sell_gold,
+            sell_amount=sell_amount,
+            buy_amount=buy_amount
+        )
+        return trade
 
     @staticmethod
     def state_variables_state_after_trade(prev_state, trade):
@@ -220,6 +235,7 @@ class BuyAndSellManager:
 
 # Initialize buy_and_sell_manager
 buy_and_sell_manager = BuyAndSellManager()
+actor_manager = ActorManager()
 
 
 # TODO: Improve this!
@@ -227,6 +243,11 @@ buy_and_sell_manager = BuyAndSellManager()
 def reset_buy_and_sell_manager_if_new_parameter_subset(state_history):
     if len(state_history) == 1:
         buy_and_sell_manager.reset()
+
+
+def reset_actor_manager_if_new_parameter_subset(state_history):
+    if len(state_history) == 1:
+        actor_manager.reset()
 
 
 def p_random_exchange(params, substep, state_history, prev_state):
@@ -245,12 +266,46 @@ def p_random_exchange(params, substep, state_history, prev_state):
         params=params, prev_state=prev_state
     )
 
-    state_variable_after_trade = buy_and_sell_manager.state_variables_state_after_trade(
+    state_variables_after_trade = buy_and_sell_manager.state_variables_state_after_trade(
         prev_state=prev_state,
         trade=random_trade
     )
 
-    return state_variable_after_trade
+    return state_variables_after_trade
+
+
+def p_buy_and_sell_arb_actor(params, substep, state_history, prev_state):
+
+    # TODO: Check this
+    # if not params['actors_enabled']
+
+    # TODO: Improve this
+    # Only create one buy_and_sell_arb actor per parameter set
+    if len(state_history) == 1:
+        buy_and_sell_arb_actor_id = actor_manager.create_new_funded_actor(
+            celo=params['arb_actor_init_celo_balance'],
+            cusd=params['arb_actor_init_cusd_balance'],
+            strategy_type='buy_and_sell_arb'
+        )
+        actor_manager.trigger_optimal_action(
+            buy_and_sell_arb_actor_id
+        )
+
+
+
+
+
+
+    random_trade = buy_and_sell_manager.create_random_trade(
+        params=params, prev_state=prev_state
+    )
+
+    state_variables_after_trade = buy_and_sell_manager.state_variables_state_after_trade(
+        prev_state=prev_state,
+        trade=random_trade
+    )
+
+    return state_variables_after_trade
 
 
 def p_bucket_update(params, substep, state_history, prev_state):
