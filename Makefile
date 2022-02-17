@@ -1,10 +1,5 @@
-setup: install plotly
-
 install:
 	pipenv install --dev
-
-plotly:
-	jupyter labextension install jupyterlab-plotly@4.14.3
 
 start-lab:
 	jupyter lab

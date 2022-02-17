@@ -96,51 +96,29 @@ The [Differential Model Specification](https://hackmd.io/@CADLabs/HyENPQ36u) dep
 ## Environment Setup
 
 1. Clone or download the Git repository: `git clone https://github.com/celo-org/mento2-model` or using GitHub Desktop
-3. Set up your development environment using one of the following three options:
+2. Set up your development environment using one of the following two options:
 
-### Option 1: Anaconda Development Environment
+### Option 1: Your usual python workflow
 
-This option guides you through setting up a cross-platform, beginner-friendly (yet more than capable enough for the advanced user) development environment using Anaconda to install Python 3 and Jupyter. There is also a video that accompanies this option and walks through all the steps: [Model Quick-Start Guide](https://www.cadcad.education/course/masterclass-ethereum)
+You can use your usual python workflow and install dependencies from the [Pipfile](Pipfile), for example using `virtualenv`
+or `Anaconda`.
 
-1. Download [Anaconda](https://www.anaconda.com/products/individual)
-2. Use Anaconda to install Python 3
-3. Set up a virtual environment from within Anaconda
-4. Install Jupyter Notebook within the virtual environment
-5. Launch Jupyter Notebook and open the [environment_setup.ipynb](environment_setup.ipynb) notebook in the root of the project repo
-6. Follow and execute all notebook cells to install and check your Python dependencies
+### Option 2: Using [Pyenv](https://github.com/pyenv/pyenv) and [Pipenv](https://github.com/pypa/pipenv)
 
-### Option 2: Custom Development Environment
+Our usual python workflow is with Pyenv and Pipenv. Pyenv is a package to manage different versions of python
+and Pipenv automatically creates virtual environments and installs and updates packages and dependencies. In your shell:
 
-This option guides you through how to set up a custom development environment using Python 3 and Jupyter.
+1) Install [Pyenv](https://github.com/pyenv/pyenv)
+2) Install [Pipenv](https://github.com/pypa/pipenv)
+3) Navigate to your `\mento2-model` folder
+4) install python 3.8.12: `pyenv install  3.8.12`
+5) Set your local python version `pyenv local  3.8.12`
+7) Install dependencies: `pipenv install --dev`
+8) Enter virtual environment: `pipenv shell`
+9) Local pre-commit setup: `pre-commit install`
+10) Install your virtual environment as jupyter kernel: `python -m ipykernel install --user --name=mento2-model`
 
-Please note the following prerequisites before getting started:
-* Python: tested with versions 3.7, 3.8, 3.9
-* NodeJS might be needed if using Plotly with Jupyter Lab (Plotly works out the box when using the Anaconda/Conda package manager with Jupyter Lab or Jupyter Notebook)
-
-First, set up a Python 3 [virtualenv](https://docs.python.org/3/library/venv.html) development environment (or use the equivalent Anaconda step):
-```bash
-# Create a virtual environment using Python 3 venv module
-python3 -m venv venv
-# Activate virtual environment
-source venv/bin/activate
-```
-
-Make sure to activate the virtual environment before each of the following steps.
-
-Secondly, install the Python 3 dependencies using [Pip](https://packaging.python.org/tutorials/installing-packages/), from the [requirements.txt](requirements.txt) file within your new virtual environment:
-```bash
-# Install Python 3 dependencies inside virtual environment
-pip install -r requirements.txt
-```
-
-To create a new Jupyter Kernel specifically for this environment, execute the following command:
-```bash
-python3 -m ipykernel install --user --name python-cadlabs-eth-model --display-name "Python (cLabs Mento2)"
-```
-
-You'll then be able to select the kernel with display name `Python (cLabs Mento2)` to use for your notebook from within Jupyter.
-
-To start Jupyter Notebook or Lab (see notes about issues with [using Plotly with Jupyter Lab](#Known-Issues)):
+To start Jupyter Notebook or Lab:
 ```bash
 jupyter notebook
 # Or:
@@ -149,28 +127,10 @@ jupyter lab
 
 For more advanced Unix/macOS users, a [Makefile](Makefile) is also included for convenience that simply executes all the setup steps. For example, to setup your environment and start Jupyter Lab:
 ```bash
-# Setup environment
-make setup
+# Install dependencies
+make install
 # Start Jupyter Lab
 make start-lab
-```
-
-### Option 3: Docker Development Environment
-
-Not yet available for the Mento 2.0 model. 
-# Alternatively, you can set up your development environment using the pre-built Docker image with all the dependencies you need: [CADLabs Jupyter Lab Environment](https://github.com/CADLabs/jupyter-lab-environment)
-
-### Known Issues
-
-#### Plotly doesn't display in Jupyter Lab
-
-To install and use Plotly with Jupyter Lab, you might need NodeJS installed to build Node dependencies, unless you're using the Anaconda/Conda package manager to manage your environment. Alternatively, use Jupyter Notebook which works out the box with Plotly.
-
-See https://plotly.com/python/getting-started/
-
-You might need to install the following "lab extension": 
-```bash
-jupyter labextension install jupyterlab-plotly@4.14.3
 ```
 
 #### Windows Issues
