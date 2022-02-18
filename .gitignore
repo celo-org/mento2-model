@@ -145,3 +145,6 @@ drafts/
 
 # Masterclass exam
 **/*answers.ipynb
+
+# Temporary due to pre-commit fail
+TODOS.md
