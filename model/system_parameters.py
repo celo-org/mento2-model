@@ -17,7 +17,7 @@ from model.types import (
 
 from model.utils import default
 
-
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class Parameters:
     """System Parameters
@@ -29,6 +29,7 @@ class Parameters:
     """
 
     # Time-related parameters
+    # pylint: disable=invalid-name
     dt: List[Blocknumber] = default([simulation.BLOCKS_PER_TIMESTEP])
     """
     Simulation timescale / timestep unit of time, in blocks.
@@ -49,7 +50,7 @@ class Parameters:
     date_irps: List[datetime] = default([datetime.strptime("2022/03/1", "%Y/%m/%d")])
     """
     Expected date for when IRPs can be used to mint stabletokens
-    
+
     """
 
     # Mento1.0-related parameters
