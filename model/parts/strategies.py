@@ -12,7 +12,11 @@ from utils.cvxpy_helpers import turn_dict_to_cvxpy_params_dict
 
 
 class StrategyAbstract:
-    def __init__(self):
+    def __init__(self, description, policy_name):
+        # The following is used to create the related state-update-block
+        self.description = description
+        self.policy_name = policy_name
+        # The following is used to define the strategy
         self.variables = {}
         self.expressions = {}
         self.objective_function = None
@@ -86,6 +90,8 @@ class BuyAndSellArb(StrategyAbstract):
             self
     ):
         super().__init__(
+            description='Actor arb trades with buy-and-sell feature of mento until celo/cusd equals celo/usd',
+            policy_name='arb_trader'
         )
 
     @staticmethod
@@ -150,12 +156,19 @@ class BuyAndSellArb(StrategyAbstract):
             )
 
     def execute_optimal_action(self, params, prev_state):
+        """
+        Triggers optimal action and returns dict of state_variables after that action
+        """
+
         self.optimize(params, prev_state)
 
-        buy_and_sell_manager.create_trade(
+        optimal_trade = buy_and_sell_manager.create_trade(
             sell_gold=self.sell_gold(params, prev_state),
             sell_amount=self.variables['sell_amount'].value,
             buy_amount=self.expressions['buy_amount'].value
         )
-
-        return state_variables_after_optimal_action
+        state_variables_state_after_trade = buy_and_sell_manager.state_variables_state_after_trade(
+            prev_state=prev_state,
+            trade=optimal_trade
+        )
+        return state_variables_state_after_trade

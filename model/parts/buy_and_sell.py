@@ -233,11 +233,6 @@ class BuyAndSellManager:
         print('buy_and_sell_manager reset!')
 
 
-# Initialize buy_and_sell_manager
-buy_and_sell_manager = BuyAndSellManager()
-actor_manager = ActorManager()
-
-
 # TODO: Improve this!
 # Must be used at beginning of first policy of all buy_and_sell state_update_block
 def reset_buy_and_sell_manager_if_new_parameter_subset(state_history):
@@ -274,10 +269,7 @@ def p_random_exchange(params, substep, state_history, prev_state):
     return state_variables_after_trade
 
 
-def p_buy_and_sell_arb_actor(params, substep, state_history, prev_state):
-
-    # TODO: Check this
-    # if not params['actors_enabled']
+def p_actors(params, substep, state_history, prev_state, actor_id=None):
 
     # TODO: Improve this
     # Only create one buy_and_sell_arb actor per parameter set
@@ -287,14 +279,12 @@ def p_buy_and_sell_arb_actor(params, substep, state_history, prev_state):
             cusd=params['arb_actor_init_cusd_balance'],
             strategy_type='buy_and_sell_arb'
         )
+    for actor_id in enumerate(actor_manager.all_actors):
         actor_manager.trigger_optimal_action(
-            buy_and_sell_arb_actor_id
+            actor_id=actor_id,
+            params=params,
+            prev_state=prev_state
         )
-
-
-
-
-
 
     random_trade = buy_and_sell_manager.create_random_trade(
         params=params, prev_state=prev_state
