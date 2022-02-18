@@ -1,5 +1,6 @@
 """
-The default experiment with default model, Initial State, System Parameters, and Simulation Configuration.
+The default experiment with default model, Initial State,
+System Parameters, and Simulation Configuration.
 
 The defaults are defined in their respective modules:
 * Initial State in `model/state_variables.py`
@@ -9,8 +10,11 @@ The defaults are defined in their respective modules:
 
 from radcad import Simulation, Experiment, Backend
 
-from model import model
 from experiments.simulation_configuration import TIMESTEPS, MONTE_CARLO_RUNS
+
+from model import model
+from model.generators.container import container
+from model.generators.example import ExampleGenerator
 
 
 # Create Model Simulation
@@ -19,6 +23,10 @@ simulation = Simulation(
     timesteps=TIMESTEPS,
     runs=MONTE_CARLO_RUNS
 )
+
+# Hook the simulation to the GeneratorContainer
+container.hook_to_simulation(simulation, [ExampleGenerator])
+
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])
 # Configure Simulation & Experiment engine
