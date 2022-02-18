@@ -6,7 +6,7 @@ name = "pypi"
 [scripts]
 linter = "flake8 --show-source ."
 format = "autopep8 -ivr ."
-todos = "bash .collect_todos.sh"
+todos = "bash -c 'grep 'TODO' -rni model/* | sed -e '$!s/$/\\/' > TODOS.md '"
 
 [packages]
 jupyter = "==1.0.0"
