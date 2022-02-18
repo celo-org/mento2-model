@@ -125,14 +125,6 @@ jupyter notebook
 jupyter lab
 ```
 
-For more advanced Unix/macOS users, a [Makefile](Makefile) is also included for convenience that simply executes all the setup steps. For example, to setup your environment and start Jupyter Lab:
-```bash
-# Install dependencies
-make install
-# Start Jupyter Lab
-make start-lab
-```
-
 #### Windows Issues
 
 If you receive the following error and you use Anaconda, try: `conda install -c anaconda pywin32`

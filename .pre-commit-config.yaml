@@ -20,7 +20,7 @@ repos:
     hooks:
     -   id: extract-todos
         name: extract-todos
-        entry: make todos
+        entry: pipenv run todos
         language: system
         require_serial: false
 # This strips out output cells from jupyter notebooks
