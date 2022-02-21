@@ -27,6 +27,9 @@ dask = "*"
 sklearn = "*"
 numpy = "*"
 quantlib = "*"
+line-profiler = "*"
+ray = {extras = ["default"], version = "*"}
+cython = "*"
 
 [dev-packages]
 flake8-import-order = "*"

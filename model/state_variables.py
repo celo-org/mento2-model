@@ -87,11 +87,7 @@ class StateVariables:
         }
     )
 
-    # _demand_generator: Demand = default(
-    #     {
-    #          DemandGenerator().parse_from_parameters(parameters)
-    #     }
-    # )
+   
 
     # # CEX state variables
     # order_book: OrderBook  = default(

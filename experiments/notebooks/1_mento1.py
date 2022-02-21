@@ -45,7 +45,7 @@
 # * runs shared notebook-configuration methods, such as loading IPython modules
 from radcad import Experiment, Engine, Backend
 from model.types import Stage
-from experiments.simulation_configuration import TIMESTEPS, DELTA_TIME
+from experiments.simulation_configuration import TIMESTEPS, BLOCKS_PER_TIMESTEP
 from stochastic.processes.continuous import FractionalBrownianMotion
 import matplotlib.pyplot as plt
 import experiments.templates.monte_carlo_analysis as monte_carlo_analysis

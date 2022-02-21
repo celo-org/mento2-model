@@ -2,13 +2,14 @@
 # Market related policy and state update functions
 """
 import logging
+import profile
 import random
 import numpy as np
 
 from enum import Enum
 from pstats import Stats
 import time
-
+import line_profiler
 import dask
 import dask.dataframe as dd
 import experiments.simulation_configuration as simulation_configuration
@@ -91,6 +92,7 @@ class MarketPriceGenerator(Generator):
         df = dd.read_parquet(self.data_folder + file_name)
         self.historical_data = df
 
+    #@profile
     def market_price(self, state):
         step = state['timestep']
         if self.model == MarketPriceModel.GBM:
@@ -109,7 +111,8 @@ class MarketPriceGenerator(Generator):
         return lambda asset_1, asset_2: asset_1 / asset_2
         # elif mode == PriceImpact.CONSTANT_FIAT
         #    return lambda
-
+    
+    #@profile
     def valuate_price_impact(self, floating_supply, pre_floating_supply, virtual_tanks, current_step):
         block_supply_change = {
             ccy: supply - pre_floating_supply[ccy] for ccy, supply in floating_supply.items()}
@@ -137,17 +140,17 @@ class MarketPriceGenerator(Generator):
         # return increments
 
     # TODO add delay that creates time lag between Mento trades and price impact
-
+   # @profile
     def impact_delay(self, block_supply_change, current_step,
                      impact_delay=ImpactDelay.INSTANT,
                      dt=simulation_configuration.BLOCKS_PER_TIMESTEP,
                      timesteps=simulation_configuration.TIMESTEPS):
         for ccy in block_supply_change:
             if impact_delay == ImpactDelay.INSTANT:
-                unit_array = np.zeros(timesteps * dt + 1)
-                unit_array[current_step] = 1
-                def delay_envelope(x): return x * unit_array
-                self.supply_changes[ccy] += delay_envelope(block_supply_change[ccy])
+                #unit_array = np.zeros(timesteps * dt + 1)
+                #unit_array[current_step] = 1
+                #def delay_envelope(x): return x * unit_array
+                self.supply_changes[ccy][current_step]+= block_supply_change[ccy]
 
     def historical_returns(self, sample_size, seed):
         """Creates a random sample from a set of historical log-returns
@@ -163,7 +166,7 @@ class MarketPriceGenerator(Generator):
         samples = samples.reset_index(drop=True)
         #samples_array = samples.to_dask_array(lengths = True)
         # TODO conversion to pandas frame is slow!!!
-        self.increments = samples.compute()
+        self.increments = samples#.compute()
 
         logging.info(f'Historic increments created')
 

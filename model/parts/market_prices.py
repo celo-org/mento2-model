@@ -4,6 +4,7 @@
 
 """
 import logging
+import profile
 import time
 from sklearn.random_projection import SparseRandomProjection
 from model.types import VirtualTanks
@@ -12,6 +13,7 @@ from model.generators.markets import MarketPriceGenerator
 
 
 @container.inject(MarketPriceGenerator)
+#@profile
 def p_market_price(params, substep, state_history, prev_state, market_price_generator: MarketPriceGenerator):
     market_price = market_price_generator.market_price(prev_state)
     virtual_tanks = {'usd': prev_state['floating_supply']
@@ -21,6 +23,7 @@ def p_market_price(params, substep, state_history, prev_state, market_price_gene
 
 
 @container.inject(MarketPriceGenerator)
+#@profile
 def p_price_impact(params, substep, state_history, prev_state, market_price_generator: MarketPriceGenerator):
     """
     This function adds the delayed accumulated supply of the current step to the floating supply

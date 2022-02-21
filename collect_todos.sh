@@ -1,3 +1,3 @@
 #!/bin/sh
 
-grep -r TODO model/* > TODOS.md
+grep TODO -rni  model/* | sed   -e '$!s/$/\\/' > TODOS.md
