@@ -1,5 +1,6 @@
 """
-The default experiment with default model, Initial State, System Parameters, and Simulation Configuration.
+The default experiment with default model, Initial State,
+System Parameters, and Simulation Configuration.
 
 The defaults are defined in their respective modules:
 * Initial State in `model/state_variables.py`
@@ -12,10 +13,13 @@ import re
 from typing import List, Type, Dict, Any
 from radcad import Simulation, Experiment, Backend
 
-from model import model
 from experiments.simulation_configuration import TIMESTEPS, MONTE_CARLO_RUNS
 from model.generators.markets import MarketPriceGenerator
 from model.generators.container import container
+
+from model import model
+from model.generators.container import container
+from model.generators.example import ExampleGenerator
 
 
 # Create Model Simulation
