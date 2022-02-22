@@ -14,7 +14,6 @@ from experiments.simulation_configuration import TIMESTEPS, MONTE_CARLO_RUNS
 
 from model import model
 from model.generators.container import container
-from model.generators.example import ExampleGenerator
 
 
 # Create Model Simulation
@@ -25,7 +24,7 @@ simulation = Simulation(
 )
 
 # Hook the simulation to the GeneratorContainer
-container.hook_to_simulation(simulation, [ExampleGenerator])
+container.hook_to_simulation(simulation)
 
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])
