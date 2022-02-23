@@ -1,28 +1,25 @@
 """
 Definition of State Variables, their types, and default values.
-
 By using a dataclass to represent the State Variables:
 * We can use types for Python type hints
 * Set default values
 * Ensure that all State Variables are initialized
 """
 
-
-from dataclasses import dataclass, fields
-from datetime import datetime
+from dataclasses import dataclass
 from model.utils import default
 
 from model.types import (
-    Usd_per_token,
-    Token_per_token,
-    TokenBalance,
-    Account
+    TokenPriceInUSD,
+    TokenPriceInToken,
+    AccountBalance
 )
 from data.historical_values import (
     celo_price_mean,
     celo_supply_mean,
-    cusd_supply_mean
+    cusd_supply_mean,
 )
+
 
 @dataclass
 class StateVariables:
@@ -31,39 +28,35 @@ class StateVariables:
     state variable key: state variable type = default state variable value
     """
 
-    # Time state variables
-    timestamp: datetime = None
-    """
-    The timestamp for each timestep as a Python `datetime` object, starting from `date_start` Parameter.
-    """
-
     # Celo state variables
-    celo_price: Usd_per_token = celo_price_mean
+    celo_usd_price: TokenPriceInUSD = celo_price_mean
     """The CELO spot price in USD"""
-    cusd_price: Usd_per_token = 1.0
+    cusd_usd_price: TokenPriceInUSD = 1.0
     """The CELO spot price"""
-    mento_rate: Token_per_token = celo_price_mean
-    """The Mento CELO/cUSD rate """
 
     # Reserve state variable
-    reserve_account: Account = default(
+    reserve_balance: AccountBalance = default(
         {
-            'account_id': 0,
             'celo': 120000000.0,
             'cusd': 0.0
         }
     )
 
     # Mento state variables
-    mento_buckets: TokenBalance = default(
+    mento_buckets: AccountBalance = default(
         {
             'celo': 0.0,
             'cusd': 0.0
         }
     )
 
-    # Mento state variables
-    floating_supply: TokenBalance = default(
+    mento_rate: TokenPriceInToken = celo_price_mean
+    """The Mento CELO/cUSD rate """
+
+    # Floating supply state variables
+    # TODO: Bring this in line with the account manager tracking total supplies
+    # floating_supply_celo =
+    floating_supply: AccountBalance = default(
         {
             'celo': celo_supply_mean,
             'cusd': cusd_supply_mean

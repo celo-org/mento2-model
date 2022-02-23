@@ -8,7 +8,6 @@ and runs a Monte Carlo analysis of 5 runs.
 
 import copy
 
-from model.types import Stage
 import model.constants as constants
 from model.stochastic_processes import create_stochastic_process_realizations
 from experiments.default_experiment import experiment
@@ -27,7 +26,6 @@ cusd_demand_samples = create_stochastic_process_realizations(
 )
 
 parameter_overrides = {
-    "stage": [Stage.Mento1],
     "cusd_demand": [lambda run, timestep: cusd_demand_samples[run - 1][timestep]],
 }
 

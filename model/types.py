@@ -3,32 +3,21 @@ Various Python types used in the model
 """
 
 # See https://docs.python.org/3/library/dataclasses.html
-from dataclasses import dataclass
-from enum import Enum
 from typing import TypedDict
 
 # Celo system types
 Gas = int
 Wei = int
 Gwei = float
-Gwei_per_Gas = float
+GweiPerGas = float
 
-
-class Stage(Enum):
-    """Stages of the Mento1.0 -> Mento2.0 upgrade process network upgrade process"""
-
-    Mento1 = 1  # Celo mainnet Mento1
-    Mento1_SPs = 2  # Mento1 plus stability providers
-    Mento1_SPs_IRPs = 3  # Mento1 + stability providers + IRPs
-
-
+# TODO: Use decimal precision according to celo account balance precision
 # Balance types
-Token_balance = float
-Usd_balance = float
+TokenBalance = float
 
 # Price types
-Usd_per_token = float
-Token_per_token = float
+TokenPriceInUSD = float
+TokenPriceInToken = float
 
 # Simulation types
 Run = int
@@ -39,24 +28,18 @@ Blocknumber = int
 Day = int
 
 
-class TokenBalance(TypedDict):
+# TODO: Is there a better type for the below classes then TypedDicts?
+class AccountBalance(TypedDict):
     """
     Class for an on-chain token balance
     """
-    cusd: Token_balance
-    celo: Token_balance
+    cusd: TokenBalance
+    celo: TokenBalance
 
 
-class Account(TokenBalance):
+class Account(AccountBalance):
     """
     Class for an on-chain account
     """
     account_id: int
-
-
-class Actor(TypedDict):
-    """
-    Class for a single actor
-    """
-    actor_id: int
-    account: Account
+    account_name: object

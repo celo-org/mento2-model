@@ -29,6 +29,7 @@ dask = "*"
 sklearn = "*"
 numpy = "*"
 quantlib = "*"
+cvxpy = "1.1.18"
 
 [dev-packages]
 flake8-import-order = "*"

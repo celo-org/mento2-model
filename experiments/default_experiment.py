@@ -14,8 +14,8 @@ from experiments.simulation_configuration import TIMESTEPS, MONTE_CARLO_RUNS
 
 from model import model
 from model.generators.container import container
-from model.generators.example import ExampleGenerator
-
+from model.generators.accounts import AccountGenerator
+from model.generators.buy_and_sell import BuyAndSellGenerator
 
 # Create Model Simulation
 simulation = Simulation(
@@ -25,7 +25,7 @@ simulation = Simulation(
 )
 
 # Hook the simulation to the GeneratorContainer
-container.hook_to_simulation(simulation, [ExampleGenerator])
+container.hook_to_simulation(simulation, [AccountGenerator, BuyAndSellGenerator])
 
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])
