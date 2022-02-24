@@ -13,8 +13,7 @@ from datetime import datetime
 from model.utils import default
 
 from model.types import (
-    Usd_per_token,
-    Token_per_token,
+    TokenPerToken,
     TokenBalance,
     Account,
     MarketPrice,
@@ -37,7 +36,8 @@ class StateVariables:
     # Time state variables
     timestamp: datetime = None
     """
-    The timestamp for each timestep as a Python `datetime` object, starting from `date_start` Parameter.
+    The timestamp for each timestep as a Python `datetime` object, starting
+    from `date_start` Parameter.
     """
 
     # Celo state variables
@@ -45,7 +45,7 @@ class StateVariables:
     #"""The CELO spot price in USD"""
     #cusd_price: Usd_per_token = 1.0
     #"""The CELO spot price"""
-    mento_rate: Token_per_token = celo_price_mean
+    mento_rate: TokenPerToken = celo_price_mean
     """The Mento CELO/cUSD rate """
 
     # Reserve state variable
@@ -87,7 +87,7 @@ class StateVariables:
         }
     )
 
-   
+
 
     # # CEX state variables
     # order_book: OrderBook  = default(

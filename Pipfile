@@ -35,7 +35,7 @@ flake8-import-order = "*"
 flake8 = "*"
 autopep8 = "*"
 pre-commit = "*"
-
+pylint = "*"
 
 [requires]
 python_version = "3.8"

@@ -9,32 +9,31 @@ By using a dataclass to represent the System Parameters:
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Iterator, List, Dict
+from types import FunctionType
+from typing import List
 import experiments.simulation_configuration as simulation
 from model.generators.markets import MarketPriceModel
 
-from model.types import (
-    Blocknumber
-)
+from model.types import Blocknumber
 
 from model.utils import default
 
 # pylint: disable=too-many-instance-attributes
+
+
 @dataclass
 class Parameters:
     """System Parameters
     Each System Parameter is defined as:
     system parameter key: system parameter type = default system parameter value
 
-    Because lists are mutable, we need to wrap each parameter list in the `default(...)` method.
+    Because lists are mutable, we need to wrap each parameter list in the
+     `default(...)` method.
 
     """
 
     # Time-related parameters
-<<<<<<< HEAD
-=======
     # pylint: disable=invalid-name
->>>>>>> origin/master
     dt: List[Blocknumber] = default([simulation.BLOCKS_PER_TIMESTEP])
     """
     Simulation timescale / timestep unit of time, in blocks.
@@ -66,11 +65,13 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model:   List[MarketPriceModel] = default(
-        [MarketPriceModel.GBM])
+    model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
     covariance_market_price: List[float] = default([[[1, 0], [0, 1]]])
     drift_market_price: List[float] = default([[0, 0]])
-    #data_file: List =  default(['mock_logreturns.prq'])
+    # data_file: List[str] = default(['mock_logreturns.csv'])
+    custom_impact: List[FunctionType] = default(
+        [lambda asset_1, asset_2: asset_1**2 / asset_2]
+    )
 
 
 # Initialize Parameters instance with default values
