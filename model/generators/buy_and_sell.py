@@ -24,23 +24,8 @@ class BuyAndSellGenerator(Generator):
 
     @classmethod
     def from_parameters(cls, params) -> "BuyAndSellGenerator":
-
+        # TODO what to do here?
         return cls()
-
-    @staticmethod
-    def leave_all_state_variables_unchanged(prev_state, policy_type):
-        if policy_type == 'p_random_exchange':
-            return {
-                'mento_buckets': prev_state['mento_buckets'],
-                'floating_supply': prev_state['floating_supply'],
-                'reserve_balance': prev_state['reserve_balance'],
-                'mento_rate': prev_state['mento_rate']
-            }
-        return {'mento_buckets': prev_state['mento_buckets']}
-
-    @staticmethod
-    def buy_and_sell_feature_enabled(params):
-        return params['feature_buy_and_sell_stables_enabled']
 
     @staticmethod
     def buckets_should_be_reset(params, prev_state):
@@ -49,8 +34,16 @@ class BuyAndSellGenerator(Generator):
 
     @staticmethod
     @container.inject(AccountGenerator)
-    def calculate_reset_buckets(params, prev_state):
+    def reset_buckets(params, prev_state, account_generator: AccountGenerator):
+        """
+        mento bucket update
+        """
         celo_bucket = params['reserve_fraction'] * prev_state['reserve_balance']['celo']
+        # change reserve account balance
+        delta_celo = prev_state['reserve_balance']['celo'] - celo_bucket
+        account_generator.change_account_balance(account_id=account_generator.get_account(0),
+                                                 delta_celo=delta_celo,
+                                                 delta_cusd=0)
         cusd_bucket = prev_state['celo_usd_price'] * celo_bucket
         mento_buckets = {
             'cusd': cusd_bucket,
@@ -63,6 +56,33 @@ class BuyAndSellGenerator(Generator):
     @staticmethod
     def _get_random_sell_fraction(params):
         return np.random.rand() * params['max_sell_fraction_of_float']
+
+    @staticmethod
+    def create_random_trade(params, prev_state):
+        """
+        Trade are given from perspective of a trader, i.e. sell_gold=True
+         means a trader sells CELO to the reserve
+        """
+        sell_fraction = BuyAndSellGenerator._get_random_sell_fraction(params)
+        sell_gold = np.random.rand() > 0.5
+        if sell_gold:
+            sell_amount = sell_fraction * prev_state['floating_supply']['celo']
+        else:
+            sell_amount = sell_fraction * prev_state['floating_supply']['cusd']
+
+        buy_amount = BuyAndSellGenerator.calculate_buy_amount_constant_product_amm(
+            params=params,
+            prev_state=prev_state,
+            sell_amount=sell_amount,
+            sell_gold=sell_gold
+        )
+
+        trade = Trade(
+            sell_gold=sell_gold,
+            sell_amount=sell_amount,
+            buy_amount=buy_amount
+        )
+        return trade
 
     @staticmethod
     def calculate_buy_amount_constant_product_amm(params, prev_state, sell_amount, sell_gold,
@@ -89,56 +109,14 @@ class BuyAndSellGenerator(Generator):
 
         return buy_amount
 
-    @staticmethod
-    def create_random_trade(params, prev_state):
-        """
-        Trade are given from perspective of a trader, i.e. sell_gold=True
-         means a trader sells CELO to the reserve
-        """
-        sell_fraction = BuyAndSellGenerator._get_random_sell_fraction(params)
-        sell_gold = np.random.rand() > 0.5
-        if sell_gold:
-            sell_amount = sell_fraction * prev_state['floating_supply']['celo']
-        else:
-            sell_amount = sell_fraction * prev_state['floating_supply']['cusd']
-
-        buy_amount = BuyAndSellGenerator.calculate_buy_amount_constant_product_amm(
-            params=params,
-            prev_state=prev_state,
-            sell_amount=sell_amount,
-            sell_gold=sell_gold
-        )
-
-        trade = BuyAndSellGenerator.create_trade(
-            sell_gold=sell_gold,
-            sell_amount=sell_amount,
-            buy_amount=buy_amount
-        )
-
-        return trade
-
-    @staticmethod
-    def create_trade(sell_gold, sell_amount, buy_amount):
-        """
-        Trade are given from perspective of a trader, i.e. sell_gold=True
-         means a trader sells CELO to the reserve
-        """
-        trade = Trade(
-            sell_gold=sell_gold,
-            sell_amount=sell_amount,
-            buy_amount=buy_amount
-        )
-        return trade
 
     @staticmethod
     @container.inject(AccountGenerator)
-    def state_variables_state_after_trade(prev_state, trade):
+    def state_after_trade(prev_state, trade, account_generator=AccountGenerator):
         """
         Trades and deltas are given from perspective of a trader, i.e. sell_gold=True means a trader
         has a negative delta_celo
         """
-
-        # TODO: Update account balances using AccountGenerator!
 
         # Mento buckets are virtual so they do not count neither to
         # floating supply nor to the reserve balance
@@ -147,23 +125,20 @@ class BuyAndSellGenerator(Generator):
             'celo': prev_state['mento_buckets']['celo'] + trade.delta_mento_bucket_celo
         }
 
-        # If trader has positive delta, floating supply delta is positive
-        # (trader balance is part of float)
-        floating_supply = {
-            'cusd': prev_state['floating_supply']['cusd'] + trade.delta_float_cusd,
-            'celo': prev_state['floating_supply']['celo'] + trade.delta_float_celo
-        }
+        # Update trader
+        account_generator.change_account_balance(account_id=account_generator.get_account(1),
+                                                 delta_celo=trade.delta_trader_celo,
+                                                 delta_cusd=trade.delta_trader_cusd)
 
-        # Redeemed cUSD are burned by the reserve
-        reserve_account = {
-            'celo': prev_state['reserve_balance']['celo'] + trade.delta_reserve_celo
-        }
+        # Update reserve
+        account_generator.change_account_balance(account_id=account_generator.get_account(0),
+                                                 delta_celo=trade.delta_reserve_celo,
+                                                 delta_cusd=0.0)
 
+        # New realized mento rate
         mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
 
         return {
             'mento_buckets': mento_buckets,
-            'floating_supply': floating_supply,
-            'reserve_balance': reserve_account,
             'mento_rate': mento_rate
         }

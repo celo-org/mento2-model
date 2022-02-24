@@ -15,14 +15,13 @@ from data.historical_values import (
 
 class AccountGenerator(Generator):
     """
-    AccountsManager Generator to hook accounts to a simulation
+    AccountsManager Generator
     """
 
     def __init__(self):
         self.total_number_of_accounts = 0
         self.all_accounts: List[Account] = []
 
-        # TODO: do this here or in state_variables? state variables are supposed to track this
         # create initial accounts
         self.create_funded_account(account_name='reserve', celo=120000000, cusd=0)
         self.create_funded_account(account_name='random_trader', celo=1000, cusd=10000)
@@ -31,8 +30,7 @@ class AccountGenerator(Generator):
                                         - self.get_account(0)['celo']
                                         - self.get_account(1)['celo'],
                                    cusd=cusd_supply_mean
-                                        - self.get_account(0)['cusd']
-                                        - self.get_account(2)['cusd'])
+                                        - self.get_account(1)['cusd'])
 
         self.total_supply_celo = self.get_total_supply_celo()
         self.total_supply_cusd = self.get_total_supply_cusd()
@@ -80,26 +78,23 @@ class AccountGenerator(Generator):
     def get_total_supply_celo(self):
         """
         sums up celo balances over all accounts
-        :return: celo total supply
         """
         return sum([account['celo'] for account in self.all_accounts])
 
     def get_floating_supply_celo(self):
         """
         sums up celo balances over all accounts except reserve
-        :return: celo total supply
         """
         return sum([account['celo'] for account in self.all_accounts]) - self.get_account(0)['celo']
 
     def get_total_supply_cusd(self):
         """
         sums up cusd balances over all accounts
-        :return: celo total supply
         """
         return sum([account['cusd'] for account in self.all_accounts])
 
     def get_floating_supply_cusd(self):
         """
-        sums up cusd balances over all accounts
+        sums up cusd balances over all accounts except reserve
         """
         return sum([account['cusd'] for account in self.all_accounts]) - self.get_account(0)['cusd']

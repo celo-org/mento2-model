@@ -7,18 +7,18 @@ from model.generators.container import container
 
 @container.inject(BuyAndSellGenerator)
 def p_random_exchange(params, _substep, _state_history, prev_state,
-                      _buy_and_sell_generator: BuyAndSellGenerator):
+                      buy_and_sell_generator: BuyAndSellGenerator):
     """
     policy function to execute a random exchange
     """
-    random_trade = BuyAndSellGenerator.create_random_trade(
-        params=params, prev_state=prev_state
+    random_trade = buy_and_sell_generator.create_random_trade(
+        params=params,
+        prev_state=prev_state
     )
 
-    state_variables_after_trade = BuyAndSellGenerator.state_variables_state_after_trade(
+    state_variables_after_trade = buy_and_sell_generator.state_after_trade(
         prev_state=prev_state,
         trade=random_trade,
-
     )
 
     return state_variables_after_trade
@@ -26,12 +26,10 @@ def p_random_exchange(params, _substep, _state_history, prev_state,
 
 @container.inject(BuyAndSellGenerator)
 def p_bucket_update(params, _substep, _state_history, prev_state,
-                    _buy_and_sell_generator: BuyAndSellGenerator):
+                    buy_and_sell_generator: BuyAndSellGenerator):
     """
     Policy function which updates buckets every update_frequency_seconds
     """
-    if BuyAndSellGenerator.buckets_should_be_reset(params=params, prev_state=prev_state):
-        return BuyAndSellGenerator.calculate_reset_buckets(params=params, prev_state=prev_state)
-    return BuyAndSellGenerator.leave_all_state_variables_unchanged(
-        prev_state=prev_state,
-        policy_type='p_bucket_update')
+    if buy_and_sell_generator.buckets_should_be_reset(params=params, prev_state=prev_state):
+        return buy_and_sell_generator.reset_buckets(params=params, prev_state=prev_state)
+    return None
