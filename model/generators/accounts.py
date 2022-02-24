@@ -25,14 +25,19 @@ class AccountGenerator(Generator):
         # TODO: do this here or in state_variables? state variables are supposed to track this
         # create initial accounts
         self.create_funded_account(account_name='reserve', celo=120000000, cusd=0)
-        self.create_funded_account(account_name='cusd_mento', celo=0.0, cusd=0.0)
         self.create_funded_account(account_name='random_trader', celo=1000, cusd=10000)
         self.create_funded_account(account_name='floating_supply_placeholder',
-                                   celo=celo_supply_mean - self.get_account(0)['celo'],
-                                   cusd=cusd_supply_mean - self.get_account(2)['cusd'])
+                                   celo=celo_supply_mean
+                                        - self.get_account(0)['celo']
+                                        - self.get_account(1)['celo'],
+                                   cusd=cusd_supply_mean
+                                        - self.get_account(0)['cusd']
+                                        - self.get_account(2)['cusd'])
 
-        self.floating_supply_celo = self.get_total_supply_celo()
-        self.floating_supply_cusd = self.get_total_supply_cusd()
+        self.total_supply_celo = self.get_total_supply_celo()
+        self.total_supply_cusd = self.get_total_supply_cusd()
+        self.floating_supply_celo = self.get_floating_supply_celo()
+        self.floating_supply_cusd = self.get_floating_supply_cusd()
 
     @classmethod
     def from_parameters(cls, params) -> "AccountsGenerator":
@@ -79,10 +84,22 @@ class AccountGenerator(Generator):
         """
         return sum([account['celo'] for account in self.all_accounts])
 
+    def get_floating_supply_celo(self):
+        """
+        sums up celo balances over all accounts except reserve
+        :return: celo total supply
+        """
+        return sum([account['celo'] for account in self.all_accounts]) - self.get_account(0)['celo']
+
     def get_total_supply_cusd(self):
         """
         sums up cusd balances over all accounts
         :return: celo total supply
         """
-        # TODO mento buckets don't count to floating supply
         return sum([account['cusd'] for account in self.all_accounts])
+
+    def get_floating_supply_cusd(self):
+        """
+        sums up cusd balances over all accounts
+        """
+        return sum([account['cusd'] for account in self.all_accounts]) - self.get_account(0)['cusd']
