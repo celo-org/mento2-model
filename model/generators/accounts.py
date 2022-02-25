@@ -23,7 +23,7 @@ class AccountGenerator(Generator):
         self.all_accounts: List[Account] = []
 
         # create initial accounts
-        self.create_funded_account(account_name='reserve', celo=120000000, cusd=0)
+        self.create_funded_account(account_name='reserve', celo=120000000.0, cusd=0.0)
         self.create_funded_account(account_name='random_trader', celo=1000, cusd=10000)
         self.create_funded_account(account_name='floating_supply_placeholder',
                                    celo=celo_supply_mean

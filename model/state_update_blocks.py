@@ -4,14 +4,7 @@ cadCAD model State Update Block structure, composed of Policy and State Update F
 
 import model.parts.buy_and_sell as buy_and_sell
 import model.parts.celo_system as celo_system
-from model.generators.buy_and_sell import BuyAndSellGenerator
-from model.generators.accounts import AccountGenerator
 from model.utils import update_from_signal
-
-# Initialize
-# TODO: Is this init necessary? Or is it automatically initialized when a simulation starts
-account_manager = AccountGenerator()
-buy_and_sell_manager = BuyAndSellGenerator()
 
 state_update_block_mento1_trade = {
     "description": """
@@ -52,11 +45,25 @@ state_update_block_random_celo_usd_price_change = {
     }
 }
 
+state_update_block_update_state_variables_from_generators = {
+    "description": """
+        Updates state variables from generators
+    """,
+    'policies': {
+        'state_variables_from_generators': buy_and_sell.p_state_variables_from_generators
+    },
+    'variables': {
+        'reserve_balance': update_from_signal('reserve_balance'),
+        'floating_supply': update_from_signal('floating_supply')
+    }
+}
+
 # Create state_update blocks list
 _state_update_blocks = [
     state_update_block_periodic_mento_bucket_update,
     state_update_block_mento1_trade,
     state_update_block_random_celo_usd_price_change,
+    state_update_block_update_state_variables_from_generators
 ]
 
 # Split the state update blocks into those used during the simulation_configuration

@@ -6,9 +6,7 @@ BuyAndSell management implementing buy and sell trades
 import numpy as np
 from model.constants import blocktime_seconds
 from model.parts.utils.trade import Trade
-from model.generators.accounts import AccountGenerator
 from model.generators.generator import Generator
-from model.generators.container import container
 
 
 class BuyAndSellGenerator(Generator):
@@ -33,17 +31,17 @@ class BuyAndSellGenerator(Generator):
             'bucket_update_frequency_seconds'] == 0
 
     @staticmethod
-    @container.inject(AccountGenerator)
-    def reset_buckets(params, prev_state, account_generator: AccountGenerator):
+    def reset_buckets(params, prev_state, account_generator):
         """
         mento bucket update
         """
         celo_bucket = params['reserve_fraction'] * prev_state['reserve_balance']['celo']
         # change reserve account balance
         delta_celo = prev_state['reserve_balance']['celo'] - celo_bucket
-        account_generator.change_account_balance(account_id=account_generator.get_account(0),
-                                                 delta_celo=delta_celo,
-                                                 delta_cusd=0)
+        account_generator\
+            .change_account_balance(account_id=account_generator.get_account(0)['account_id'],
+                                    delta_celo=delta_celo,
+                                    delta_cusd=0)
         cusd_bucket = prev_state['celo_usd_price'] * celo_bucket
         mento_buckets = {
             'cusd': cusd_bucket,
@@ -111,8 +109,7 @@ class BuyAndSellGenerator(Generator):
 
 
     @staticmethod
-    @container.inject(AccountGenerator)
-    def state_after_trade(prev_state, trade, account_generator=AccountGenerator):
+    def state_after_trade(prev_state, trade, account_generator):
         """
         Trades and deltas are given from perspective of a trader, i.e. sell_gold=True means a trader
         has a negative delta_celo
@@ -126,14 +123,16 @@ class BuyAndSellGenerator(Generator):
         }
 
         # Update trader
-        account_generator.change_account_balance(account_id=account_generator.get_account(1),
-                                                 delta_celo=trade.delta_trader_celo,
-                                                 delta_cusd=trade.delta_trader_cusd)
+        account_generator\
+            .change_account_balance(account_id=account_generator.get_account(1)['account_id'],
+                                    delta_celo=trade.delta_trader_celo,
+                                    delta_cusd=trade.delta_trader_cusd)
 
         # Update reserve
-        account_generator.change_account_balance(account_id=account_generator.get_account(0),
-                                                 delta_celo=trade.delta_reserve_celo,
-                                                 delta_cusd=0.0)
+        account_generator\
+            .change_account_balance(account_id=account_generator.get_account(0)['account_id'],
+                                    delta_celo=trade.delta_reserve_celo,
+                                    delta_cusd=0.0)
 
         # New realized mento rate
         mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
