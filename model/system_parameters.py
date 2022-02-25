@@ -10,8 +10,9 @@ By using a dataclass to represent the System Parameters:
 from dataclasses import dataclass
 from datetime import datetime
 from types import FunctionType
-from typing import List
+from typing import List, Dict
 import experiments.simulation_configuration as simulation
+from model.generators.accounts import AccountType
 from model.generators.markets import MarketPriceModel
 
 from model.types import Blocknumber
@@ -73,6 +74,16 @@ class Parameters:
         [lambda asset_1, asset_2: asset_1**2 / asset_2]
     )
 
+    number_of_accounts: List[Dict[AccountType, int]] = default(
+        [
+            {
+                AccountType.NOISY_TRADER: 1,
+                AccountType.ARB_TRADER: 2,
+                AccountType.CONTRACT: 0,
+            }
+        ]
+    )
+    reserve_inventory: List[Dict] = default([{"celo": 120000000, "cusd":0}])
 
 # Initialize Parameters instance with default values
 parameters = Parameters().__dict__

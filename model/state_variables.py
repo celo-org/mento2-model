@@ -88,6 +88,7 @@ class StateVariables:
     )
 
 
+    number_of_accounts: int = default(1)
 
     # # CEX state variables
     # order_book: OrderBook  = default(
