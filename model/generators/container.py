@@ -85,11 +85,12 @@ class GeneratorContainer():
             context.initial_state.update({'__subset_id__': subset_id})
         return before_subset_hook
 
-    def __clean__(self, _context: Context):
+    def __clean__(self, **_kwargs):
         '''
         Reset all generators at the end of a simulation.
         '''
         self.generators_for_subset = {}
+
 
 def __hook__(simulation: Any, hook_name: str, hook: Callable):
     '''
@@ -105,11 +106,13 @@ def __hook__(simulation: Any, hook_name: str, hook: Callable):
     else:
         setattr(simulation, hook_name, hook)
 
+
 def __subset_id__(context: Context):
     '''
     Generate a unique subset id from a radcad.Context
     '''
     return f"{context.simulation}:{context.run}:{context.subset}"
+
 
 # Singleton container used throughout the lifetime of the execution
 container = GeneratorContainer()

@@ -12,8 +12,7 @@ from model.utils import default
 from model.types import (
     TokenPriceInUSD,
     TokenPriceInToken,
-    AccountBalance,
-    TokenBalance
+    AccountBalance
 )
 from data.historical_values import (
     celo_price_mean,
@@ -30,7 +29,7 @@ class StateVariables:
     """
 
     # Floating supply state variables
-    floating_supply: TokenBalance = default(
+    floating_supply: AccountBalance = default(
         {
             'celo': celo_supply_mean,
             'cusd': cusd_supply_mean
@@ -44,7 +43,7 @@ class StateVariables:
     """The CELO spot price"""
 
     # Reserve balance
-    reserve_balance: TokenBalance = default(
+    reserve_balance: AccountBalance = default(
         {
             'celo': 120000000.0,
             'cusd': 0.0
@@ -61,7 +60,6 @@ class StateVariables:
 
     mento_rate: TokenPriceInToken = celo_price_mean
     """The Mento CELO/cUSD rate """
-
 
 
 # Initialize State Variables instance with default values

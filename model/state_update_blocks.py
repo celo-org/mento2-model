@@ -15,8 +15,6 @@ state_update_block_mento1_trade = {
     },
     'variables': {
         'mento_buckets': update_from_signal('mento_buckets'),
-        'reserve_balance': update_from_signal('reserve_balance'),
-        'floating_supply': update_from_signal('floating_supply'),
         'mento_rate': update_from_signal('mento_rate')
     }
 }

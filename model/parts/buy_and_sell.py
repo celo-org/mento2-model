@@ -39,7 +39,9 @@ def p_bucket_update(params, _substep, _state_history, prev_state,
         return buy_and_sell_generator.reset_buckets(params=params,
                                                     prev_state=prev_state,
                                                     account_generator=account_generator)
-    return None
+    return {
+        'mento_buckets': prev_state['mento_buckets']
+    }
 
 
 @container.inject(AccountGenerator)
@@ -48,11 +50,11 @@ def p_state_variables_from_generators(_params, _substep, _state_history, _prev_s
     """
     Policy function which updates state variables from generator objects
     """
-    floating_supply: {
+    floating_supply = {
         'celo': account_generator.floating_supply_celo,
         'cusd': account_generator.floating_supply_cusd
     }
-    reserve_balance: {
+    reserve_balance = {
         'celo': account_generator.get_account(0)['celo'],
         'cusd': account_generator.get_account(0)['cusd']
     }

@@ -79,22 +79,24 @@ class AccountGenerator(Generator):
         """
         sums up celo balances over all accounts
         """
-        return sum([account['celo'] for account in self.all_accounts])
+        return float(sum([account['celo'] for account in self.all_accounts]))
 
     def get_floating_supply_celo(self):
         """
         sums up celo balances over all accounts except reserve
         """
-        return sum([account['celo'] for account in self.all_accounts]) - self.get_account(0)['celo']
+        return float(sum([account['celo'] for account in self.all_accounts])
+                     - self.get_account(0)['celo'])
 
     def get_total_supply_cusd(self):
         """
         sums up cusd balances over all accounts
         """
-        return sum([account['cusd'] for account in self.all_accounts])
+        return float(sum([account['cusd'] for account in self.all_accounts]))
 
     def get_floating_supply_cusd(self):
         """
         sums up cusd balances over all accounts except reserve
         """
-        return sum([account['cusd'] for account in self.all_accounts]) - self.get_account(0)['cusd']
+        return float(sum([account['cusd'] for account in self.all_accounts])
+                     - self.get_account(0)['cusd'])

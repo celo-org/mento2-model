@@ -8,7 +8,7 @@ By using a dataclass to represent the System Parameters:
 
 from dataclasses import dataclass
 from typing import List
-import experiments.simulation_configuration as simulation
+from experiments.simulation_configuration import BLOCKS_PER_TIMESTEP
 from model.types import Blocknumber
 from model.utils import default
 
@@ -22,7 +22,7 @@ class Parameters:
     """
 
     # Time-related parameters
-    dt: List[Blocknumber] = default([simulation.BLOCKS_PER_TIMESTEP])
+    dt: List[Blocknumber] = default([BLOCKS_PER_TIMESTEP])
     """
     Simulation timescale / timestep unit of time, in blocks.
     Used to scale calculations that depend on the number of blocks that have passed.
