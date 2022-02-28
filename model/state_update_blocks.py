@@ -26,6 +26,19 @@ state_update_block_mento1_trade = {
     },
 }
 
+state_update_block_random_trading = {
+    "description": """
+        Single random trader
+    """,
+    "policies": {"random_trade": accounting.p_random_trading},
+    "variables": {
+        "mento_buckets": update_from_signal("mento_buckets"),
+        "reserve_account": update_from_signal("reserve_account"),
+        "floating_supply": update_from_signal("floating_supply"),
+        "mento_rate": update_from_signal("mento_rate"),
+    },
+}
+
 
 # according to impact timing function
 state_update_block_price_impact = {
@@ -57,13 +70,13 @@ state_update_block_periodic_mento_bucket_update = {
     "variables": {"mento_buckets": update_from_signal("mento_buckets")},
 }
 
-state_update_account_update = {
-    "description": """
+# state_update_account_update = {
+#     "description": """
 
-    """,
-    "policies": {"acounts": accounting.p_create_accounts},
-    "variables": {"number_of_accounts": update_from_signal("number_of_accounts")},
-}
+#     """,
+#     "policies": {"acounts": accounting.p_create_accounts},
+#     "variables": {"number_of_accounts": update_from_signal("number_of_accounts")},
+# }
 
 
 # Conditionally update the order of the State Update Blocks using a ternary operator
@@ -71,7 +84,7 @@ _state_update_blocks = (
     # Structure state update blocks as follows:
     [  # state_update_account_update,
         state_update_block_periodic_mento_bucket_update,
-        state_update_block_mento1_trade,
+        state_update_block_random_trading,
         state_update_block_price_impact,
         state_update_block_market_price_change,
     ]

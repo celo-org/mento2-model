@@ -77,7 +77,7 @@ class Parameters:
     number_of_accounts: List[Dict[AccountType, int]] = default(
         [
             {
-                AccountType.NOISY_TRADER: 1,
+                AccountType.RANDOM_TRADER: 1,
                 AccountType.ARB_TRADER: 2,
                 AccountType.CONTRACT: 0,
             }
