@@ -3,6 +3,7 @@
 
 
 """
+from model.generators.buy_and_sell import BuyAndSellGenerator
 from model.generators.container import container
 from model.generators.accounts import AccountGenerator, AccountType
 
@@ -25,13 +26,14 @@ from model.generators.accounts import AccountGenerator, AccountType
 #     return {'number_of_accounts': 0}
 
 
-@container.inject(AccountGenerator)
+@container.inject(AccountGenerator, BuyAndSellGenerator)
 def p_random_trading(
-    params,
+    _params,
     substep,
     state_history,
     prev_state,
     account_generator: AccountGenerator,
+    buy_sell_generator: BuyAndSellGenerator
 ):
     """
     Executes a random trade
@@ -41,4 +43,4 @@ def p_random_trading(
     # TODO How can we implement dynamic substeps
     traders = account_generator.all_accounts[AccountType.RANDOM_TRADER]
     trader = traders[0]
-    return trader.execute(params, substep, state_history, prev_state)
+    return trader.execute( buy_sell_generator, substep, state_history, prev_state)

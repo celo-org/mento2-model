@@ -3,7 +3,6 @@ cadCAD model State Update Block structure, composed of Policy and State Update F
 """
 
 from model.parts import accounting
-from model.parts import mento1
 import model.parts.market_prices as market_price
 
 # from model.system_parameters import parameters
@@ -11,18 +10,6 @@ from model.parts import buy_and_sell
 from model.parts import celo_system
 from model.utils import update_from_signal
 
-state_update_block_mento1_trade = {
-    "description": """
-        Single Mento1 trade:
-    """,
-    "policies": {"random_exchange": mento1.p_random_exchange},
-    "variables": {
-        "mento_buckets": update_from_signal("mento_buckets"),
-        "reserve_account": update_from_signal("reserve_account"),
-        "floating_supply": update_from_signal("floating_supply"),
-        "mento_rate": update_from_signal("mento_rate"),
-    },
-}
 
 state_update_block_random_trading = {
     "description": """
@@ -102,7 +89,8 @@ _state_update_blocks = [
     state_update_block_periodic_mento_bucket_update,
     state_update_block_random_trading,
     state_update_block_price_impact,
-#    state_update_block_update_state_variables_from_generators
+
+    #state_update_block_update_state_variables_from_generators
 ]
 
 

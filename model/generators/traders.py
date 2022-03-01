@@ -2,12 +2,12 @@
 Provides Traders / Actors
 """
 
-#from abc import ABC, abstractclassmethod
+# from abc import ABC, abstractclassmethod
 
 
 import numpy as np
 from experiments import simulation_configuration
-from model.generators.temp_mento import exchange
+from model.generators.buy_and_sell import BuyAndSellGenerator
 
 
 class AccountHolder:
@@ -49,17 +49,29 @@ class AccountHolder:
     def current_orders(self, state):
         return self.orders[:, state]
 
-    def execute(self, params, substep, state_history, prev_state):
+    def execute(
+        self,
+        buy_sell_generator: BuyAndSellGenerator,
+        substep,
+        state_history,
+        prev_state,
+    ):
+        """
+        Making pylint happy
+        """
         sell_amount = self.orders["sell_amount"][prev_state["timestep"]]
         sell_gold = self.orders["sell_gold"][prev_state["timestep"]]
-        states, deltas = exchange(
-            sell_amount, sell_gold, params, substep, state_history, prev_state
+        states, deltas = buy_sell_generator.exchange(
+            sell_amount, sell_gold, substep, state_history, prev_state
         )
+        # TODO this has to happen hear to avoid circular referencing, find better solution
         self.parent.change_account_balance(
             self.account_id, deltas["cusd"], deltas["celo"], self.account_type
         )
+        self.parent.change_reserve_account_balance(
+            delta_cusd=deltas["cusd"], delta_celo=deltas["celo"]
+        )
         return states
-
 
 
 # class Trader(ABC):

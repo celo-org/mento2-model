@@ -12,11 +12,9 @@ from datetime import datetime
 from model.utils import default
 
 from model.types import (
-    AccountBalance,
     TokenPerToken,
     TokenBalance,
     TokenPriceInUSD,
-    TokenPriceInToken,
     Account,
     MarketPrice,
     VirtualTanks,
@@ -31,12 +29,13 @@ class StateVariables:
     Each State Variable is defined as:
     state variable key: state variable type = default state variable value
     """
+
     # pylint: disable=too-many-instance-attributes
     # Time state variables
     timestamp: datetime = None
     """
     The timestamp for each timestep as a Python `datetime` object, starting
-    from `date_start` Parameter.
+    from `date_start` Psarameter.
     """
 
     # Celo state variables
@@ -53,7 +52,13 @@ class StateVariables:
     )
 
     # Mento state variables
-    mento_buckets: TokenBalance = default({"celo": 0.0, "cusd": 0.0})
+    # TODO initial calibration of buckets
+    mento_buckets: TokenBalance = default(
+        {
+            "celo": 0.025 * 1200000000,
+            "cusd": 0.025 * 0.1 * mento_rate,
+        }
+    )
 
     # Mento state variables
     floating_supply: TokenBalance = default(
@@ -88,9 +93,9 @@ class StateVariables:
     reserve_balance: TokenBalance = default({"celo": 120000000.0, "cusd": 0.0})
 
     # Mento state variables
-    mento_buckets: AccountBalance = default({"celo": 0.0, "cusd": 0.0})
+    # mento_buckets: AccountBalance = default({"celo": 0.0, "cusd": 0.0})
 
-    mento_rate: TokenPriceInToken = celo_price_mean
+    # mento_rate: TokenPriceInToken = celo_price_mean
     """The Mento CELO/cUSD rate """
 
 

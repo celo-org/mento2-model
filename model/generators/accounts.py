@@ -97,6 +97,12 @@ class AccountGenerator(Generator):
         self.total_number_of_accounts[account_type] += 1
         return account_id
 
+    def change_reserve_account_balance(
+        self, delta_celo, delta_cusd):
+        #TODO check for reserve account
+        #self.check_account_valid(account_id, account_type)
+        self.reserve_account.balance["celo"] += delta_celo
+        self.reserve_account.balance["cusd"] += delta_cusd
     def change_account_balance(
         self, account_id, delta_celo, delta_cusd, account_type: AccountType
     ):
