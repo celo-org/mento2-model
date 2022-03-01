@@ -16,10 +16,14 @@ model/generators/markets.py:213:        # TODO Consider different sampling optio
 model/generators/markets.py:214:        # TODO Random Seed
 model/generators/markets.py:217:        # TODO does it make sense to free the memory?
 model/generators/markets.py:221:        # TODO conversion to pandas frame is slow!!!
+model/generators/buy_and_sell.py:25:        # TODO what to do here?
 model/parts/accounting.py:40:    # TODO only works with one trader. Otherwise the bucket sizes are not dynamically adjusted.
 model/parts/accounting.py:41:    # TODO How can we implement dynamic substeps
+model/parts/utils/trade.py:15:        # TODO: Add trader account id and checks against the respective balances
 model/parts/mento1.py:38:    # TODO: control seed and track RN
 model/parts/market_prices.py:41:    # TODO make this block dependent
 model/parts/market_prices.py:42:    # TODO make sure the right step is picked
-model/types.py:64:# Todo Solve naming conflict
+model/types.py:34:# TODO: Use decimal precision according to celo account balance precision
+model/types.py:51:# TODO: Is there a better type for the below classes then TypedDicts?
+model/types.py:73:# Todo Solve naming conflict
 model/utils.py:52:    # TODO Build data_feed

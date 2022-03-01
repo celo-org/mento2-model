@@ -3,9 +3,9 @@ Various Python types used in the model
 """
 
 # See https://docs.python.org/3/library/dataclasses.html
-#from dataclasses import dataclass
-from enum import Enum
 from typing import TypedDict
+
+from enum import Enum
 
 from model.generators.markets import MarketPriceGenerator
 
@@ -31,6 +31,14 @@ class Stage(Enum):
 UsdPerToken = float
 TokenPerToken = float
 
+# TODO: Use decimal precision according to celo account balance precision
+# Balance types
+TokenBalance = float
+
+# Price types
+TokenPriceInUSD = float
+TokenPriceInToken = float
+
 # Simulation types
 Run = int
 Timestep = int
@@ -40,7 +48,8 @@ Blocknumber = int
 Day = int
 
 
-class TokenBalance(TypedDict):
+# TODO: Is there a better type for the below classes then TypedDicts?
+class AccountBalance(TypedDict):
     """
     Class for an on-chain token balance
     """
@@ -49,11 +58,11 @@ class TokenBalance(TypedDict):
     celo: float
 
 
-class Account(TokenBalance):
+class Account(AccountBalance):
     """
     Class for an on-chain account
     """
-
+    # pylint: disable=too-few-public-methods
     account_id: int
 
 

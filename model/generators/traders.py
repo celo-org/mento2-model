@@ -61,15 +61,8 @@ class AccountHolder:
         return states
 
 
-# # pylint: disable=too-few-public-methods
-# class Trader(ABC):
-#     """
-#     Abstract Generator class, this is very light at the moment
-#     but might grow if we discover patterns in Generators that
-#     are worth abstracting, either way having this is helpful
-#     for the type system.
-#     """
 
+# class Trader(ABC):
 #     def __init__(
 #         self, parent, account_id, account_name, balance, account_type=None, orders=None
 #     ):
@@ -88,4 +81,7 @@ class AccountHolder:
 
 
 # class ArbTrader(Trader):
+#     def __init__():
+
+# class RandomTrader(Trader):
 #     def __init__():
