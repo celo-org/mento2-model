@@ -30,6 +30,7 @@ sklearn = "*"
 numpy = "*"
 quantlib = "*"
 cvxpy = "1.1.18"
+fastparquet = "*"
 
 [dev-packages]
 flake8-import-order = "*"
