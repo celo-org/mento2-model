@@ -37,7 +37,7 @@ class AccountGenerator(Generator):
             account_type: [] for account_type in AccountType
         }
 
-        self.create_reserve_account(reserve_inventory)
+        self.reserve_account = self.create_reserve_account(reserve_inventory)
         # TODO create fast calibration to have one trader for all floating supply
         # self.create_funded_account(account_name='random_trader', celo=1000, cusd=10000)
         # self.create_funded_account(account_name='floating_supply_placeholder',
@@ -46,11 +46,11 @@ class AccountGenerator(Generator):
         #                                 - self.get_account(1)['celo'],
         #                            cusd=cusd_supply_mean
         #                                 - self.get_account(1)['cusd'])
-
-        self.total_supply_celo = self.get_total_supply_celo()
-        self.total_supply_cusd = self.get_total_supply_cusd()
-        self.floating_supply_celo = self.get_floating_supply_celo()
-        self.floating_supply_cusd = self.get_floating_supply_cusd()
+        # these variables get initialized and updated by their @property function
+        self._total_supply_celo = self.total_supply_celo
+        self._total_supply_cusd = self.total_supply_cusd
+        self._floating_supply_celo = self.floating_supply_celo
+        self._floating_supply_cusd = self.floating_supply_cusd
 
     @classmethod
     def from_parameters(cls, params):
@@ -69,7 +69,10 @@ class AccountGenerator(Generator):
         return accounts
 
     def create_reserve_account(self, reserve_inventory):
-        self.reserve_account = AccountHolder(
+        """
+        making pylint happy
+        """
+        reserve_account = AccountHolder(
             self,
             account_id=0,
             account_name="reserve",
@@ -79,6 +82,7 @@ class AccountGenerator(Generator):
             },
             account_type=AccountType.CONTRACT,
         )
+        return reserve_account
         # TODO Reserve account as first contract account???
 
     def create_new_account(self, account_name, account_type):
@@ -125,13 +129,15 @@ class AccountGenerator(Generator):
             self.all_accounts[account_type][account_id].account_id == account_id
         ), "Account_id mismatch"
 
-    def get_total_supply_celo(self):
+    @property
+    def total_supply_celo(self):
         """
         sums up celo balances over all accounts
         """
-        return self.get_floating_supply_celo() + self.reserve_account.balance["celo"]
+        return self.floating_supply_celo + self.reserve_account.balance["celo"]
 
-    def get_floating_supply_celo(self):
+    @property
+    def floating_supply_celo(self):
         """
         sums up celo balances over all accounts except reserve
         """
@@ -142,13 +148,15 @@ class AccountGenerator(Generator):
             )
         return floating_supply
 
-    def get_total_supply_cusd(self):
+    @property
+    def total_supply_cusd(self):
         """
         sums up cusd balances over all accounts
         """
-        return self.get_floating_supply_cusd() + self.reserve_account.balance["cusd"]
+        return self.floating_supply_cusd + self.reserve_account.balance["cusd"]
 
-    def get_floating_supply_cusd(self):
+    @property
+    def floating_supply_cusd(self):
         """
         sums up cusd balances over all accounts except reserve
         """
