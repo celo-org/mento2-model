@@ -7,7 +7,8 @@ from model.system_parameters import parameters, Parameters
 def assign_parameters(df: pd.DataFrame, parameters: Parameters, set_params=[]):
     if set_params:
         parameter_sweep = generate_parameter_sweep(parameters)
-        parameter_sweep = [{param: subset[param] for param in set_params} for subset in parameter_sweep]
+        parameter_sweep = [{param: subset[param]
+                            for param in set_params} for subset in parameter_sweep]
 
         for subset_index in df['subset'].unique():
             for (key, value) in parameter_sweep[subset_index].items():

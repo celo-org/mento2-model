@@ -29,13 +29,15 @@ dask = "*"
 sklearn = "*"
 numpy = "*"
 quantlib = "*"
+cvxpy = "1.1.18"
+fastparquet = "*"
 
 [dev-packages]
 flake8-import-order = "*"
 flake8 = "*"
 autopep8 = "*"
 pre-commit = "*"
-
+pylint = "*"
 
 [requires]
 python_version = "3.8"

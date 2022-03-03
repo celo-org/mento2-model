@@ -147,4 +147,5 @@ drafts/
 **/*answers.ipynb
 
 # Temporary due to pre-commit fail
+./TODOS.md
 TODOS.md

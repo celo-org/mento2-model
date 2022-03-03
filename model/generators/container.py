@@ -85,7 +85,7 @@ class GeneratorContainer():
             context.initial_state.update({'__subset_id__': subset_id})
         return before_subset_hook
 
-    def __clean__(self, _context: Context):
+    def __clean__(self, **_kwargs):
         '''
         Reset all generators at the end of a simulation.
         '''

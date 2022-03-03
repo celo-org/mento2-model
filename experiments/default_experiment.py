@@ -13,8 +13,10 @@ from radcad import Simulation, Experiment, Backend
 from experiments.simulation_configuration import TIMESTEPS, MONTE_CARLO_RUNS
 
 from model import model
+from model.generators.accounts import AccountGenerator
+from model.generators.markets import MarketPriceGenerator
+from model.generators.buy_and_sell import BuyAndSellGenerator
 from model.generators.container import container
-from model.generators.example import ExampleGenerator
 
 
 # Create Model Simulation
@@ -24,11 +26,13 @@ simulation = Simulation(
     runs=MONTE_CARLO_RUNS
 )
 
-# Hook the simulation to the GeneratorContainer
-container.hook_to_simulation(simulation, [ExampleGenerator])
+container.hook_to_simulation(
+    simulation, [MarketPriceGenerator, AccountGenerator, BuyAndSellGenerator]
+)
 
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])
+
 # Configure Simulation & Experiment engine
 simulation.engine = experiment.engine
 experiment.engine.backend = Backend.SINGLE_PROCESS

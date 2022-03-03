@@ -43,3 +43,10 @@ def local_variables(_locals):
 
 def default(obj):
     return field(default_factory=lambda: copy.copy(obj))
+
+
+class data_feed():
+    """
+    Performs data conversion for generators
+    """
+    # TODO Build data_feed
