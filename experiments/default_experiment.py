@@ -23,7 +23,7 @@ from model.generators.container import container
 simulation = Simulation(
     model=model,
     timesteps=TIMESTEPS,
-    runs=MONTE_CARLO_RUNS,
+    runs=MONTE_CARLO_RUNS
 )
 
 container.hook_to_simulation(
