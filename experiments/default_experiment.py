@@ -28,6 +28,7 @@ container.hook_to_simulation(simulation)
 
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])
+
 # Configure Simulation & Experiment engine
 simulation.engine = experiment.engine
 experiment.engine.backend = Backend.SINGLE_PROCESS

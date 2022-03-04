@@ -35,6 +35,7 @@ def get_random_sell_amount_in_cusd(params):
 
 def p_random_exchange(params, substep, state_history, prev_state):
     sell_amount = get_random_sell_amount_in_cusd(params)
+    # TODO: control seed and track RN
     sell_gold = np.random.rand() > 0.5
     if sell_gold:
         sell_amount = sell_amount / prev_state['mento_rate']
@@ -63,11 +64,15 @@ def p_random_exchange(params, substep, state_history, prev_state):
 
     mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
 
+    # market_price_generator = params['generators'].get(MarketPriceGenerator)
+    # market_price = {'cusd_usd': market_price_generator.valuate(
+    #    floating_supply['cusd'], virtual_tanks['usd'])}
+
     return {
         'mento_buckets': mento_buckets,
         'floating_supply': floating_supply,
         'reserve_account': reserve_account,
-        'mento_rate': mento_rate
+        'mento_rate': mento_rate,
     }
 
 
@@ -77,7 +82,7 @@ def p_bucket_update(params, substep, state_history, prev_state):
     """
     if (blocktime_seconds * prev_state['timestep']) % params['bucket_update_frequency_seconds'] == 0:
         celo_bucket = params['reserve_fraction'] * prev_state['reserve_account']['celo']
-        cusd_bucket = prev_state['mento_rate'] * celo_bucket
+        cusd_bucket = prev_state['market_price']['celo_usd'] * celo_bucket
         mento_buckets = {
             'cusd': cusd_bucket,
             'celo': celo_bucket
