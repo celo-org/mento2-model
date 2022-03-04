@@ -43,4 +43,4 @@ def p_random_trading(
     # TODO How can we implement dynamic substeps
     traders = account_generator.all_accounts[AccountType.RANDOM_TRADER]
     trader = traders[0]
-    return trader.execute( buy_sell_generator, substep, state_history, prev_state)
+    return trader.execute(buy_sell_generator, substep, state_history, prev_state)

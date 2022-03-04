@@ -174,7 +174,6 @@ class BuyAndSellGenerator(Generator):
 
         return buy_amount
 
-
     def exchange(self, sell_amount, sell_gold, _substep, _state_history, prev_state):
         """
         Making pylint happy

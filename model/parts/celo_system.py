@@ -1,16 +1,31 @@
 """
 Celo System
-
-General Celo blockchain mechanisms, such as account management andepoch rewards
+General Celo blockchain mechanisms:
+* epoch rewards
 """
-import numpy as np
+from model.generators.container import container
+from model.generators.accounts import AccountGenerator
+from model.constants import celo_genesis_supply, celo_max_supply, epoch_seconds, blocktime_seconds
+from model.types import AccountType
 
-def p_random_celo_usd_price_change(_params, _substep, _state_history, prev_state):
+
+@container.inject(AccountGenerator)
+def p_target_epoch_rewards(_params, _substep, _state_history, prev_state,
+                           account_generator=AccountGenerator):
     """
-    Create some random changes in celo_usd_price
+    Naively propage celo supply by adding target epoch rewards per epoch (every 17280 blocks)
+    Celo epoch target rewards are rewarded linearly over the next 15 years and after
+    that logarithmically. Here it's only about the next 15 linear years
     """
-    vola_per_block = 5.0 / np.sqrt(365*24*60*12)  # Annual vola of 500% for some action
-    pct_change = np.random.normal() * vola_per_block
+    if prev_state['timestep'] > 0:
+        if (prev_state['timestep'] * blocktime_seconds) % epoch_seconds == 0:
+            celo_total_epoch_rewards = celo_max_supply - celo_genesis_supply
+            celo_linear_total_epoch_rewards = celo_total_epoch_rewards / 2
+            target_epoch_rewards = celo_linear_total_epoch_rewards / 15 / 365
+            account_generator.change_account_balance(account_id=1,
+                                                     delta_celo=target_epoch_rewards,
+                                                     delta_cusd=0.0,
+                                                     account_type=AccountType.CONTRACT)
     return {
-        'celo_usd_price': prev_state['celo_usd_price'] * np.exp(pct_change)
+        "floating_supply": prev_state["floating_supply"],
     }

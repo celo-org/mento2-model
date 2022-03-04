@@ -51,7 +51,7 @@ class Parameters:
     model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
     covariance_market_price: List[float] = default([[[1, 0], [0, 1]]])
     drift_market_price: List[float] = default([[0, 0]])
-    # data_file: List[str] = default(['mock_logreturns.csv'])
+    # data_file: List[str] = default(['mock_logreturns.prq'])
     custom_impact: List[FunctionType] = default(
         [lambda asset_1, asset_2: asset_1**2 / asset_2]
     )
@@ -66,6 +66,7 @@ class Parameters:
         ]
     )
     reserve_inventory: List[Dict] = default([{"celo": 120000000, "cusd":0}])
+
 
 # Initialize Parameters instance with default values
 parameters = Parameters().__dict__

@@ -15,18 +15,6 @@ Wei = int
 Gwei = float
 GweiPerGas = float
 
-
-class Stage(Enum):
-    """Stages of the Mento1.0 -> Mento2.0 upgrade process network upgrade process"""
-    MENTO1 = 1  # Celo mainnet Mento1
-    MENTO1SSPS = 2  # Mento1 plus stability providers
-    MENTO1SPSIRPS = 3  # Mento1 + stability providers + IRPs
-
-
-# # Balance types
-# Token_balance = float
-# Usd_balance = float
-
 # Price types
 UsdPerToken = float
 TokenPerToken = float
@@ -47,6 +35,14 @@ Timestep = int
 Blocknumber = int
 Day = int
 
+class AccountType(Enum):
+    """
+    different account holders
+    """
+    ARB_TRADER = "arb_trader"
+    RANDOM_TRADER = "random_trader"
+    CONTRACT = "contract"
+
 
 # TODO: Is there a better type for the below classes then TypedDicts?
 class AccountBalance(TypedDict):
@@ -64,6 +60,7 @@ class Account(AccountBalance):
     """
     # pylint: disable=too-few-public-methods
     account_id: int
+    account_name: object
 
 
 class MarketPrice(TypedDict):

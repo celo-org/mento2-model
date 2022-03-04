@@ -2,9 +2,6 @@
 Provides Traders / Actors
 """
 
-# from abc import ABC, abstractclassmethod
-
-
 import numpy as np
 from experiments import simulation_configuration
 from model.generators.buy_and_sell import BuyAndSellGenerator
@@ -72,28 +69,3 @@ class AccountHolder:
             delta_cusd=deltas["cusd"], delta_celo=deltas["celo"]
         )
         return states
-
-
-# class Trader(ABC):
-#     def __init__(
-#         self, parent, account_id, account_name, balance, account_type=None, orders=None
-#     ):
-#         self.parent = parent
-#         self.account_id = account_id
-#         self.account_name = account_name
-#         self.balance = {"celo": balance["celo"], "cusd": balance["celo"]}
-#         self.account_type = account_type
-#         self.dummy = 0
-#         self.orders = orders
-
-#     def execute(
-#         self, parent, account_id, account_name, balance, account_type=None, orders=None
-#     ):
-#         pass
-
-
-# class ArbTrader(Trader):
-#     def __init__():
-
-# class RandomTrader(Trader):
-#     def __init__():

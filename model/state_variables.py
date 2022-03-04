@@ -39,10 +39,6 @@ class StateVariables:
     """
 
     # Celo state variables
-    # celo_price: Usd_per_token = celo_price_mean
-    # """The CELO spot price in USD"""
-    # cusd_price: Usd_per_token = 1.0
-    # """The CELO spot price"""
     mento_rate: TokenPerToken = celo_price_mean
     """The Mento CELO/cUSD rate """
 
@@ -72,17 +68,6 @@ class StateVariables:
 
     number_of_accounts: int = default(1)
 
-    # # CEX state variables
-    # order_book: OrderBook  = default(
-    #     {
-    #         'bid_price': bid_price,
-    #         'ask_price': ask_price,
-    #         'mid_price': mid_price',
-    #         'last_price': last_price,
-    #         'volume': volume
-    #     }
-    #
-    # )
     # Celo state variables
     celo_usd_price: TokenPriceInUSD = celo_price_mean
     """The CELO spot price in USD"""
@@ -91,12 +76,6 @@ class StateVariables:
 
     # Reserve balance
     reserve_balance: TokenBalance = default({"celo": 120000000.0, "cusd": 0.0})
-
-    # Mento state variables
-    # mento_buckets: AccountBalance = default({"celo": 0.0, "cusd": 0.0})
-
-    # mento_rate: TokenPriceInToken = celo_price_mean
-    """The Mento CELO/cUSD rate """
 
 
 # Initialize State Variables instance with default values

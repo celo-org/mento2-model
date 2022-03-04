@@ -58,15 +58,16 @@ state_update_block_periodic_mento_bucket_update = {
     }
 }
 
-state_update_block_random_celo_usd_price_change = {
+state_update_block_epoch_rewards = {
     "description": """
-        Create a random change in the celo_usd_price
+        epoch rewards propagation:
+        * floating supply increase by epoch rewards
     """,
     'policies': {
-        'random_celo_usd_price_change': celo_system.p_random_celo_usd_price_change
+        'target_epoch_rewards': celo_system.p_target_epoch_rewards
     },
     'variables': {
-        'celo_usd_price': update_from_signal('celo_usd_price')
+        'floating_supply': update_from_signal('floating_supply')
     }
 }
 
@@ -89,7 +90,7 @@ _state_update_blocks = [
     state_update_block_periodic_mento_bucket_update,
     state_update_block_random_trading,
     state_update_block_price_impact,
-
+    state_update_block_epoch_rewards,
     #state_update_block_update_state_variables_from_generators
 ]
 
