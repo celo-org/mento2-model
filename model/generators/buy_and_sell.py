@@ -31,26 +31,6 @@ class BuyAndSellGenerator(Generator):
               'bucket_update_frequency_seconds'] == 0)
         return update_required
 
-    # @staticmethod
-    # def reset_buckets(params, prev_state, account_generator):
-    #     """
-    #     mento bucket update
-    #     """
-    #     celo_bucket = params['reserve_fraction'] * prev_state['reserve_balance']['celo']
-    #     # change reserve account balance
-    #     delta_celo = prev_state['reserve_balance']['celo'] - celo_bucket
-    #     account_generator\
-    #         .change_account_balance(account_id=account_generator,
-    #                                 delta_celo=delta_celo,
-    #                                 delta_cusd=0)
-    #     cusd_bucket = prev_state['celo_usd_price'] * celo_bucket
-    #     mento_buckets = {
-    #         'cusd': cusd_bucket,
-    #         'celo': celo_bucket
-    #     }
-    #     return {
-    #         'mento_buckets': mento_buckets
-    #     }
     @staticmethod
     def bucket_update(params, prev_state):
         celo_bucket = params['reserve_fraction'] * prev_state['reserve_account']['celo']
@@ -60,37 +40,6 @@ class BuyAndSellGenerator(Generator):
             'celo': celo_bucket
         }
         return {'mento_buckets': mento_buckets}
-
-    # @staticmethod
-    # def _get_random_sell_fraction(params):
-    #     return np.random.rand() * params['max_sell_fraction_of_float']
-
-    # @staticmethod
-    # def create_random_trade(params, prev_state):
-    #     """
-    #     Trade are given from perspective of a trader, i.e. sell_gold=True
-    #      means a trader sells CELO to the reserve
-    #     """
-    #     sell_fraction = BuyAndSellGenerator._get_random_sell_fraction(params)
-    #     sell_gold = np.random.rand() > 0.5
-    #     if sell_gold:
-    #         sell_amount = sell_fraction * prev_state['floating_supply']['celo']
-    #     else:
-    #         sell_amount = sell_fraction * prev_state['floating_supply']['cusd']
-
-    #     buy_amount = BuyAndSellGenerator.calculate_buy_amount_constant_product_amm(
-    #         params=params,
-    #         prev_state=prev_state,
-    #         sell_amount=sell_amount,
-    #         sell_gold=sell_gold
-    #     )
-
-    #     trade = Trade(
-    #         sell_gold=sell_gold,
-    #         sell_amount=sell_amount,
-    #         buy_amount=buy_amount
-    #     )
-    #     return trade
 
     @staticmethod
     def calculate_buy_amount_constant_product_amm(params, prev_state, sell_amount, sell_gold,
@@ -203,10 +152,6 @@ class BuyAndSellGenerator(Generator):
         reserve_account = {"celo": prev_state["reserve_account"]["celo"] + delta_celo}
 
         mento_rate = mento_buckets["cusd"] / mento_buckets["celo"]
-
-        # market_price_generator = params['generators'].get(MarketPriceGenerator)
-        # market_price = {'cusd_usd': market_price_generator.valuate(
-        #    floating_supply['cusd'], virtual_tanks['usd'])}
 
         return (
             {

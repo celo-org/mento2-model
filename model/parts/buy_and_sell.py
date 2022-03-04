@@ -4,6 +4,7 @@ Buy and sell (Mento1) related policy and state update functions
 from model.generators.buy_and_sell import BuyAndSellGenerator
 from model.generators.accounts import AccountGenerator
 from model.generators.container import container
+from model.types import AccountType
 
 
 @container.inject(BuyAndSellGenerator, AccountGenerator)
@@ -52,22 +53,24 @@ def p_bucket_update(
     return mento_buckets
 
 
-# @container.inject(AccountGenerator)
-# def p_state_variables_from_generators(_params, _substep, _state_history, _prev_state,
-#                     account_generator: AccountGenerator):
-#     """
-#     Policy function which updates state variables from generator objects
-#     """
-#     floating_supply: {
-#         'celo': account_generator.floating_supply_celo,
-#         'cusd': account_generator.floating_supply_cusd
-#     }
-#     reserve_balance: {
-#         'celo': account_generator.get_account(0)['celo'],
-#         'cusd': account_generator.get_account(0)['cusd']
-#     }
+@container.inject(AccountGenerator)
+def p_state_variables_from_generators(_params, _substep, _state_history, _prev_state,
+                    account_generator: AccountGenerator):
+    """
+    Policy function which updates state variables from generator objects
+    """
+    floating_supply = {
+        'celo': account_generator.floating_supply_celo,
+        'cusd': account_generator.floating_supply_cusd
+    }
+    reserve_balance = {
+        'celo': account_generator.get_account(account_id=0,
+                                              account_type=AccountType.CONTRACT).balance["celo"],
+        'cusd':  account_generator.get_account(account_id=0,
+                                               account_type=AccountType.CONTRACT).balance["celo"],
+    }
 
-#     return {
-#         'reserve_balance': reserve_balance,
-#         'floating_supply': floating_supply
-#     }
+    return {
+        'reserve_balance': reserve_balance,
+        'floating_supply': floating_supply
+    }

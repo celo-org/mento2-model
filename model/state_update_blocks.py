@@ -64,25 +64,25 @@ state_update_block_epoch_rewards = {
         * floating supply increase by epoch rewards
     """,
     'policies': {
-        'target_epoch_rewards': celo_system.p_target_epoch_rewards
+        'target_epoch_rewards': celo_system.p_epoch_rewards
     },
     'variables': {
         'floating_supply': update_from_signal('floating_supply')
     }
 }
 
-# state_update_block_update_state_variables_from_generators = {
-#     "description": """
-#         Updates state variables from generators
-#     """,
-#     'policies': {
-#         'state_variables_from_generators': buy_and_sell.p_state_variables_from_generators
-#     },
-#     'variables': {
-#         'reserve_balance': update_from_signal('reserve_balance'),
-#         'floating_supply': update_from_signal('floating_supply')
-#     }
-# }
+state_update_block_update_state_variables_from_generators = {
+    "description": """
+        Updates state variables from generators
+    """,
+    'policies': {
+        'state_variables_from_generators': buy_and_sell.p_state_variables_from_generators
+    },
+    'variables': {
+        'reserve_balance': update_from_signal('reserve_balance'),
+        'floating_supply': update_from_signal('floating_supply')
+    }
+}
 
 # Create state_update blocks list
 _state_update_blocks = [
@@ -93,8 +93,6 @@ _state_update_blocks = [
     state_update_block_epoch_rewards,
     #state_update_block_update_state_variables_from_generators
 ]
-
-
 
 # Split the state update blocks into those used during the simulation_configuration
 # and those used in post-processing to calculate the system metrics (post_processing_blocks)

@@ -10,7 +10,7 @@ from model.types import AccountType
 
 
 @container.inject(AccountGenerator)
-def p_target_epoch_rewards(_params, _substep, _state_history, prev_state,
+def p_epoch_rewards(_params, _substep, _state_history, prev_state,
                            account_generator=AccountGenerator):
     """
     Naively propage celo supply by adding target epoch rewards per epoch (every 17280 blocks)
@@ -26,6 +26,13 @@ def p_target_epoch_rewards(_params, _substep, _state_history, prev_state,
                                                      delta_celo=target_epoch_rewards,
                                                      delta_cusd=0.0,
                                                      account_type=AccountType.CONTRACT)
+            floating_supply = {
+                "cusd": prev_state["floating_supply"]["cusd"],
+                "celo": prev_state["floating_supply"]["celo"] + target_epoch_rewards,
+            }
+            return {
+                "floating_supply": floating_supply,
+            }
     return {
         "floating_supply": prev_state["floating_supply"],
     }
