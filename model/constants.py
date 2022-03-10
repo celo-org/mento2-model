@@ -8,7 +8,7 @@ blocktime_seconds = 5
 blocks_per_day = 24 * 60 * 60 // blocktime_seconds
 blocks_per_month = blocks_per_day * 30
 blocks_per_year = blocks_per_month * 12
-epoch_seconds = blocks_per_day * blocktime_seconds
+seconds_per_epoch = blocks_per_day * blocktime_seconds
 
 celo_genesis_supply = 600000000
 celo_max_supply = 1000000000
