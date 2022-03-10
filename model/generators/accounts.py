@@ -25,17 +25,13 @@ class AccountGenerator(Generator):
             account_type: [] for account_type in AccountType
         }
         # reserve account with account_id=0
-        self.reserve_account = self.create_funded_account(account_name='reserve',
-                                                          celo=reserve_inventory["celo"],
-                                                          cusd=reserve_inventory["cusd"],
-                                                          account_type=AccountType.CONTRACT)
+        self.reserve_account = self.create_reserve_account(reserve_inventory=reserve_inventory)
         # epoch rewards account with account_id=1
         self.epoch_rewards_account = self.create_new_account(account_name="epoch_rewards",
                                                              account_type=AccountType.CONTRACT)
         # TODO create fast calibration to have one trader for all floating supply
         # these variables get initialized and updated by their @property function
         self._total_supply_celo = self.total_supply_celo
-        self._total_supply_cusd = self.total_supply_cusd
         self._floating_supply_celo = self.floating_supply_celo
         self._floating_supply_cusd = self.floating_supply_cusd
 
@@ -54,6 +50,22 @@ class AccountGenerator(Generator):
                 )
         return accounts
 
+    def create_reserve_account(self, reserve_inventory):
+        """
+        separate reserve account which is not part of the self.all_accounts list
+        """
+        reserve_account = AccountHolder(
+            self,
+            account_id=0,
+            account_name="reserve",
+            balance={
+                "celo": reserve_inventory["celo"],
+                "cusd": reserve_inventory["cusd"],
+            },
+            account_type=AccountType.CONTRACT,
+        )
+        return reserve_account
+
     def create_new_account(self, account_name, account_type):
         """
         Creates new account with zero balances
@@ -70,10 +82,11 @@ class AccountGenerator(Generator):
         self.total_number_of_accounts[account_type] += 1
         return new_account
 
-    def change_reserve_account_balance(self, delta_celo, delta_cusd):
-        self.check_account_valid(account_id=0, account_type=AccountType.CONTRACT)
+    def change_reserve_account_balance(self, delta_celo):
+        """
+        changes reserve balance, which is not part of the self.all_accounts list
+        """
         self.reserve_account.balance["celo"] += delta_celo
-        self.reserve_account.balance["cusd"] += delta_cusd
 
     def change_account_balance(self, account_id, delta_celo, delta_cusd, account_type: AccountType):
         self.check_account_valid(account_id, account_type)
@@ -109,17 +122,10 @@ class AccountGenerator(Generator):
         """
         floating_supply = 0
         for account_type in AccountType:
-            floating_supply = +sum(
+            floating_supply += sum(
                 account.balance["celo"] for account in self.all_accounts[account_type]
             )
         return floating_supply
-
-    @property
-    def total_supply_cusd(self):
-        """
-        sums up cusd balances over all accounts
-        """
-        return self.floating_supply_cusd + self.reserve_account.balance["cusd"]
 
     @property
     def floating_supply_cusd(self):
@@ -128,7 +134,7 @@ class AccountGenerator(Generator):
         """
         floating_supply = 0
         for account_type in AccountType:
-            floating_supply = +sum(
+            floating_supply += sum(
                 account.balance["cusd"] for account in self.all_accounts[account_type]
             )
         return floating_supply

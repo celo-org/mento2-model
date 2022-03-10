@@ -41,66 +41,6 @@ class BuyAndSellGenerator(Generator):
         }
         return {'mento_buckets': mento_buckets}
 
-    @staticmethod
-    def calculate_buy_amount_constant_product_amm(params, prev_state, sell_amount, sell_gold,
-                                                  min_buy_amount=0):
-        """
-        amm calcs and logic
-        """
-        spread = params['spread']
-        reduced_sell_amount = sell_amount * (1 - spread)
-
-        if sell_gold:
-            buy_token_bucket = prev_state['mento_buckets']['cusd']
-            sell_token_bucket = prev_state['mento_buckets']['celo']
-        else:
-            buy_token_bucket = prev_state['mento_buckets']['celo']
-            sell_token_bucket = prev_state['mento_buckets']['cusd']
-
-        numerator = sell_amount * (1 - spread) * buy_token_bucket
-        denominator = sell_token_bucket + reduced_sell_amount
-        buy_amount = numerator / denominator
-
-        if buy_amount < min_buy_amount:
-            buy_amount = np.nan
-
-        return buy_amount
-
-
-    @staticmethod
-    def state_after_trade(prev_state, trade, account_generator):
-        """
-        Trades and deltas are given from perspective of a trader, i.e. sell_gold=True means a trader
-        has a negative delta_celo
-        """
-
-        # Mento buckets are virtual so they do not count neither to
-        # floating supply nor to the reserve balance
-        mento_buckets = {
-            'cusd': prev_state['mento_buckets']['cusd'] + trade.delta_mento_bucket_cusd,
-            'celo': prev_state['mento_buckets']['celo'] + trade.delta_mento_bucket_celo
-        }
-
-        # Update trader
-        account_generator\
-            .change_account_balance(account_id=account_generator.get_account(1)['account_id'],
-                                    delta_celo=trade.delta_trader_celo,
-                                    delta_cusd=trade.delta_trader_cusd)
-
-        # Update reserve
-        account_generator\
-            .change_account_balance(account_id=account_generator.get_account(0)['account_id'],
-                                    delta_celo=trade.delta_reserve_celo,
-                                    delta_cusd=0.0)
-
-        # New realized mento rate
-        mento_rate = mento_buckets['cusd'] / mento_buckets['celo']
-
-        return {
-            'mento_buckets': mento_buckets,
-            'mento_rate': mento_rate
-        }
-
     def get_buy_amount(self, sell_amount, sell_gold, prev_state,  min_buy_amount=0):
         """
         Making pylint happy

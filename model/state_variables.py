@@ -52,7 +52,7 @@ class StateVariables:
     mento_buckets: TokenBalance = default(
         {
             "celo": 0.025 * 1200000000,
-            "cusd": 0.025 * 0.1 * mento_rate,
+            "cusd": 0.025 * 1200000000 * mento_rate,
         }
     )
 

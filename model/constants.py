@@ -12,3 +12,6 @@ epoch_seconds = blocks_per_day * blocktime_seconds
 
 celo_genesis_supply = 600000000
 celo_max_supply = 1000000000
+celo_total_epoch_rewards = celo_max_supply - celo_genesis_supply
+celo_linear_total_epoch_rewards = celo_total_epoch_rewards / 2
+target_epoch_rewards = celo_linear_total_epoch_rewards / 15 / 365

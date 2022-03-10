@@ -65,7 +65,6 @@ class AccountHolder:
         self.parent.change_account_balance(
             self.account_id, deltas["cusd"], deltas["celo"], self.account_type
         )
-        self.parent.change_reserve_account_balance(
-            delta_cusd=deltas["cusd"], delta_celo=deltas["celo"]
+        self.parent.change_reserve_account_balance(delta_celo=deltas["celo"]
         )
         return states

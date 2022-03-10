@@ -5,7 +5,7 @@ General Celo blockchain mechanisms:
 """
 from model.generators.container import container
 from model.generators.accounts import AccountGenerator
-from model.constants import celo_genesis_supply, celo_max_supply, epoch_seconds, blocktime_seconds
+from model.constants import target_epoch_rewards, epoch_seconds, blocktime_seconds
 from model.types import AccountType
 
 
@@ -19,10 +19,7 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
     """
     if prev_state['timestep'] > 0:
         if (prev_state['timestep'] * blocktime_seconds) % epoch_seconds == 0:
-            celo_total_epoch_rewards = celo_max_supply - celo_genesis_supply
-            celo_linear_total_epoch_rewards = celo_total_epoch_rewards / 2
-            target_epoch_rewards = celo_linear_total_epoch_rewards / 15 / 365
-            account_generator.change_account_balance(account_id=1,
+            account_generator.change_account_balance(account_id=0,
                                                      delta_celo=target_epoch_rewards,
                                                      delta_cusd=0.0,
                                                      account_type=AccountType.CONTRACT)

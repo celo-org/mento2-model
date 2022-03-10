@@ -1,7 +1,7 @@
 model/generators/traders.py:37:        # TODO parametrise random params incl. seed
 model/generators/traders.py:64:        # TODO this has to happen hear to avoid circular referencing, find better solution
 model/generators/accounts.py:20:        # TODO number of accounts with different types
-model/generators/accounts.py:35:        # TODO create fast calibration to have one trader for all floating supply
+model/generators/accounts.py:32:        # TODO create fast calibration to have one trader for all floating supply
 model/generators/markets.py:37:    # TODO multi currency configurable
 model/generators/markets.py:38:    # TODO in particular delay for Celo supply
 model/generators/markets.py:39:    # TODO typing
