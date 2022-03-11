@@ -19,10 +19,10 @@ def p_market_price(
     Provides a market price environment
     """
     market_price = market_price_generator.market_price(prev_state)
-    virtual_tanks = {
+    market_buckets = {
         "usd": prev_state["floating_supply"]["cusd"] * market_price["cusd_usd"]
     }
-    return {"market_price": market_price, "virtual_tanks": virtual_tanks}
+    return {"market_price": market_price, "market_buckets": market_buckets}
 
 
 @container.inject(MarketPriceGenerator)
@@ -43,7 +43,7 @@ def p_price_impact(
     market_price = market_price_generator.valuate_price_impact(
         prev_state["floating_supply"],
         state_history[-1][-1]["floating_supply"],
-        prev_state["virtual_tanks"],
+        prev_state["market_buckets"],
         prev_state["timestep"],
     )
     return {"market_price": market_price}

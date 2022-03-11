@@ -18,7 +18,7 @@ state_update_block_random_trading = {
     "policies": {"random_trade": accounting.p_random_trading},
     "variables": {
         "mento_buckets": update_from_signal("mento_buckets"),
-        "reserve_account": update_from_signal("reserve_account"),
+        "reserve_balance": update_from_signal("reserve_balance"),
         "floating_supply": update_from_signal("floating_supply"),
         "mento_rate": update_from_signal("mento_rate"),
     },
@@ -32,7 +32,7 @@ state_update_block_price_impact = {
     "policies": {"market_price": market_price.p_price_impact},
     "variables": {
         "market_price": update_from_signal("market_price"),
-        # 'virtual_tanks': update_from_signal('virtual_tanks')
+        # 'market_buckets': update_from_signal('market_buckets')
     },
 }
 
@@ -42,7 +42,7 @@ state_update_block_market_price_change = {
     "policies": {"market_price": market_price.p_market_price},
     "variables": {
         "market_price": update_from_signal("market_price"),
-        "virtual_tanks": update_from_signal("virtual_tanks"),
+        "market_buckets": update_from_signal("market_buckets"),
     },
 }
 

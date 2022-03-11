@@ -33,7 +33,7 @@ class BuyAndSellGenerator(Generator):
 
     @staticmethod
     def bucket_update(params, prev_state):
-        celo_bucket = params['reserve_fraction'] * prev_state['reserve_account']['celo']
+        celo_bucket = params['reserve_fraction'] * prev_state['reserve_balance']['celo']
         cusd_bucket = prev_state['mento_rate'] * celo_bucket
         mento_buckets = {
             'cusd': cusd_bucket,
@@ -89,7 +89,7 @@ class BuyAndSellGenerator(Generator):
             "celo": prev_state["floating_supply"]["celo"] - delta_celo,
         }
 
-        reserve_account = {"celo": prev_state["reserve_account"]["celo"] + delta_celo}
+        reserve_balance = {"celo": prev_state["reserve_balance"]["celo"] + delta_celo}
 
         mento_rate = mento_buckets["cusd"] / mento_buckets["celo"]
 
@@ -97,7 +97,7 @@ class BuyAndSellGenerator(Generator):
             {
                 "mento_buckets": mento_buckets,
                 "floating_supply": floating_supply,
-                "reserve_account": reserve_account,
+                "reserve_balance": reserve_balance,
                 "mento_rate": mento_rate,
             },
             {"cusd": delta_cusd, "celo": delta_celo},

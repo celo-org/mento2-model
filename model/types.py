@@ -74,7 +74,7 @@ class MarketPriceG(TypedDict):
     cusd_usd: MarketPriceGenerator
 
 
-class VirtualTanks(TypedDict):
+class MarketBuckets(TypedDict):
     usd: float
 
 
@@ -85,10 +85,3 @@ class Actor(TypedDict):
 
     actor_id: int
     account: Account
-
-
-class OrderBook(TypedDict):
-    ask_price: float
-    bid_price: float
-    last_price: float
-    volume: float
