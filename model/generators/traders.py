@@ -4,7 +4,7 @@ Provides Traders / Actors
 
 import numpy as np
 from experiments import simulation_configuration
-from model.generators.buy_and_sell import BuyAndSellGenerator
+from model.parts import buy_and_sell
 
 
 class AccountHolder:
@@ -48,7 +48,7 @@ class AccountHolder:
 
     def execute(
         self,
-        buy_sell_generator: BuyAndSellGenerator,
+        params,
         substep,
         state_history,
         prev_state,
@@ -58,8 +58,8 @@ class AccountHolder:
         """
         sell_amount = self.orders["sell_amount"][prev_state["timestep"]]
         sell_gold = self.orders["sell_gold"][prev_state["timestep"]]
-        states, deltas = buy_sell_generator.exchange(
-            sell_amount, sell_gold, substep, state_history, prev_state
+        states, deltas = buy_and_sell.exchange(
+            params, sell_amount, sell_gold, substep, state_history, prev_state
         )
         # TODO this has to happen hear to avoid circular referencing, find better solution
         self.parent.change_account_balance(
