@@ -5,7 +5,7 @@ General Celo blockchain mechanisms:
 """
 from model.generators.container import container
 from model.generators.accounts import AccountGenerator
-from model.constants import target_epoch_rewards, epoch_seconds, blocktime_seconds
+from model.constants import target_epoch_rewards, seconds_per_epoch, blocktime_seconds
 from model.types import AccountType
 
 
@@ -18,7 +18,7 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
     that logarithmically. Here it's only about the next 15 linear years
     """
     if prev_state['timestep'] > 0:
-        if (prev_state['timestep'] * blocktime_seconds) % epoch_seconds == 0:
+        if (prev_state['timestep'] * blocktime_seconds) % seconds_per_epoch == 0:
             account_generator.change_account_balance(account_id=0,
                                                      delta_celo=target_epoch_rewards,
                                                      delta_cusd=0.0,
