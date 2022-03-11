@@ -29,7 +29,6 @@ simulation = Simulation(
 container.hook_to_simulation(
     simulation, [MarketPriceGenerator, AccountGenerator, BuyAndSellGenerator]
 )
-
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])
 

@@ -7,10 +7,10 @@ import numpy as np
 
 
 # import dask.dataframe as dd
-import pandas as pd
 from experiments import simulation_configuration
 from model import constants
 from model.generators import Generator
+from model.utils import data_feed
 
 
 class MarketPriceModel(Enum):
@@ -40,14 +40,12 @@ class MarketPriceGenerator(Generator):
     # TODO All seeds as params
     # TODO unified seed generation
     # TODO Comments
-
     def __init__(
         self,
         model,
         drift,
         covariance,
         price_impact_model=PriceImpact.CONSTANT_PRODUCT,
-        historical_data=None,
         increments=None,
         seed=1,
         custom_impact_function=None,
@@ -56,7 +54,6 @@ class MarketPriceGenerator(Generator):
         self.price_impact_model = price_impact_model
         self.model = model
         self.mc_parameter = {"drift": drift, "covariance": covariance}
-        self.historical_data = historical_data
         self.increments = increments
         self.supply_changes = {
             "cusd": np.zeros(
@@ -82,23 +79,17 @@ class MarketPriceGenerator(Generator):
                 params["covariance_market_price"],
             )
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-                market_price_generator.custom_impact_function = params[
-                    "custom_impact"
-                ]
+                market_price_generator.custom_impact_function = params["custom_impact"]
             market_price_generator.correlated_returns()
         elif params["model"] == MarketPriceModel.PRICE_IMPACT:
             market_price_generator = cls(params["model"], None, None)
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-                market_price_generator.custom_impact_function = params[
-                    "custom_impact"
-                ]
+                market_price_generator.custom_impact_function = params["custom_impact"]
         elif params["model"] == MarketPriceModel.HIST_SIM:
             market_price_generator = cls(params["model"], None, None)
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-                market_price_generator.custom_impact_function = params[
-                    "custom_impact"
-                ]
-            market_price_generator.load_historical_data(params["data_file"])
+                market_price_generator.custom_impact_function = params["custom_impact"]
+            # market_price_generator.load_historical_data(params["data_file"])
             sample_size = (
                 simulation_configuration.BLOCKS_PER_TIMESTEP
                 * simulation_configuration.TIMESTEPS
@@ -108,21 +99,11 @@ class MarketPriceGenerator(Generator):
             logging.info("increments updated")
         return market_price_generator
 
-    def load_historical_data(self, file_name):
-        """
-        Parser to read prices and turn them into log-returns"""
-        # TODO parser
-
-        if file_name[-3:] == "csv":
-            historical_data = pd.read_csv(self.data_folder + file_name)
-        elif file_name[-3:] == "prq":
-            historical_data = pd.read_parquet(self.data_folder + file_name)
-        self.historical_data = historical_data
-
     def market_price(self, state):
         """
         This method returns a market price
         """
+        # TODO check that slicing with step is correct
         step = state["timestep"]
         if self.model == MarketPriceModel.GBM:
             market_prices = {
@@ -137,10 +118,15 @@ class MarketPriceGenerator(Generator):
             }
 
         elif self.model == MarketPriceModel.HIST_SIM:
-            increment = self.increments.loc[step - 1]
             market_prices = {
-                "cusd_usd": (state["market_price"]["cusd_usd"] * increment["cusd_usd"]),
-                "celo_usd": (state["market_price"]["celo_usd"] * increment["celo_usd"]),
+                "cusd_usd": (
+                    state["market_price"]["cusd_usd"]
+                    * self.increments["cusd_usd"][step]
+                ),
+                "celo_usd": (
+                    state["market_price"]["celo_usd"]
+                    * self.increments["celo_usd"][step]
+                ),
             }
 
         # elif self.model == MarketPriceModel.PRICE_IMPACT:
@@ -212,14 +198,10 @@ class MarketPriceGenerator(Generator):
         # TODO move historical data handling into sperate class
         # TODO Consider different sampling options
         # TODO Random Seed
-        nrows = len(self.historical_data)
-        samples = self.historical_data.sample(frac=sample_size / nrows)
-        # TODO does it make sense to free the memory?
-        self.historical_data = [None]
-        samples = samples.reset_index(drop=True)
-        # samples_array = samples.to_dask_array(lengths = True)
+        data, length = (data_feed.data, data_feed.length)
+        samples = data[np.random.randint(low=0, high=length - 1, size=sample_size), :]
         # TODO conversion to pandas frame is slow!!!
-        self.increments = samples  # .compute()
+        self.increments = {"cusd_usd": samples[:, 0], "celo_usd": samples[:, 1]}
 
         logging.info("Historic increments created")
 
