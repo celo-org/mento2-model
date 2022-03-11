@@ -44,7 +44,7 @@ def p_state_variables_from_generators(_params, _substep, _state_history, _prev_s
         'celo': account_generator.get_account(account_id=0,
                                               account_type=AccountType.CONTRACT).balance["celo"],
         'cusd':  account_generator.get_account(account_id=0,
-                                               account_type=AccountType.CONTRACT).balance["celo"],
+                                               account_type=AccountType.CONTRACT).balance["cUSD"],
     }
 
     return {

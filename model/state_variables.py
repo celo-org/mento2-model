@@ -17,7 +17,7 @@ from model.types import (
     TokenPriceInUSD,
     Account,
     MarketPrice,
-    VirtualTanks,
+    MarketBuckets,
 )
 
 from data.historical_values import celo_price_mean, celo_supply_mean, cusd_supply_mean
@@ -43,8 +43,8 @@ class StateVariables:
     """The Mento CELO/cUSD rate """
 
     # Reserve state variable
-    reserve_account: Account = default(
-        {"account_id": 0, "celo": 120000000.0, "cusd": 0.0}
+    reserve_balance: Account = default(
+        {"celo": 120000000.0, "cusd": 0.0}
     )
 
     # Mento state variables
@@ -61,8 +61,8 @@ class StateVariables:
         {"celo": celo_supply_mean, "cusd": cusd_supply_mean}
     )
 
-    # Virtual Fiat Market Tank
-    virtual_tanks: VirtualTanks = default({"usd": cusd_supply_mean})
+    # Virtual Market Fiat Bucket
+    market_buckets: MarketBuckets = default({"usd": cusd_supply_mean})
 
     market_price: MarketPrice = default({"cusd_usd": 1, "celo_usd": 3})
 
@@ -73,9 +73,6 @@ class StateVariables:
     """The CELO spot price in USD"""
     cusd_usd_price: TokenPriceInUSD = 1.0
     """The CELO spot price"""
-
-    # Reserve balance
-    reserve_balance: TokenBalance = default({"celo": 120000000.0, "cusd": 0.0})
 
 
 # Initialize State Variables instance with default values

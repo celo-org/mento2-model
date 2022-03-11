@@ -19,7 +19,6 @@ model/generators/markets.py:221:        # TODO conversion to pandas frame is slo
 model/generators/buy_and_sell.py:25:        # TODO what to do here?
 model/parts/accounting.py:42:    # TODO only works with one trader. Otherwise the bucket sizes are not dynamically adjusted.
 model/parts/accounting.py:43:    # TODO How can we implement dynamic substeps
-model/parts/utils/trade.py:15:        # TODO: Add trader account id and checks against the respective balances
 model/parts/market_prices.py:41:    # TODO make this block dependent
 model/parts/market_prices.py:42:    # TODO make sure the right step is picked
 model/state_variables.py:51:    # TODO initial calibration of buckets
