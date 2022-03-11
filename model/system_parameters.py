@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from types import FunctionType
 from typing import List, Dict
 import experiments.simulation_configuration as simulation
-from model.generators.accounts import AccountType
+from model.types import AccountType
 from model.generators.markets import MarketPriceModel
 
 from model.types import Blocknumber

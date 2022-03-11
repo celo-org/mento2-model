@@ -15,7 +15,6 @@ from experiments.simulation_configuration import TIMESTEPS, MONTE_CARLO_RUNS
 from model import model
 from model.generators.accounts import AccountGenerator
 from model.generators.markets import MarketPriceGenerator
-from model.generators.buy_and_sell import BuyAndSellGenerator
 from model.generators.container import container
 
 
@@ -27,7 +26,7 @@ simulation = Simulation(
 )
 
 container.hook_to_simulation(
-    simulation, [MarketPriceGenerator, AccountGenerator, BuyAndSellGenerator]
+    simulation, [MarketPriceGenerator, AccountGenerator]
 )
 
 # Create Experiment of single Simulation
