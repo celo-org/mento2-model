@@ -9,6 +9,7 @@ import model.parts.market_prices as market_price
 from model.parts import buy_and_sell
 from model.parts import celo_system
 from model.utils import update_from_signal
+from model.parts.utils import states_from_generators
 
 
 state_update_block_random_trading = {
@@ -76,7 +77,7 @@ state_update_block_update_state_variables_from_generators = {
         Updates state variables from generators
     """,
     'policies': {
-        'state_variables_from_generators': buy_and_sell.p_state_variables_from_generators
+        'state_variables_from_generators': states_from_generators.p_state_variables_from_generators
     },
     'variables': {
         'reserve_balance': update_from_signal('reserve_balance'),
