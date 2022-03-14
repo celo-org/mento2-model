@@ -15,3 +15,4 @@ celo_max_supply = 1000000000
 celo_total_epoch_rewards = celo_max_supply - celo_genesis_supply
 celo_linear_total_epoch_rewards = celo_total_epoch_rewards / 2
 target_epoch_rewards = celo_linear_total_epoch_rewards / 15 / 365
+target_epoch_rewards_downscaled = target_epoch_rewards * 0.8
