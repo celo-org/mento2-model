@@ -72,7 +72,8 @@ class DataFeed:
         self.data = np.array(historical_data)
         self.length = len(historical_data)
 
+
 # TODO Quick and dirt hack to load historical data only once
-DATA_FOLDER = '/Users/sissnad/celo/reviews/mento2-model/data/'
+DATA_FOLDER = '../../data/'
 data_feed = DataFeed(DATA_FOLDER)
-data_feed.load_historical_data('mock_logreturns.csv')
+data_feed.load_historical_data('mock_logreturns.prq')

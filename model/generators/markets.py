@@ -133,7 +133,7 @@ class MarketPriceGenerator(Generator):
         #     # TODO  demand increment missing -> DemandGenerator
         #     market_prices = None
         #     # self.valuate_price_impact(state['supply'],
-        #     #  #state['virtual_tanks'], #step-1)
+        #     #  #state['market_buckets'], #step-1)
         return market_prices
 
     def price_impact_function(self, mode):
@@ -145,7 +145,7 @@ class MarketPriceGenerator(Generator):
         return impact_function
 
     def valuate_price_impact(
-        self, floating_supply, pre_floating_supply, virtual_tanks, current_step
+        self, floating_supply, pre_floating_supply, market_buckets, current_step
     ):
         """
         This functions evaluates price impact of supply changes
@@ -154,7 +154,7 @@ class MarketPriceGenerator(Generator):
             ccy: supply - pre_floating_supply[ccy]
             for ccy, supply in floating_supply.items()
         }
-        quote_ccy = list(virtual_tanks.keys())[0]
+        quote_ccy = list(market_buckets.keys())[0]
         self.impact_delay(block_supply_change, current_step)
         effective_supply = {
             ccy: self.supply_changes[ccy][current_step] + pre_supply
@@ -163,7 +163,7 @@ class MarketPriceGenerator(Generator):
 
         return {
             f"{ccy}_{quote_ccy}": self.price_impact_function(self.price_impact_model)(
-                supply, virtual_tanks[quote_ccy]
+                supply, market_buckets[quote_ccy]
             )
             for ccy, supply in effective_supply.items()
         }

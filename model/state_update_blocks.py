@@ -9,6 +9,7 @@ import model.parts.market_prices as market_price
 from model.parts import buy_and_sell
 from model.parts import celo_system
 from model.utils import update_from_signal
+from model.parts.utils import states_from_generators
 
 
 state_update_block_random_trading = {
@@ -18,7 +19,7 @@ state_update_block_random_trading = {
     "policies": {"random_trade": accounting.p_random_trading},
     "variables": {
         "mento_buckets": update_from_signal("mento_buckets"),
-        "reserve_account": update_from_signal("reserve_account"),
+        "reserve_balance": update_from_signal("reserve_balance"),
         "floating_supply": update_from_signal("floating_supply"),
         "mento_rate": update_from_signal("mento_rate"),
     },
@@ -32,7 +33,7 @@ state_update_block_price_impact = {
     "policies": {"market_price": market_price.p_price_impact},
     "variables": {
         "market_price": update_from_signal("market_price"),
-        # 'virtual_tanks': update_from_signal('virtual_tanks')
+        # 'market_buckets': update_from_signal('market_buckets')
     },
 }
 
@@ -42,7 +43,7 @@ state_update_block_market_price_change = {
     "policies": {"market_price": market_price.p_market_price},
     "variables": {
         "market_price": update_from_signal("market_price"),
-        "virtual_tanks": update_from_signal("virtual_tanks"),
+        "market_buckets": update_from_signal("market_buckets"),
     },
 }
 
@@ -58,30 +59,31 @@ state_update_block_periodic_mento_bucket_update = {
     }
 }
 
-state_update_block_random_celo_usd_price_change = {
+state_update_block_epoch_rewards = {
     "description": """
-        Create a random change in the celo_usd_price
+        epoch rewards propagation:
+        * floating supply increase by epoch rewards
     """,
     'policies': {
-        'random_celo_usd_price_change': celo_system.p_random_celo_usd_price_change
+        'target_epoch_rewards': celo_system.p_epoch_rewards
     },
     'variables': {
-        'celo_usd_price': update_from_signal('celo_usd_price')
+        'floating_supply': update_from_signal('floating_supply')
     }
 }
 
-# state_update_block_update_state_variables_from_generators = {
-#     "description": """
-#         Updates state variables from generators
-#     """,
-#     'policies': {
-#         'state_variables_from_generators': buy_and_sell.p_state_variables_from_generators
-#     },
-#     'variables': {
-#         'reserve_balance': update_from_signal('reserve_balance'),
-#         'floating_supply': update_from_signal('floating_supply')
-#     }
-# }
+state_update_block_update_state_variables_from_generators = {
+    "description": """
+        Updates state variables from generators
+    """,
+    'policies': {
+        'state_variables_from_generators': states_from_generators.p_state_variables_from_generators
+    },
+    'variables': {
+        'reserve_balance': update_from_signal('reserve_balance'),
+        'floating_supply': update_from_signal('floating_supply')
+    }
+}
 
 # Create state_update blocks list
 _state_update_blocks = [
@@ -89,11 +91,9 @@ _state_update_blocks = [
     state_update_block_periodic_mento_bucket_update,
     state_update_block_random_trading,
     state_update_block_price_impact,
-
+    state_update_block_epoch_rewards,
     #state_update_block_update_state_variables_from_generators
 ]
-
-
 
 # Split the state update blocks into those used during the simulation_configuration
 # and those used in post-processing to calculate the system metrics (post_processing_blocks)

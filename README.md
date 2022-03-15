@@ -64,7 +64,6 @@ The model is composed of several structural modules in the [model/parts/](model/
 | [celo_system.py](model/parts/celo_system.py) | General CELO mechanisms, such as managing the system upgrade process, the gas pricing mechanism, and updating the CELO price and CELO supply |
 | [reserve.py](model/parts/buy_and_sell.py) | Calculation of the mechanics when interacting with the CELO reserve |
 | [system_metrics.py](model/parts/system_metrics.py) | Calculation of metrics such as stability provider rewards |
-| [stability_providers.py](model/parts/stability_providers.py) | Stability provider processes such as providing collateral and withdrawing collateral |
 
 #### Configuration Modules
 

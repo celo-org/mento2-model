@@ -17,7 +17,7 @@ from model.types import (
     TokenPriceInUSD,
     Account,
     MarketPrice,
-    VirtualTanks,
+    MarketBuckets,
 )
 
 from data.historical_values import celo_price_mean, celo_supply_mean, cusd_supply_mean
@@ -39,16 +39,12 @@ class StateVariables:
     """
 
     # Celo state variables
-    # celo_price: Usd_per_token = celo_price_mean
-    # """The CELO spot price in USD"""
-    # cusd_price: Usd_per_token = 1.0
-    # """The CELO spot price"""
     mento_rate: TokenPerToken = celo_price_mean
     """The Mento CELO/cUSD rate """
 
     # Reserve state variable
-    reserve_account: Account = default(
-        {"account_id": 0, "celo": 120000000.0, "cusd": 0.0}
+    reserve_balance: Account = default(
+        {"celo": 120000000.0, "cusd": 0.0}
     )
 
     # Mento state variables
@@ -56,7 +52,7 @@ class StateVariables:
     mento_buckets: TokenBalance = default(
         {
             "celo": 0.025 * 1200000000,
-            "cusd": 0.025 * 0.1 * mento_rate,
+            "cusd": 0.025 * 1200000000 * mento_rate,
         }
     )
 
@@ -65,38 +61,18 @@ class StateVariables:
         {"celo": celo_supply_mean, "cusd": cusd_supply_mean}
     )
 
-    # Virtual Fiat Market Tank
-    virtual_tanks: VirtualTanks = default({"usd": cusd_supply_mean})
+    # Virtual Market Fiat Bucket
+    market_buckets: MarketBuckets = default({"usd": cusd_supply_mean})
 
     market_price: MarketPrice = default({"cusd_usd": 1, "celo_usd": 3})
 
     number_of_accounts: int = default(1)
 
-    # # CEX state variables
-    # order_book: OrderBook  = default(
-    #     {
-    #         'bid_price': bid_price,
-    #         'ask_price': ask_price,
-    #         'mid_price': mid_price',
-    #         'last_price': last_price,
-    #         'volume': volume
-    #     }
-    #
-    # )
     # Celo state variables
     celo_usd_price: TokenPriceInUSD = celo_price_mean
     """The CELO spot price in USD"""
     cusd_usd_price: TokenPriceInUSD = 1.0
     """The CELO spot price"""
-
-    # Reserve balance
-    reserve_balance: TokenBalance = default({"celo": 120000000.0, "cusd": 0.0})
-
-    # Mento state variables
-    # mento_buckets: AccountBalance = default({"celo": 0.0, "cusd": 0.0})
-
-    # mento_rate: TokenPriceInToken = celo_price_mean
-    """The Mento CELO/cUSD rate """
 
 
 # Initialize State Variables instance with default values
