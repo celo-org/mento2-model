@@ -7,7 +7,6 @@ Calculation of changes in Mento buckets sizes, floating supply and reserve balan
 import numpy as np
 from model.constants import blocktime_seconds
 from model.types import Token_balance
-from actors import ActorManager
 
 
 # TODO: Should this live here?
@@ -98,14 +97,14 @@ class BuyAndSellManager:
 
     @staticmethod
     def leave_all_state_variables_unchanged(prev_state, policy_type):
-        if policy_type == 'p_random_exchange':
+        if policy_type == 'exchange':
             return {
                 'mento_buckets': prev_state['mento_buckets'],
                 'floating_supply': prev_state['floating_supply'],
                 'reserve_balance': prev_state['reserve_balance'],
                 'mento_rate': prev_state['mento_rate']
             }
-        elif policy_type == 'p_bucket_update':
+        elif policy_type == 'bucket_update':
             return {
                 'mento_buckets': prev_state['mento_buckets']
             }
@@ -135,7 +134,7 @@ class BuyAndSellManager:
         return np.random.rand() * params['max_sell_fraction_of_float']
 
     @staticmethod
-    def calculate_buy_amount_constant_product_amm(params, prev_state, sell_amount, sell_gold, min_buy_amount=0):
+    def calculate_buy_amount_constant_product_amm(params, prev_state, sell_amount, sell_gold):
         spread = params['spread']
         reduced_sell_amount = sell_amount * (1 - spread)
 
@@ -146,12 +145,9 @@ class BuyAndSellManager:
             buy_token_bucket = prev_state['mento_buckets']['celo']
             sell_token_bucket = prev_state['mento_buckets']['cusd']
 
-        numerator = sell_amount * (1 - spread) * buy_token_bucket
+        numerator = reduced_sell_amount * buy_token_bucket
         denominator = sell_token_bucket + reduced_sell_amount
         buy_amount = numerator / denominator
-
-        if buy_amount < min_buy_amount:
-            buy_amount = np.nan
 
         return buy_amount
 
@@ -231,94 +227,3 @@ class BuyAndSellManager:
     def reset(self):
         self.__init__()
         print('buy_and_sell_manager reset!')
-
-
-# TODO: Improve this!
-# Must be used at beginning of first policy of all buy_and_sell state_update_block
-def reset_buy_and_sell_manager_if_new_parameter_subset(state_history):
-    if len(state_history) == 1:
-        buy_and_sell_manager.reset()
-
-
-def reset_actor_manager_if_new_parameter_subset(state_history):
-    if len(state_history) == 1:
-        actor_manager.reset()
-
-
-def p_random_exchange(params, substep, state_history, prev_state):
-
-    # TODO: Check this earlier if possible / use decorator
-    if not buy_and_sell_manager.buy_and_sell_feature_enabled(params):
-        return buy_and_sell_manager.leave_all_state_variables_unchanged(
-            prev_state=prev_state,
-            policy_type='p_random_exchange'
-        )
-
-    # TODO: Find better solution
-    reset_buy_and_sell_manager_if_new_parameter_subset(state_history)
-
-    random_trade = buy_and_sell_manager.create_random_trade(
-        params=params, prev_state=prev_state
-    )
-
-    state_variables_after_trade = buy_and_sell_manager.state_variables_state_after_trade(
-        prev_state=prev_state,
-        trade=random_trade
-    )
-
-    return state_variables_after_trade
-
-
-def p_actors(params, substep, state_history, prev_state, actor_id=None):
-
-    # TODO: Improve this
-    # Only create one buy_and_sell_arb actor per parameter set
-    if len(state_history) == 1:
-        buy_and_sell_arb_actor_id = actor_manager.create_new_funded_actor(
-            celo=params['arb_actor_init_celo_balance'],
-            cusd=params['arb_actor_init_cusd_balance'],
-            strategy_type='buy_and_sell_arb'
-        )
-    for actor_id in enumerate(actor_manager.all_actors):
-        actor_manager.trigger_optimal_action(
-            actor_id=actor_id,
-            params=params,
-            prev_state=prev_state
-        )
-
-    random_trade = buy_and_sell_manager.create_random_trade(
-        params=params, prev_state=prev_state
-    )
-
-    state_variables_after_trade = buy_and_sell_manager.state_variables_state_after_trade(
-        prev_state=prev_state,
-        trade=random_trade
-    )
-
-    return state_variables_after_trade
-
-
-def p_bucket_update(params, substep, state_history, prev_state):
-    """
-    Only update buckets every update_frequency_seconds
-    """
-
-    # TODO: Check this earlier if possible / use decorator
-    if not buy_and_sell_manager.buy_and_sell_feature_enabled(params):
-        return buy_and_sell_manager.leave_all_state_variables_unchanged(
-            prev_state=prev_state,
-            policy_type='p_bucket_update'
-        )
-
-    if buy_and_sell_manager.buckets_should_be_reset(
-            params=params, prev_state=prev_state
-    ):
-        return buy_and_sell_manager.calculate_reset_buckets(
-            params=params, prev_state=prev_state
-        )
-
-    else:
-        return buy_and_sell_manager.leave_all_state_variables_unchanged(
-            prev_state=prev_state,
-            policy_type='p_bucket_update'
-        )
