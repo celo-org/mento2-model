@@ -3,7 +3,6 @@
 
 General Celo blockchain mechanisms, such as updating the CELO supply through epoch rewards.
 """
-import numpy as np
 from model.types import Account
 from typing import List
 

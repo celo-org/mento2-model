@@ -6,6 +6,7 @@
  *trigger optimal action via action manager
 """
 from typing import List
+from copy import deepcopy
 
 
 class Actor:
@@ -42,17 +43,19 @@ class ActorManager:
         return actor_id
 
     def all_actors_act(self):
-        # TODO: How do we do this with more than one actor?
+        # TODO: Allow for more than one actor (make sure state variable updates happen correctly)
         state_variables_after_action = self.all_actors[0].strategy.execute_optimal_action()
         return state_variables_after_action
 
-    def reset(self, strategy):
+    def reset(self, sell_max_strategy):
         self.__init__(
             self.account_manager, self.buy_and_sell_manager
         )
+    # TODO: Make initial funding of actors a parameter
+    # TODO: Allow for more than one actor
         self.create_new_funded_actor(
             celo=100000,
             cusd=100000,
-            strategy=strategy
+            strategy=deepcopy(sell_max_strategy)
         )
         print('actor_manager reset!')

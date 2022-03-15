@@ -196,7 +196,7 @@ class BuyAndSellManager:
         has a negative delta_celo
         """
 
-        # TODO: Update the balance of a trader!
+        # TODO: Update the account balance of the trader!
 
         # Mento buckets are virtual so they do not count neither to floating supply nor to the reserve balance
         mento_buckets = {

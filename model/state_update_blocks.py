@@ -77,6 +77,8 @@ state_update_block_actors_act = {
 _state_update_blocks = [
     state_update_block_periodic_mento_bucket_update,
     state_update_block_random_celo_usd_price_change,
+    state_update_block_create_random_irp,  # TODO: Creating and management of IRPs via actors
+    state_update_block_liquidate_undercollateralized_irps,
     state_update_block_actors_act
 ]
 

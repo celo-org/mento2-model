@@ -3,12 +3,10 @@
 
 More details here (TBD).
 """
-import numpy as np
 from typing import TypedDict
 from model.types import Account_id
 
 
-# TODO: Should this live here?
 # Never interact with an _IRP object directly, always use the _IRP Manager
 class _IRP:
     """
@@ -102,6 +100,8 @@ class IRPManager:
             self.total_cusd_from_liquidated_irps
         )
 
-    def reset(self):
-        self.__init__()
+    def reset(self, account_manager):
+        self.__init__(
+            account_manager=account_manager
+        )
         print('irp_manager reset!')

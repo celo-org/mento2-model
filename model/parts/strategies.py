@@ -1,9 +1,11 @@
 """
 # Defines Strategies. Strategies:
- *have a convex objective_function (cvxpy objective function type)
+ *have a convex (or quasi-convex) objective_function (cvxpy objective function type)
  *have a set of convex constraints (cvxpy constraints type)
  *trigger optimal actions defined by the above (objective_function, constraints) via
  some Manager (buy_and_sell_manager, irp_manager, ...)
+ *if closed-form solution is available, optimal action can be provided via closed form inside of solve() but the
+ objective_function and the constraints should still be specified for completeness!
 """
 import cvxpy
 from cvxpy import Maximize, Minimize, Problem, Variable
@@ -144,6 +146,7 @@ class SellMax(StrategyAbstract):
         Triggers optimal action and returns dict of state_variables after that action
         """
 
+        # TODO: Move this check to abstract class
         if prev_state['timestep'] % self.acting_frequency != 0:
             # Actor not acting this timestep
             return self.buy_and_sell_manager.leave_all_state_variables_unchanged(

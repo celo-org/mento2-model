@@ -16,7 +16,7 @@ irp_manager = IRPManager(
     account_manager=account_manager
 )
 sell_max_strategy = SellMax(
-    acting_frequency=12*60*24,  # once a day, TODO: Use blocktime parameters etc here
+    acting_frequency=12*60*24,  # once a day, TODO: Make this a parameter
     buy_and_sell_manager=buy_and_sell_manager
 )
 
@@ -69,6 +69,12 @@ def p_create_random_irp(params, substep, state_history, prev_state):
             'total_celo_deposited': prev_state['total_celo_deposited'],
             'total_cusd_borrowed': prev_state['total_cusd_borrowed']
         }
+
+    # Do this via generators instead
+    if len(state_history) == 1:
+        irp_manager.reset(
+            account_manager=account_manager
+        )
 
     if np.random.uniform() > params['probability_of_new_irp_per_block']:
         return {
@@ -134,15 +140,14 @@ def p_liquidate_undercollateralized_irps(params, substep, state_history, prev_st
 
 
 def p_actors_act(params, substep, state_history, prev_state):
-
+    # TODO: Allow this for more than one actor
     # TODO: Use generator logic instead len==1 check
     # Only create one buy_and_sell_arb actor per parameter set
     if len(state_history) == 1:
         actor_manager.reset(
-            strategy=sell_max_strategy
+            sell_max_strategy=sell_max_strategy
         )
 
-    # TODO: Run over all actors
     state_variables_after_actors_acted = actor_manager.all_actors[0].strategy.execute_optimal_action(
         params=params, prev_state=prev_state
     )
