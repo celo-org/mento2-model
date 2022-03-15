@@ -1,7 +1,7 @@
 """
 cadCAD model State Update Block structure, composed of Policy and State Update Functions
 """
-
+import logging
 from model.parts import accounting
 import model.parts.market_prices as market_price
 
@@ -39,6 +39,9 @@ state_update_block_price_impact = {
 
 state_update_block_market_price_change = {
     "description": """
+        state_update_block_price_impact has to be the last update in a block, 
+        as it is responsible for calculating the price changes due to all supply
+        changes in this block
     """,
     "policies": {"market_price": market_price.p_market_price},
     "variables": {
@@ -94,6 +97,18 @@ _state_update_blocks = [
     state_update_block_epoch_rewards,
     #state_update_block_update_state_variables_from_generators
 ]
+
+price_impact_not_last = (state_update_block_price_impact in _state_update_blocks) and (
+    _state_update_blocks[-1] is not state_update_block_price_impact
+)
+# force state_update_block_price_impact to be last substep
+if price_impact_not_last:
+    _state_update_blocks.append(
+        _state_update_blocks.pop(
+            _state_update_blocks.index(state_update_block_price_impact)
+        )
+    )
+    logging.info("state_update_block_price_impact reassigned to last substep")
 
 # Split the state update blocks into those used during the simulation_configuration
 # and those used in post-processing to calculate the system metrics (post_processing_blocks)
