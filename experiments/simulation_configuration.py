@@ -9,4 +9,4 @@ SIMULATION_TIME_DAYS = 5  # number of days
 # number of simulation_configuration timesteps
 TIMESTEPS = SIMULATION_TIME_DAYS * blocks_per_day // BLOCKS_PER_TIMESTEP
 TIMESTEPS_PER_YEAR = blocks_per_year // BLOCKS_PER_TIMESTEP
-MONTE_CARLO_RUNS = 1  # number of runs
+MONTE_CARLO_RUNS = 3  # number of runs

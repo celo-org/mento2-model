@@ -1,7 +1,7 @@
 '''
 The abstract Generator Class
 '''
-from abc import ABC, abstractclassmethod
+from abc import ABC, abstractmethod
 
 
 # pylint: disable=too-few-public-methods
@@ -13,6 +13,7 @@ class Generator(ABC):
     for the type system.
     '''
 
-    @abstractclassmethod
+    @classmethod
+    @abstractmethod
     def from_parameters(cls, params) -> "Generator":
         pass
