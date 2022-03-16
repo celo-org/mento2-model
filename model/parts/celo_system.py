@@ -11,8 +11,7 @@ from model.types import AccountType
 
 
 @container.inject(AccountGenerator)
-def p_epoch_rewards(params, substep, state_history, prev_state,
-                           account_generator=AccountGenerator):
+def p_epoch_rewards(params, substep, state_history, prev_state, account_generator=AccountGenerator):
     """
     Naively propage celo supply by adding target epoch rewards per epoch (every 17280 blocks)
     Celo epoch target rewards are rewarded linearly over the next 15 years and after
