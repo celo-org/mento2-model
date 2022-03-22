@@ -39,7 +39,7 @@ state_update_block_price_impact = {
 
 state_update_block_market_price_change = {
     "description": """
-        state_update_block_price_impact has to be the last update in a block, 
+        state_update_block_price_impact has to be the last update in a block,
         as it is responsible for calculating the price changes due to all supply
         changes in this block
     """,
