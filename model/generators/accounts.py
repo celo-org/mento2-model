@@ -8,7 +8,7 @@ from typing import List, Dict
 from model.types import AccountType
 
 from model.generators.generator import Generator
-from model.generators.traders import AccountHolder
+from model.generators.traders import AccountBase, AccountHolder
 
 
 class AccountGenerator(Generator):
@@ -25,10 +25,13 @@ class AccountGenerator(Generator):
             account_type: [] for account_type in AccountType
         }
         # reserve account with account_id=0
-        self.reserve_account = self.create_reserve_account(reserve_inventory=reserve_inventory)
+        self.reserve_account = self.create_reserve_account(
+            reserve_inventory=reserve_inventory
+        )
         # epoch rewards account with account_id=1
-        self.epoch_rewards_account = self.create_new_account(account_name="epoch_rewards",
-                                                             account_type=AccountType.CONTRACT)
+        self.epoch_rewards_account = self.create_new_account(
+            account_name="epoch_rewards", account_type=AccountType.CONTRACT
+        )
         # TODO create fast calibration to have one trader for all floating supply
         # these variables get initialized and updated by their @property function
         self._total_supply_celo = self.total_supply_celo
@@ -39,11 +42,11 @@ class AccountGenerator(Generator):
     def from_parameters(cls, params):
         accounts = cls(params["reserve_inventory"])
 
-        for account_type in AccountType:
+        for account_type in params["number_of_accounts"]:
             index = 0
             for index in range(params["number_of_accounts"][account_type]):
                 accounts.create_funded_account(
-                    account_name=f"{account_type.value}_{index}",
+                    account_name=f"{account_type}_{index}",
                     celo=1000,
                     cusd=10000,
                     account_type=account_type,
@@ -54,7 +57,7 @@ class AccountGenerator(Generator):
         """
         separate reserve account which is not part of the self.all_accounts list
         """
-        reserve_account = AccountHolder(
+        reserve_account = AccountBase.create_account(
             self,
             account_id=0,
             account_name="reserve",
@@ -71,7 +74,7 @@ class AccountGenerator(Generator):
         Creates new account with zero balances
         """
         account_id = self.total_number_of_accounts[account_type]
-        new_account = AccountHolder(
+        new_account = AccountBase.create_account(
             self,
             account_id=account_id,
             account_name=account_name,
@@ -88,7 +91,9 @@ class AccountGenerator(Generator):
         """
         self.reserve_account.balance["celo"] += delta_celo
 
-    def change_account_balance(self, account_id, delta_celo, delta_cusd, account_type: AccountType):
+    def change_account_balance(
+        self, account_id, delta_celo, delta_cusd, account_type: AccountType
+    ):
         self.check_account_valid(account_id, account_type)
         self.all_accounts[account_type][account_id].balance["celo"] += delta_celo
         self.all_accounts[account_type][account_id].balance["cusd"] += delta_cusd

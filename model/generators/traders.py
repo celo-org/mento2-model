@@ -1,26 +1,50 @@
 """
 Provides Traders / Actors
 """
+from abc import ABC, abstractmethod
 from model.parts import buy_and_sell
 
-from model.parts.strategy_random_trader import RandomTrading
+
+from model.types import AccountType
 
 
-#pylint: disable=too-few-public-methods
-class AccountHolder:
+# pylint: disable=too-few-public-methods
+
+
+class AccountBase(ABC):
     """
     Agent / Account Holder
     """
 
-    def __init__(
-        self, parent, account_id, account_name, balance, account_type=None, orders=None
-    ):
+    @abstractmethod
+    def __init__(self, parent, account_id, account_name, balance, account_type=None):
         self.parent = parent
         self.account_id = account_id
         self.account_name = account_name
         self.balance = {"celo": balance["celo"], "cusd": balance["celo"]}
         self.account_type = account_type
-        self.strategy = RandomTrading(self)
+
+    @staticmethod
+    def create_account(parent, account_id, account_name, balance, account_type):
+        if account_type == AccountType.CONTRACT:
+            account = Contract(parent, account_id, account_name, balance, account_type)
+        elif account_type == AccountType.RANDOM_TRADER:
+            account = AccountHolder(
+                parent, account_id, account_name, balance, account_type
+            )
+        return account
+
+
+class AccountHolder(AccountBase):
+    """
+    Agent / Account Holder
+    """
+
+    def __init__(
+        self, parent, account_id, account_name, balance, account_type, orders=None
+    ):
+        super().__init__(parent, account_id, account_name, balance, account_type)
+        self.strategy = account_type.value(parent=self)
         self.orders = orders
 
     def execute(
@@ -45,3 +69,12 @@ class AccountHolder:
         )
         self.parent.change_reserve_account_balance(delta_celo=deltas["celo"])
         return states
+
+
+class Contract(AccountBase):
+    """
+    Smart Contract
+    """
+
+    def __init__(self, parent, account_id, account_name, balance, account_type):
+        super().__init__(parent, account_id, account_name, balance, account_type)

@@ -128,7 +128,7 @@ class RandomTrading(StrategyAbstract):
         Runs the optimization
         """
 
-        if True:
+        if self.calculate:
             self.calculate(params, prev_state)
         else:
             self.define_variables()

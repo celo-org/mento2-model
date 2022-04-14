@@ -60,8 +60,6 @@ class Parameters:
         [
             {
                 AccountType.RANDOM_TRADER: 1,
-                AccountType.ARB_TRADER: 2,
-                AccountType.CONTRACT: 0,
             }
         ]
     )
