@@ -8,21 +8,32 @@
   inside of solve() but the
  objective_function and the constraints should still be specified for completeness!
 """
+from cvxpy import Maximize, Minimize, Problem
+import cvxpy
+from model.parts import buy_and_sell
 
 # pylint: disable= missing-class-docstring
 # pylint: disable=broad-except
-class StrategyAbstract:
+class TraderStrategyAbstract:
     def __init__(self, parent, acting_frequency):
         self.parent = parent
         self.acting_frequency = acting_frequency
 
-        # The following is used to define the strategy and needs to be provided in subclass
+        # The following is used to define the strategy and needs to be
+        #  provided in subclass
         self.variables = {}
         self.expressions = {}
         self.objective_function = None
         self.optimization_direction = None
         self.constraints = []
         self.state_update_block = None
+        self.sell_amount = None
+
+    def sell_gold(self, prev_state):
+        """
+        Provides a function indicating the direction of the celo cashflow
+        """
+        raise NotImplementedError("Subclasses must implement sell_gold()")
 
     def define_variables(self):
         """
@@ -51,26 +62,80 @@ class StrategyAbstract:
         """
         raise NotImplementedError("Subclasses must implement define_constraints()")
 
-    def solve(self, params, prev_state):
+    def solve(self, _params, _prev_state):
         """
-        Defines the solver to use and the respective parameters and runs the
-        optimization
+        Solves the optimisation problem algorithmically
         """
-        raise NotImplementedError("Subclasses must implement solve()")
+        # Generate cvxpy optimization problem
+        assert self.optimization_direction in (
+            "minimize",
+            "maximize",
+        ), "Optimization direction not specified."
+        if self.optimization_direction == "minimize":
+            obj = Minimize(self.objective_function)
+        else:
+            obj = Maximize(self.objective_function)
+        prob = Problem(obj, self.constraints)
 
-    # def optimize(self, params, prev_state):
-    #     """
-    #     Runs the optimization
-    #     """
-    #     self.define_variables()
-    #     self.define_expressions(params, prev_state)
-    #     self.define_objective_function(params, prev_state)
-    #     self.define_constraints(params, prev_state)
-    #     self.solve(params, prev_state)
+        # The optimization problem of SellMax is quasi-convex
+        try:
+            prob.solve(
+                solver=cvxpy.ECOS,
+                abstol=1e-6,
+                reltol=1e-6,
+                max_iters=10000,
+                verbose=False,
+            )
 
-    # def execute_optimal_action(self, params, prev_state):
-    #     """
-    #       Executes the optimal action depending on the optimization outcome
-    #       """
-    #     raise NotImplementedError('Subclasses must implement
-    #  execute_optimal_action()')
+        except Exception as error:
+            print(error)
+
+        assert prob.status == "optimal", "Optimization NOT successful!"
+        # print(f'Objective value in optimum is {prob.value}.')
+        # print(self.variables['sell_amount'].value)
+        # print(self.expressions['mento_rate_after_trade'].value)
+
+    # pylint: disable=duplicate-code
+    def optimize(self, params, prev_state):
+        """
+        Runs the optimization
+        """
+        # TODO this is a bit dirty
+        if hasattr(self, "calculate"):
+            self.calculate(params, prev_state)
+        else:
+            self.define_variables()
+            self.define_expressions(params, prev_state)
+            self.define_objective_function(params, prev_state)
+            self.define_constraints(params, prev_state)
+            self.solve(params, prev_state)
+
+    # pylint: disable=duplicate-code
+    def return_optimal_trade(self, params, prev_state):
+        """
+        Returns the optimal action to be executed by actor
+        """
+        if prev_state["timestep"] % self.acting_frequency != 0:
+            # Actor not acting this timestep
+            trade = None
+        else:
+            self.optimize(params=params, prev_state=prev_state)
+            sell_amount = (
+                self.variables["sell_amount"].value
+                if self.variables
+                else self.sell_amount
+            )
+            buy_amount = buy_and_sell.get_buy_amount(
+                params=params,
+                prev_state=prev_state,
+                sell_amount=sell_amount,
+                sell_gold=self.sell_gold(prev_state),
+            )
+
+            trade = {
+                "sell_gold": self.sell_gold(prev_state),
+                "sell_amount": sell_amount,
+                "buy_amount": buy_amount,
+            }
+
+        return trade

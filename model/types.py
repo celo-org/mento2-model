@@ -9,6 +9,7 @@ from enum import Enum
 
 from model.generators.markets import MarketPriceGenerator
 from model.parts.strategy_random_trader import RandomTrading
+from model.parts.strategy_sell_max import SellMax
 
 # Celo system types
 Gas = int
@@ -44,6 +45,7 @@ class AccountType(Enum):
 
     ARB_TRADER = "arb_trader"
     RANDOM_TRADER = RandomTrading
+    MAX_TRADER = SellMax
     CONTRACT = "contract"
 
 

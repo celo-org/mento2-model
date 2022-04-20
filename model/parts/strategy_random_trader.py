@@ -1,18 +1,16 @@
 """
 Strategy: Random Trader
 """
-import cvxpy
-from cvxpy import Maximize, Minimize, Problem, Variable
+from cvxpy import Variable
 import numpy as np
 
 from experiments import simulation_configuration
 
-from model.parts import buy_and_sell
-from model.parts.strategies import StrategyAbstract
+from model.parts.strategies import TraderStrategyAbstract
 
 
 # pylint: disable=using-constant-test
-class RandomTrading(StrategyAbstract):
+class RandomTrading(TraderStrategyAbstract):
     """
     Random Trading
     """
@@ -90,72 +88,3 @@ class RandomTrading(StrategyAbstract):
         Calculates optimal trade if analytical solution is available
         """
         self.sell_amount = self.orders[prev_state["timestep"]]["sell_amount"]
-
-    # pylint: disable=broad-except
-    def solve(self, params, prev_state):
-
-        # Generate cvxpy optimization problem
-        assert self.optimization_direction in (
-            "minimize",
-            "maximize",
-        ), "Optimization direction not specified."
-        if self.optimization_direction == "minimize":
-            obj = Minimize(self.objective_function)
-        else:
-            obj = Maximize(self.objective_function)
-        prob = Problem(obj, self.constraints)
-
-        # The optimization problem of SellMax is quasi-convex
-        try:
-            prob.solve(
-                solver=cvxpy.ECOS,
-                abstol=1e-6,
-                reltol=1e-6,
-                max_iters=10000,
-                verbose=False,
-            )
-
-        except Exception as error:
-            print(error)
-
-        assert prob.status == "optimal", "Optimization NOT successful!"
-        # print(f'Objective value in optimum is {prob.value}.')
-        # print(self.variables['sell_amount'].value)
-        # print(self.expressions['mento_rate_after_trade'].value)
-
-    def optimize(self, params, prev_state):
-        """
-        Runs the optimization
-        """
-
-        if self.calculate:
-            self.calculate(params, prev_state)
-        else:
-            self.define_variables()
-            self.define_expressions(params, prev_state)
-            self.define_objective_function(params, prev_state)
-            self.define_constraints(params, prev_state)
-            self.solve(params, prev_state)
-
-    def return_optimal_trade(self, params, prev_state):
-        """
-        Returns the optimal action to be executed by actor
-        """
-        self.optimize(params=params, prev_state=prev_state)
-        sell_amount = (
-            self.variables["sell_amount"].value if self.variables else self.sell_amount
-        )
-        buy_amount = buy_and_sell.get_buy_amount(
-            params=params,
-            prev_state=prev_state,
-            sell_amount=sell_amount,
-            sell_gold=self.sell_gold(prev_state),
-        )
-
-        trade = {
-            "sell_gold": self.sell_gold(prev_state),
-            "sell_amount": sell_amount,
-            "buy_amount": buy_amount,
-        }
-
-        return trade

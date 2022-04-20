@@ -25,6 +25,19 @@ state_update_block_random_trading = {
     },
 }
 
+state_update_block_max_trading = {
+    "description": """
+        Single max trader
+    """,
+    "policies": {"max_trade": accounting.p_max_trading},
+    "variables": {
+        "mento_buckets": update_from_signal("mento_buckets"),
+        "reserve_balance": update_from_signal("reserve_balance"),
+        "floating_supply": update_from_signal("floating_supply"),
+        "mento_rate": update_from_signal("mento_rate"),
+    },
+}
+
 
 # according to impact timing function
 state_update_block_price_impact = {
@@ -39,7 +52,7 @@ state_update_block_price_impact = {
 
 state_update_block_market_price_change = {
     "description": """
-        state_update_block_price_impact has to be the last update in a block, 
+        state_update_block_price_impact has to be the last update in a block,
         as it is responsible for calculating the price changes due to all supply
         changes in this block
     """,
@@ -93,6 +106,7 @@ _state_update_blocks = [
     state_update_block_market_price_change,
     state_update_block_periodic_mento_bucket_update,
     state_update_block_random_trading,
+    state_update_block_max_trading,
     state_update_block_price_impact,
     state_update_block_epoch_rewards,
     #state_update_block_update_state_variables_from_generators

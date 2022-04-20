@@ -60,6 +60,7 @@ class Parameters:
         [
             {
                 AccountType.RANDOM_TRADER: 1,
+                AccountType.MAX_TRADER: 1
             }
         ]
     )
