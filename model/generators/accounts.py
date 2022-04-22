@@ -3,13 +3,11 @@ Accounts Generator
 
 Account management, equivalent to addresses on the blockchain
 """
-
 from typing import List, Dict
+from lib.generator import Generator
 from model.types import AccountType
-
-from model.generators.generator import Generator
 from model.generators.traders import AccountHolder
-
+from model.utils import update_from_signal
 
 class AccountGenerator(Generator):
     """
@@ -107,6 +105,34 @@ class AccountGenerator(Generator):
         assert (
             self.all_accounts[account_type][account_id].account_id == account_id
         ), "Account_id mismatch"
+
+    def state_update_blocks(self):
+        return self.state_update_blocks_for_type(AccountType.RANDOM_TRADER) + \
+               self.state_update_blocks_for_type(AccountType.ARB_TRADER)
+
+    def state_update_blocks_for_type(self, account_type: AccountType):
+        return [
+            {
+                "description": f"""
+                    Trader update blocks for {account_type}
+                """,
+                "policies": {"random_trade": self.trader_policy(trader.account_id)},
+                "variables": {
+                    "mento_buckets": update_from_signal("mento_buckets"),
+                    "reserve_balance": update_from_signal("reserve_balance"),
+                    "floating_supply": update_from_signal("floating_supply"),
+                    "mento_rate": update_from_signal("mento_rate"),
+                },
+
+            } for trader in self.all_accounts[AccountType.RANDOM_TRADER]
+
+        ]
+
+    def trader_policy(self, account_id):
+        def policy(params, substep, state_history, prev_state):
+            trader = self.all_accounts[AccountType.RANDOM_TRADER][account_id]
+            return trader.execute(params, substep, state_history, prev_state)
+        return policy
 
     @property
     def total_supply_celo(self):

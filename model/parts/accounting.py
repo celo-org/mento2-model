@@ -3,7 +3,7 @@
 
 
 """
-from model.generators.container import container
+from lib.generator_container import inject
 from model.generators.accounts import AccountGenerator, AccountType
 
 
@@ -25,7 +25,7 @@ from model.generators.accounts import AccountGenerator, AccountType
 #     return {'number_of_accounts': 0}
 
 
-@container.inject(AccountGenerator)
+@inject(AccountGenerator)
 def p_random_trading(
     params,
     substep,

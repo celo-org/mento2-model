@@ -1,7 +1,7 @@
 '''
 ExampleGenerator to showcase the generator pattern
 '''
-from .generator import Generator
+from lib.generator import Generator
 
 class ExampleGenerator(Generator):
     '''
