@@ -38,15 +38,15 @@ Blocknumber = int
 Day = int
 
 
-class AccountType(Enum):
+class TraderType(Enum):
     """
     different account holders
     """
 
-    ARB_TRADER = "arb_trader"
+    ARB_TRADER = "arb_trader" # Todo: Add Strategy
     RANDOM_TRADER = RandomTrading
     MAX_TRADER = SellMax
-    CONTRACT = "contract"
+
 
 
 # TODO: Is there a better type for the below classes then TypedDicts?

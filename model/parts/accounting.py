@@ -4,7 +4,7 @@
 
 """
 from model.generators.container import container
-from model.generators.accounts import AccountGenerator, AccountType
+from model.generators.accounts import AccountGenerator
 
 
 #
@@ -38,7 +38,7 @@ def p_random_trading(
     """
     # TODO only works with one trader. Otherwise the bucket sizes are not dynamically adjusted.
     # TODO How can we implement dynamic substeps
-    traders = account_generator.all_accounts[AccountType.RANDOM_TRADER]
+    traders = account_generator.accounts_by_id.items()
     trader = traders[0]
     return trader.execute(params, substep, state_history, prev_state)
 
@@ -56,6 +56,6 @@ def p_max_trading(
     """
     # TODO only works with one trader. Otherwise the bucket sizes are not dynamically adjusted.
     # TODO How can we implement dynamic substeps
-    traders = account_generator.all_accounts[AccountType.MAX_TRADER]
+    traders = account_generator.accounts_by_id.items()
     trader = traders[0]
     return trader.execute(params, substep, state_history, prev_state)

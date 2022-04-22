@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from types import FunctionType
 from typing import List, Dict
 import experiments.simulation_configuration as simulation
-from model.types import AccountType
+from model.types import TraderType
 from model.generators.markets import MarketPriceModel
 
 from model.types import Blocknumber
@@ -56,11 +56,11 @@ class Parameters:
         [lambda asset_1, asset_2: asset_1**2 / asset_2]
     )
 
-    number_of_accounts: List[Dict[AccountType, int]] = default(
+    traders: List[Dict[TraderType, int]] = default(
         [
             {
-                AccountType.RANDOM_TRADER: 1,
-                AccountType.MAX_TRADER: 1
+                TraderType.RANDOM_TRADER: 1,
+                TraderType.MAX_TRADER: 1
             }
         ]
     )
