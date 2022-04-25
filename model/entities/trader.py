@@ -54,6 +54,6 @@ class Trader(Account):
                 params, sell_amount, sell_gold, substep, state_history, prev_state
             )
             # TODO this has to happen here to avoid circular referencing, find better solution
-            self.parent.get(self.account_id).balance += Balance(**deltas)
+            self.balance += Balance(**deltas)
             self.parent.reserve.balance += Balance(celo=deltas["celo"], cusd=0)
         return states
