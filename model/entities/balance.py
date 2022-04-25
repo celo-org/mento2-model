@@ -13,8 +13,8 @@ class Balance:
     Balance class holds various token balances and overloads
     addition and subtraction to make it easy to handle deltas.
     """
-    celo: int
-    cusd: int
+    celo: float
+    cusd: float
 
     @staticmethod
     def zero():
@@ -28,6 +28,6 @@ class Balance:
 
     def __combine__(self, other: "Balance", combinator: Callable[[int, int], int]):
         result = Balance.zero()
-        for (currency, _) in self.__dict__:
+        for (currency, _) in self.__dict__.items():
             setattr(result, currency, combinator(getattr(self, currency), getattr(other, currency)))
         return result

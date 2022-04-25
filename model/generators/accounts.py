@@ -3,7 +3,7 @@ Accounts Generator
 
 Account management, equivalent to addresses on the blockchain
 """
-from uuid import UUID, uuid5
+from uuid import UUID, uuid4, uuid5
 from typing import List, Dict
 from functools import reduce
 
@@ -14,11 +14,13 @@ from model.entities.balance import Balance
 from model.types import TraderType
 from model.utils import update_from_signal
 
+ACCOUNTS_NS = uuid4()
+
 class AccountGenerator(Generator):
     """
     AccountsManager Generator
     """
-    accounts_by_id: Dict[UUID, Account]
+    accounts_by_id: Dict[UUID, Account] = {}
     reserve: Account
     epoch_rewards: Account
 
@@ -26,9 +28,6 @@ class AccountGenerator(Generator):
         # TODO number of accounts with different types
         self.total_number_of_accounts: Dict[TraderType, int] = {
             account_type: 0 for account_type in TraderType
-        }
-        self.all_accounts: Dict[TraderType, List[Account]] = {
-            account_type: [] for account_type in TraderType
         }
         # reserve account with account_id=0
         self.reserve = self.create_reserve_account(
@@ -64,7 +63,7 @@ class AccountGenerator(Generator):
         """
         reserve_account = Account(
             self,
-            account_id=uuid5("accounts", "reserve"),
+            account_id=uuid5(ACCOUNTS_NS, "reserve"),
             account_name="reserve",
             balance=initial_balance
         )
@@ -76,31 +75,20 @@ class AccountGenerator(Generator):
         """
         account = Account(
             self,
-            account_id=uuid5("accounts", account_name),
+            account_id=uuid5(ACCOUNTS_NS, account_name),
             account_name=account_name,
-            balance={"celo": 0, "cusd": 0},
+            balance=Balance(celo=0, cusd=0),
         )
         self.accounts_by_id[account.account_id] = account
         return account
 
-    def change_reserve_account_balance(self, delta: Balance):
-        """
-        changes reserve balance, which is not part of the self.all_accounts list
-        """
-        self.reserve.balance += delta
-
-    def change_account_balance(self, account_id: UUID, delta: Balance):
-        account = self.accounts_by_id.get(account_id, None)
-        assert account is not None, f"No account with id {account_id}"
-        account.balance += delta
-
     def create_trader(self, account_name: str, initial_balance: Balance, trader_type: TraderType):
         account = Trader(
             self,
-            account_id=uuid5("accounts", account_name),
+            account_id=uuid5(ACCOUNTS_NS, account_name),
             account_name=account_name,
             balance=initial_balance,
-            strategy=trader_type
+            strategy=trader_type.value,
         )
         self.accounts_by_id[account.account_id] = account
         return account
@@ -119,14 +107,22 @@ class AccountGenerator(Generator):
                     "mento_rate": update_from_signal("mento_rate"),
                 },
 
-            } for trader in self.accounts_by_id.values()
+            } for trader in self.traders()
         ]
+
+    def traders(self) -> List[Trader]:
+        return filter(lambda account: isinstance(account, Trader), self.accounts_by_id.values())
 
     def trader_policy(self, account_id):
         def policy(params, substep, state_history, prev_state):
             trader = self.accounts_by_id[account_id]
             return trader.execute(params, substep, state_history, prev_state)
         return policy
+
+    def get(self, account_id) -> Account:
+        account = self.accounts_by_id.get(account_id)
+        assert account is not None, f"No account with id: {account_id}"
+        return account
 
     @property
     def total_supply_celo(self):
@@ -140,11 +136,11 @@ class AccountGenerator(Generator):
         """
         sums up celo balances over all accounts except reserve
         """
-        return reduce(lambda s, account: s + account.balance.celo, self.accounts_by_id.items(), 0)
+        return reduce(lambda s, account: s + account.balance.celo, self.accounts_by_id.values(), 0)
 
     @property
     def floating_supply_cusd(self) -> int:
         """
         sums up cusd balances over all accounts except reserve
         """
-        return reduce(lambda s, account: s + account.balance.cusd, self.accounts_by_id.items(), 0)
+        return reduce(lambda s, account: s + account.balance.cusd, self.accounts_by_id.values(), 0)

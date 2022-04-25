@@ -4,9 +4,9 @@ General Celo blockchain mechanisms:
 * epoch rewards
 """
 from lib.generator_container import inject
+from model.entities.balance import Balance
 from model.generators.accounts import AccountGenerator
 from model.constants import target_epoch_rewards, seconds_per_epoch, blocktime_seconds
-from model.types import AccountType
 
 
 @inject(AccountGenerator)
@@ -19,10 +19,7 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
     """
     if prev_state['timestep'] > 0:
         if (prev_state['timestep'] * blocktime_seconds) % seconds_per_epoch == 0:
-            account_generator.change_account_balance(account_id=0,
-                                                     delta_celo=target_epoch_rewards,
-                                                     delta_cusd=0.0,
-                                                     account_type=AccountType.CONTRACT)
+            account_generator.reserve.balance += Balance(celo=target_epoch_rewards, cusd=0)
             floating_supply = {
                 "cusd": prev_state["floating_supply"]["cusd"],
                 "celo": prev_state["floating_supply"]["celo"] + target_epoch_rewards,

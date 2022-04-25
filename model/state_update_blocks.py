@@ -9,38 +9,9 @@ from lib.generator import Generator
 from model.generators.accounts import AccountGenerator
 from model.parts import buy_and_sell
 from model.parts import celo_system
-from model.parts import accounting
 from model.parts.utils import states_from_generators
 import model.parts.market_prices as market_price
 from model.utils import update_from_signal
-
-
-state_update_block_random_trading = {
-    "description": """
-        Single random trader
-    """,
-    "policies": {"random_trade": accounting.p_random_trading},
-    "variables": {
-        "mento_buckets": update_from_signal("mento_buckets"),
-        "reserve_balance": update_from_signal("reserve_balance"),
-        "floating_supply": update_from_signal("floating_supply"),
-        "mento_rate": update_from_signal("mento_rate"),
-    },
-}
-
-state_update_block_max_trading = {
-    "description": """
-        Single max trader
-    """,
-    "policies": {"max_trade": accounting.p_max_trading},
-    "variables": {
-        "mento_buckets": update_from_signal("mento_buckets"),
-        "reserve_balance": update_from_signal("reserve_balance"),
-        "floating_supply": update_from_signal("floating_supply"),
-        "mento_rate": update_from_signal("mento_rate"),
-    },
-}
-
 
 # according to impact timing function
 state_update_block_price_impact = {
@@ -115,11 +86,9 @@ def generator_update_blocks(generator_class: Type[Generator]):
 _state_update_blocks = [
     state_update_block_market_price_change,
     state_update_block_periodic_mento_bucket_update,
-    state_update_block_random_trading,
-    state_update_block_max_trading,
+    generator_update_blocks(AccountGenerator),
     state_update_block_price_impact,
     state_update_block_epoch_rewards,
-    generator_update_blocks(AccountGenerator),
     #state_update_block_update_state_variables_from_generators
     state_update_block_price_impact,
 ]
