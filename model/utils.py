@@ -76,4 +76,4 @@ class DataFeed:
 # TODO Quick and dirt hack to load historical data only once
 DATA_FOLDER = '../../data/'
 data_feed = DataFeed(DATA_FOLDER)
-#data_feed.load_historical_data('mock_logreturns.prq')
+# data_feed.load_historical_data('mock_logreturns.prq')

@@ -1,11 +1,8 @@
 """
 # Accountrelated Update and Policy functions
-
-
 """
-from model.generators.container import container
+from lib.generator_container import inject
 from model.generators.accounts import AccountGenerator
-
 
 #
 # @container.inject(AccountGenerator)
@@ -25,7 +22,7 @@ from model.generators.accounts import AccountGenerator
 #     return {'number_of_accounts': 0}
 
 
-@container.inject(AccountGenerator)
+@inject(AccountGenerator)
 def p_random_trading(
     params,
     substep,
@@ -43,7 +40,7 @@ def p_random_trading(
     return trader.execute(params, substep, state_history, prev_state)
 
 
-@container.inject(AccountGenerator)
+@inject(AccountGenerator)
 def p_max_trading(
     params,
     substep,

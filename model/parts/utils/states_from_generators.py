@@ -1,12 +1,12 @@
 """
 Pipe data that lives in generators into state variables
 """
+from lib.generator_container import inject
 from model.generators.accounts import AccountGenerator
-from model.generators.container import container
 from model.types import AccountType
 
 
-@container.inject(AccountGenerator)
+@inject(AccountGenerator)
 def p_state_variables_from_generators(_params, _substep, _state_history, _prev_state,
                                       account_generator: AccountGenerator):
     """
