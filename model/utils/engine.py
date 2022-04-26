@@ -55,7 +55,7 @@ class Engine(RadCadEngine):
                         )
                         self.executable._before_subset(context=context)
                         params_for_run = __inject_generator_container__(param_set)
-                        state_update_blocks_for_run = __hidrate_state_update_blocks_(
+                        state_update_blocks_for_run = __hydrate_state_update_blocks__(
                             state_update_blocks,
                             params_for_run)
                         yield wrappers.RunArgs(
@@ -82,7 +82,7 @@ class Engine(RadCadEngine):
                     self.executable._before_subset(context=context)
 
                     params_for_run = __inject_generator_container__(param_set)
-                    state_update_blocks_for_run = __hidrate_state_update_blocks_(
+                    state_update_blocks_for_run = __hydrate_state_update_blocks__(
                         state_update_blocks,
                         params_for_run)
 
@@ -111,12 +111,12 @@ def __inject_generator_container__(_params):
     })
     return params
 
-def __hidrate_state_update_blocks_(state_update_blocks, params):
+def __hydrate_state_update_blocks__(state_update_blocks, params):
     container = params.get(GENERATOR_CONTAINER_PARAM_KEY)
     flat_state_update_blocks = []
     for state_update_block in state_update_blocks:
         if state_update_block.get('type') == 'dynamic':
-            generator = container.__get_generator__(state_update_block.get('source'))
+            generator = container.get(state_update_block.get('source'))
             flat_state_update_blocks += generator.state_update_blocks()
         else:
             flat_state_update_blocks += [state_update_block]

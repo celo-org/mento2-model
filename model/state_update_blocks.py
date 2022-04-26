@@ -8,7 +8,7 @@ from typing import Type
 from model.generators.accounts import AccountGenerator
 from model.parts import buy_and_sell
 from model.parts import celo_system
-from model.parts.utils import states_from_generators
+from model.parts import states_from_generators
 import model.parts.market_prices as market_price
 from model.utils import update_from_signal
 from model.utils.generator import Generator
