@@ -1,8 +1,8 @@
 """
 Pipe data that lives in generators into state variables
 """
-from lib.generator_container import inject
 from model.generators.accounts import AccountGenerator
+from model.utils.generator_container import inject
 
 
 @inject(AccountGenerator)

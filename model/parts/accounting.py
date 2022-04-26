@@ -1,7 +1,7 @@
 """
 # Accountrelated Update and Policy functions
 """
-from lib.generator_container import inject
+from model.utils.generator_container import inject
 from model.generators.accounts import AccountGenerator
 
 #

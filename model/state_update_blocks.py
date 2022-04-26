@@ -4,7 +4,6 @@ cadCAD model State Update Block structure, composed of Policy and State Update F
 import logging
 from typing import Type
 
-from lib.generator import Generator
 # from model.system_parameters import parameters
 from model.generators.accounts import AccountGenerator
 from model.parts import buy_and_sell
@@ -12,6 +11,7 @@ from model.parts import celo_system
 from model.parts.utils import states_from_generators
 import model.parts.market_prices as market_price
 from model.utils import update_from_signal
+from model.utils.generator import Generator
 
 # according to impact timing function
 state_update_block_price_impact = {

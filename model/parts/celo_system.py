@@ -3,10 +3,10 @@ Celo System
 General Celo blockchain mechanisms:
 * epoch rewards
 """
-from lib.generator_container import inject
 from model.entities.balance import Balance
 from model.generators.accounts import AccountGenerator
 from model.constants import target_epoch_rewards, seconds_per_epoch, blocktime_seconds
+from model.utils.generator_container import inject
 
 
 @inject(AccountGenerator)

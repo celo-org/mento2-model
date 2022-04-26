@@ -3,8 +3,8 @@
 
 
 """
-from lib.generator_container import inject
 from model.generators.markets import MarketPriceGenerator
+from model.utils.generator_container import inject
 
 
 @inject(MarketPriceGenerator)

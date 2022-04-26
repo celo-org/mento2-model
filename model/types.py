@@ -8,8 +8,7 @@ from typing import TypedDict
 from enum import Enum
 
 from model.generators.markets import MarketPriceGenerator
-from model.parts.strategy_random_trader import RandomTrading
-from model.parts.strategy_sell_max import SellMax
+from model.entities.strategies import RandomTrading, SellMax
 
 # Celo system types
 Gas = int

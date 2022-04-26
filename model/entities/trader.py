@@ -5,8 +5,8 @@ Agents implement the Actor type.
 # pylint: disable=too-few-public-methods
 from typing import Type, TYPE_CHECKING
 from uuid import UUID
-from model.parts.strategies import TraderStrategyAbstract
 from model.parts.buy_and_sell import exchange
+from model.entities.strategies import TraderStrategy
 from model.entities.account import Account, Balance
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ class Trader(Account):
     """
     The Trader extens an account with a trading strategy.
     """
-    strategy: TraderStrategyAbstract
+    strategy: TraderStrategy
 
     def __init__(
         self,
@@ -24,7 +24,7 @@ class Trader(Account):
         account_id: UUID,
         account_name: str,
         balance: Balance,
-        strategy: Type[TraderStrategyAbstract]
+        strategy: Type[TraderStrategy]
     ):
         super().__init__(parent, account_id, account_name, balance)
         self.strategy = strategy(self)

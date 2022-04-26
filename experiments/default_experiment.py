@@ -11,7 +11,7 @@ The defaults are defined in their respective modules:
 from radcad import Simulation, Experiment, Backend
 
 from experiments.simulation_configuration import TIMESTEPS, MONTE_CARLO_RUNS
-from lib.engine import MentoEngine
+from model.utils.engine import Engine
 
 from model import model
 
@@ -21,11 +21,11 @@ simulation = Simulation(
     timesteps=TIMESTEPS,
     runs=MONTE_CARLO_RUNS
 )
-simulation.engine = MentoEngine()
+simulation.engine = Engine()
 
 # Create Experiment of single Simulation
 experiment = Experiment([simulation])
-experiment.engine = MentoEngine()
+experiment.engine = Engine()
 
 # Configure Simulation & Experiment engine
 simulation.engine = experiment.engine

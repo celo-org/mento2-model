@@ -3,11 +3,11 @@ Sell Max Strategy
 """
 from cvxpy import Variable
 
-from model.parts.strategies import TraderStrategyAbstract
 from model.utils import update_from_signal
+from .trader_strategy import TraderStrategy
 
 
-class SellMax(TraderStrategyAbstract):
+class SellMax(TraderStrategy):
     """
     Sell Max Amount
     """

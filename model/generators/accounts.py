@@ -7,12 +7,12 @@ from uuid import UUID, uuid4, uuid5
 from typing import List, Dict
 from functools import reduce
 
-from lib.generator import Generator
 from model.entities.account import Account
 from model.entities.trader import Trader
 from model.entities.balance import Balance
 from model.types import TraderType
 from model.utils import update_from_signal
+from model.utils.generator import Generator
 
 ACCOUNTS_NS = uuid4()
 

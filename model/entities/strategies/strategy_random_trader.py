@@ -6,11 +6,11 @@ import numpy as np
 
 from experiments import simulation_configuration
 
-from model.parts.strategies import TraderStrategyAbstract
+from .trader_strategy import TraderStrategy
 
 
 # pylint: disable=using-constant-test
-class RandomTrading(TraderStrategyAbstract):
+class RandomTrading(TraderStrategy):
     """
     Random Trading
     """
