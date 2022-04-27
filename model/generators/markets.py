@@ -17,11 +17,13 @@ class MarketPriceModel(Enum):
     GBM = "gbm"
     PRICE_IMPACT = "price_impact"
     HIST_SIM = "hist_sim"
+    SCENARIO = "scenario"
 
 
 class PriceImpact(Enum):
     CONSTANT_FIAT = "constant_fiat"
     CONSTANT_PRODUCT = "constant_product"
+    ROOT_QUANTITY = "root_quantity"
     CUSTOM = "custom"
 
 
@@ -45,7 +47,7 @@ class MarketPriceGenerator(Generator):
         model,
         drift,
         covariance,
-        price_impact_model=PriceImpact.CONSTANT_PRODUCT,
+        price_impact_model=PriceImpact.ROOT_QUANTITY,
         increments=None,
         seed=1,
         custom_impact_function=None,
@@ -97,6 +99,18 @@ class MarketPriceGenerator(Generator):
             )
             market_price_generator.historical_returns(sample_size)
             logging.info("increments updated")
+        elif params["model"] == MarketPriceModel.SCENARIO:
+            market_price_generator = cls(params["model"], None, None)
+            if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
+                market_price_generator.custom_impact_function = params["custom_impact"]
+            # market_price_generator.load_historical_data(params["data_file"])
+            sample_size = (
+                simulation_configuration.BLOCKS_PER_TIMESTEP
+                * simulation_configuration.TIMESTEPS
+                + 1
+            )
+            market_price_generator.historical_returns(sample_size)
+            logging.info("increments updated")
         return market_price_generator
 
     def market_price(self, state):
@@ -121,11 +135,23 @@ class MarketPriceGenerator(Generator):
             market_prices = {
                 "cusd_usd": (
                     state["market_price"]["cusd_usd"]
-                    * self.increments["cusd_usd"][step]
+                    * np.exp(self.increments["cusd_usd"][step])
                 ),
                 "celo_usd": (
                     state["market_price"]["celo_usd"]
-                    * self.increments["celo_usd"][step]
+                    * np.exp(self.increments["celo_usd"][step])
+                ),
+            }
+
+        elif self.model == MarketPriceModel.SCENARIO:
+            market_prices = {
+                "cusd_usd": (
+                    state["market_price"]["cusd_usd"]
+                    * np.exp(self.increments["cusd_usd"][step])
+                ),
+                "celo_usd": (
+                    state["market_price"]["celo_usd"]
+                    * np.exp(self.increments["celo_usd"][step])
                 ),
             }
 
@@ -136,16 +162,33 @@ class MarketPriceGenerator(Generator):
         #     #  #state['market_buckets'], #step-1)
         return market_prices
 
+    # pylint: disable=no-self-use
     def price_impact_function(self, mode):
-        if mode == PriceImpact.CONSTANT_PRODUCT:
-            impact_function = lambda asset_1, asset_2: asset_1 / asset_2
-        elif mode == PriceImpact.CUSTOM:
-            impact_function = self.custom_impact_function
+        """
+        calculates the price impact of a trade
+        """
+        # if mode == PriceImpact.CONSTANT_PRODUCT:
+        #    impact_function = lambda asset_1, asset_2: asset_1 / asset_2
+        if mode == PriceImpact.ROOT_QUANTITY:
+            impact_function = (
+                lambda asset_quantity, variance_daily, average_daily_volume: -np.sign(
+                    asset_quantity
+                )
+                * np.sqrt(variance_daily * abs(asset_quantity) / average_daily_volume)
+            )
+
+        # elif mode == PriceImpact.CUSTOM:
+        #    impact_function = self.custom_impact_function
         # elif mode == PriceImpact.CONSTANT_FIAT
         return impact_function
 
     def valuate_price_impact(
-        self, floating_supply, pre_floating_supply, market_buckets, current_step
+        self,
+        floating_supply,
+        pre_floating_supply,
+        current_step,
+        market_prices,
+        params,
     ):
         """
         This functions evaluates price impact of supply changes
@@ -154,19 +197,34 @@ class MarketPriceGenerator(Generator):
             ccy: supply - pre_floating_supply[ccy]
             for ccy, supply in floating_supply.items()
         }
-        quote_ccy = list(market_buckets.keys())[0]
+        # quote_ccy = list(market_buckets.keys())[0]
         self.impact_delay(block_supply_change, current_step)
-        effective_supply = {
-            ccy: self.supply_changes[ccy][current_step] + pre_supply
-            for ccy, pre_supply in pre_floating_supply.items()
+        variance_daily_cusd_cusd = params["covariance_market_price"][0][0] / 365
+        variance_daily_celo_usd = params["covariance_market_price"][1][1] / 365
+        average_daily_volume_cusd_usd = params["average_daily_volume"]["cusd_usd"]
+        average_daily_volume_celo_usd = params["average_daily_volume"]["celo_usd"]
+        price_impact = {
+            "cusd_usd": self.price_impact_function(self.price_impact_model)(
+                self.supply_changes["cusd"][current_step],
+                variance_daily_cusd_cusd,
+                average_daily_volume_cusd_usd,
+            ),
+            "celo_usd": self.price_impact_function(self.price_impact_model)(
+                self.supply_changes["celo"][current_step],
+                variance_daily_celo_usd,
+                average_daily_volume_celo_usd,
+            ),
         }
 
-        return {
-            f"{ccy}_{quote_ccy}": self.price_impact_function(self.price_impact_model)(
-                supply, market_buckets[quote_ccy]
-            )
-            for ccy, supply in effective_supply.items()
-        }
+        price_celo_usd = market_prices["celo_usd"] + price_impact["celo_usd"]
+        price_cusd_usd = market_prices["cusd_usd"] + price_impact["cusd_usd"]
+
+        # effective_supply = {
+        #    ccy: self.supply_changes[ccy][current_step] + pre_supply
+        #    for ccy, pre_supply in pre_floating_supply.items()
+        # }
+
+        return {"cusd_usd": price_cusd_usd, "celo_usd": price_celo_usd}
 
     def correlated_returns(
         self,
@@ -182,7 +240,10 @@ class MarketPriceGenerator(Generator):
         drift = np.array(self.mc_parameter["drift"])
         cov = np.array(self.mc_parameter["covariance"]) / (timesteps_per_year)
         increments = np.exp(np.random.multivariate_normal(drift, cov, sample_size))
-        self.increments = {"cusd_usd": increments[:, 0], "celo_usd": increments[:, 1]}
+        self.increments = {
+            "cusd_usd": increments[:, 0],
+            "celo_usd": increments[:, 1],
+        }
 
         # return increments
 
@@ -195,13 +256,15 @@ class MarketPriceGenerator(Generator):
 
     def historical_returns(self, sample_size):
         """Creates a random sample from a set of historical log-returns"""
-        # TODO move historical data handling into sperate class
         # TODO Consider different sampling options
         # TODO Random Seed
         data, length = (data_feed.data, data_feed.length)
-        samples = data[np.random.randint(low=0, high=length - 1, size=sample_size), :]
-        # TODO conversion to pandas frame is slow!!!
-        self.increments = {"cusd_usd": samples[:, 0], "celo_usd": samples[:, 1]}
+        if self.model == MarketPriceModel.HIST_SIM:
+            data = data[np.random.randint(low=0, high=length - 1, size=sample_size), :]
+        # elif self.model == MarketPriceModel.SCENARIO:
+        #    samples = data[np.random.randint(low=0, high=length - 1, size=sample_size), :]
+
+        self.increments = {"cusd_usd": data[:, 0], "celo_usd": data[:, 1]}
 
         logging.info("Historic increments created")
 

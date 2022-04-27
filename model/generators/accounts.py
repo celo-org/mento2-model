@@ -8,7 +8,7 @@ from typing import List, Dict
 from model.types import AccountType
 
 from model.generators.generator import Generator
-from model.generators.traders import AccountBase, AccountHolder
+from model.generators.accountholder import AccountBase, AccountHolder
 
 
 class AccountGenerator(Generator):
@@ -47,8 +47,8 @@ class AccountGenerator(Generator):
             for index in range(params["number_of_accounts"][account_type]):
                 accounts.create_funded_account(
                     account_name=f"{account_type}_{index}",
-                    celo=1000,
-                    cusd=10000,
+                    celo=5000000,
+                    cusd=10000000,
                     account_type=account_type,
                 )
         return accounts
@@ -57,7 +57,7 @@ class AccountGenerator(Generator):
         """
         separate reserve account which is not part of the self.all_accounts list
         """
-        reserve_account = AccountBase.create_account(
+        reserve_account = AccountBase.create_account_holder(
             self,
             account_id=0,
             account_name="reserve",
@@ -74,7 +74,7 @@ class AccountGenerator(Generator):
         Creates new account with zero balances
         """
         account_id = self.total_number_of_accounts[account_type]
-        new_account = AccountBase.create_account(
+        new_account = AccountBase.create_account_holder(
             self,
             account_id=account_id,
             account_name=account_name,

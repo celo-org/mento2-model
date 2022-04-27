@@ -69,8 +69,9 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
     """
     Making pylint happy
     """
-    if sell_gold:
-        sell_amount = sell_amount / prev_state["mento_rate"]
+    # Todo what was the intention behind this logic?
+    #if sell_gold:
+    #    sell_amount = sell_amount / prev_state["mento_rate"]
 
     buy_amount = get_buy_amount(params, sell_amount, sell_gold, prev_state )
 
@@ -93,14 +94,13 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
 
     reserve_balance = {"celo": prev_state["reserve_balance"]["celo"] + delta_celo}
 
-    mento_rate = mento_buckets["cusd"] / mento_buckets["celo"]
-
+   # mento_rate = mento_buckets["cusd"] / mento_buckets["celo"]
     return (
         {
             "mento_buckets": mento_buckets,
             "floating_supply": floating_supply,
             "reserve_balance": reserve_balance,
-            "mento_rate": mento_rate,
+            #"mento_rate": mento_rate,
         },
         {"cusd": delta_cusd, "celo": delta_celo},
     )

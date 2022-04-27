@@ -39,7 +39,7 @@ class StateVariables:
     """
 
     # Celo state variables
-    mento_rate: TokenPerToken = celo_price_mean
+    mento_rate: TokenPerToken = 3
     """The Mento CELO/cUSD rate """
 
     # Reserve state variable

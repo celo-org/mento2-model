@@ -8,6 +8,7 @@ from typing import TypedDict
 from enum import Enum
 
 from model.generators.markets import MarketPriceGenerator
+from model.parts.strategy_arbitrage_trader import ArbitrageTrading
 from model.parts.strategy_random_trader import RandomTrading
 from model.parts.strategy_sell_max import SellMax
 
@@ -43,7 +44,7 @@ class AccountType(Enum):
     different account holders
     """
 
-    ARB_TRADER = "arb_trader"
+    ARBITRAGE_TRADER = ArbitrageTrading
     RANDOM_TRADER = RandomTrading
     MAX_TRADER = SellMax
     CONTRACT = "contract"

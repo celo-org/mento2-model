@@ -8,7 +8,7 @@
   inside of solve() but the
  objective_function and the constraints should still be specified for completeness!
 """
-from cvxpy import Maximize, Minimize, Problem
+from cvxpy import Maximize, Minimize, Problem, Variable
 import cvxpy
 from model.parts import buy_and_sell
 
@@ -27,7 +27,9 @@ class TraderStrategyAbstract:
         self.optimization_direction = None
         self.constraints = []
         self.state_update_block = None
+        # TODO order vs sell_amount ???
         self.sell_amount = None
+        self.order = None
 
     def sell_gold(self, prev_state):
         """
@@ -36,10 +38,7 @@ class TraderStrategyAbstract:
         raise NotImplementedError("Subclasses must implement sell_gold()")
 
     def define_variables(self):
-        """
-        Defines and returns the variables wrt. which the optimization is conducted
-        """
-        raise NotImplementedError("Subclasses must implement define_variables()")
+        self.variables["sell_amount"] = Variable(pos=True)
 
     def define_expressions(self, params, prev_state):
         """
@@ -48,19 +47,35 @@ class TraderStrategyAbstract:
         """
         raise NotImplementedError("Subclasses must implement define_expressions()")
 
-    def define_objective_function(self, params, prev_state):
-        """
-        Defines and returns the cvxpy objective_function
-        """
-        raise NotImplementedError(
-            "Subclasses must implement define_objective_function()"
-        )
-
-    def define_constraints(self, params, prev_state):
+    def define_constraints(self, _params, prev_state):
         """
         Defines and returns the constraints under which the optimization is conducted
         """
-        raise NotImplementedError("Subclasses must implement define_constraints()")
+        self.constraints = []
+        # TODO: Get budget based on account
+        max_budget_cusd = self.parent.balance["cusd"]
+        max_budget_celo = self.parent.balance["celo"]
+        if self.sell_gold(prev_state):
+            self.constraints.append(
+                self.variables["sell_amount"]
+                <= min(
+                    max_budget_celo, self.order[prev_state["timestep"]]["sell_amount"]
+                )
+            )
+        else:
+            self.constraints.append(
+                self.variables["sell_amount"]
+                <= min(
+                    max_budget_cusd, self.order[prev_state["timestep"]]["sell_amount"]
+                )
+            )
+
+    def define_objective_function(self, _params, _prev_state):
+        """
+        Defines and returns the cvxpy objective_function
+        """
+        self.objective_function = self.variables["sell_amount"]
+        self.optimization_direction = "maximize"
 
     def solve(self, _params, _prev_state):
         """
@@ -111,6 +126,33 @@ class TraderStrategyAbstract:
             self.solve(params, prev_state)
 
     # pylint: disable=duplicate-code
+
+    # def create_meta_order(self, trade, params):
+    #     if trade['sell_gold'] == True:
+    #         buy_amount = min(1/10 * params['average_daily_volume']['cusd_usd'],
+    #  trade['buy_amount'])
+    #     elif trade['sell_gold'] == False:
+    #         buy_amount = min(1/10 * params['average_daily_volume']['celo_usd'],
+    #  trade['buy_amount'])
+    #     return
+
+    # pylint: disable=no-self-use
+    def minimise_price_impact(self, sell_amount, sell_gold, params):
+        """
+        trader reduces sell amount to reduce market impact
+        """
+        # Todo logic is probably wrong, fix!
+        if sell_gold:
+
+            sell_amount_adjusted = min(
+                params["average_daily_volume"]["cusd_usd"], sell_amount
+            )
+        elif not sell_gold:
+            sell_amount_adjusted = min(
+                params["average_daily_volume"]["celo_usd"], sell_amount
+            )
+        return sell_amount_adjusted
+
     def return_optimal_trade(self, params, prev_state):
         """
         Returns the optimal action to be executed by actor
@@ -125,17 +167,22 @@ class TraderStrategyAbstract:
                 if self.variables
                 else self.sell_amount
             )
-            buy_amount = buy_and_sell.get_buy_amount(
-                params=params,
-                prev_state=prev_state,
-                sell_amount=sell_amount,
-                sell_gold=self.sell_gold(prev_state),
-            )
+            if sell_amount is None:
+                trade = None
+            else:
+                sell_gold = self.sell_gold(prev_state)
+                sell_amount = self.minimise_price_impact(sell_amount, sell_gold, params)
+                buy_amount = buy_and_sell.get_buy_amount(
+                    params=params,
+                    prev_state=prev_state,
+                    sell_amount=sell_amount,
+                    sell_gold=sell_gold,
+                )
 
-            trade = {
-                "sell_gold": self.sell_gold(prev_state),
-                "sell_amount": sell_amount,
-                "buy_amount": buy_amount,
-            }
+                trade = {
+                    "sell_gold": sell_gold,
+                    "sell_amount": sell_amount,
+                    "buy_amount": buy_amount,
+                }
 
         return trade
