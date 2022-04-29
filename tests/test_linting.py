@@ -1,3 +1,6 @@
+"""
+Test Linting
+"""
 import inspect
 
 import model
@@ -13,13 +16,11 @@ def test_lint_state_variables():
     """
 
     # Get the set of all State Variable keys in State Update Blocks 'variables'
-    state_update_blocks_state_variables = set(
-        [
-            state_variable
-            for block in state_update_blocks
-            for state_variable in block["variables"]
-        ]
-    )
+    state_update_blocks_state_variables = {
+        state_variable
+        for block in state_update_blocks
+        for state_variable in block["variables"]
+    }
     # Get the set of all State Variable keys in initial state
     initial_state_keys = set(initial_state.keys())
 
@@ -37,8 +38,7 @@ def test_lint_parameters():
     """
 
     # Get all model modules
-    model_modules = inspect.getmembers(
-        model.parts, inspect.ismodule) + inspect.getmembers(model.parts.utils, inspect.ismodule)
+    model_modules = inspect.getmembers(model.parts, inspect.ismodule)
 
     consts = [
         function.__code__.co_consts
@@ -52,6 +52,6 @@ def test_lint_parameters():
     consts = [item for tuple in consts for item in tuple]
 
     # Print all System Parameter keys not in consts
-    print([key for key in parameters.keys() if key not in consts])
+    print([key for (key, _) in parameters if key not in consts])
     # Assert all System Parameter keys are in consts
-    assert all([key in consts for key in parameters.keys()])
+    assert all(key in consts for (key, _) in parameters)

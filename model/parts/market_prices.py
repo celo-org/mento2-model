@@ -3,11 +3,11 @@
 
 
 """
-from model.generators.container import container
 from model.generators.markets import MarketPriceGenerator
+from model.utils.generator_container import inject
 
 
-@container.inject(MarketPriceGenerator)
+@inject(MarketPriceGenerator)
 def p_market_price(
     _params,
     _substep,
@@ -25,7 +25,7 @@ def p_market_price(
     return {"market_price": market_price, "market_buckets": market_buckets}
 
 
-@container.inject(MarketPriceGenerator)
+@inject(MarketPriceGenerator)
 def p_price_impact(
     _params,
     _substep,

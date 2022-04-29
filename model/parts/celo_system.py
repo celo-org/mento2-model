@@ -3,15 +3,16 @@ Celo System
 General Celo blockchain mechanisms:
 * epoch rewards
 """
-from model.generators.container import container
-from model.parts import buy_and_sell
+from model.entities.balance import Balance
 from model.generators.accounts import AccountGenerator
 from model.constants import target_epoch_rewards_downscaled, seconds_per_epoch, blocktime_seconds
-from model.types import AccountType
+from model.utils.generator_container import inject
+from model.parts import buy_and_sell
 
 
-@container.inject(AccountGenerator)
-def p_epoch_rewards(params, substep, state_history, prev_state, account_generator=AccountGenerator):
+@inject(AccountGenerator)
+def p_epoch_rewards(params, substep, state_history, prev_state,
+                           account_generator=AccountGenerator):
     """
     Naively propage celo supply by adding target epoch rewards per epoch (every 17280 blocks)
     Celo epoch target rewards are rewarded linearly over the next 15 years and after
@@ -30,10 +31,10 @@ def p_epoch_rewards(params, substep, state_history, prev_state, account_generato
                                                    _state_history=state_history,
                                                    prev_state=prev_state)
 
-            account_generator.change_account_balance(account_id=0,
-                                                     delta_celo=celo_rewards - deltas["celo"],
-                                                     delta_cusd=-deltas["cusd"],
-                                                     account_type=AccountType.CONTRACT)
+            account_generator.reserve.balance -= Balance(
+                celo=deltas["celo"] - celo_rewards,
+                cusd=deltas["cusd"]
+            )
 
             # add celo epoch rewards to state from exchange event
             states["floating_supply"]["celo"] = states["floating_supply"]["celo"] + celo_rewards
