@@ -32,7 +32,7 @@ class TraderStrategy:
         self.sell_amount = None
         self.order = None
 
-    def sell_gold(self, prev_state, params):
+    def sell_gold(self, params, prev_state):
         """
         Provides a function indicating the direction of the celo cashflow
         """
@@ -56,7 +56,7 @@ class TraderStrategy:
         # TODO: Get budget based on account
         max_budget_cusd = self.parent.balance["cusd"]
         max_budget_celo = self.parent.balance["celo"]
-        if self.sell_gold(prev_state, params):
+        if self.sell_gold(params, prev_state):
             self.constraints.append(self.variables["sell_amount"] <= max_budget_celo)
 
         else:
@@ -100,7 +100,7 @@ class TraderStrategy:
         assert prob.status == "optimal", "Optimization NOT successful!"
         # print(f'Objective value in optimum is {prob.value}.')
         # print(self.variables['sell_amount'].value)
-        # print(self.expressions['mento_rate_after_trade'].value)
+        # print(self.expressions['oracle_rate_after_trade'].value)
 
     # pylint: disable=duplicate-code
     def optimize(self, params, prev_state):
@@ -145,14 +145,14 @@ class TraderStrategy:
             )
         return sell_amount_adjusted
 
-    def trader_passes_step(self, prev_state, _params):
+    def trader_passes_step(self, _params, prev_state):
         return prev_state["timestep"] % self.acting_frequency != 0
 
     def return_optimal_trade(self, params, prev_state):
         """
         Returns the optimal action to be executed by actor
         """
-        if self.trader_passes_step(prev_state, params):
+        if self.trader_passes_step(params, prev_state):
             # Actor not acting this timestep
             trade = None
         else:
@@ -165,7 +165,7 @@ class TraderStrategy:
             if sell_amount is None:
                 trade = None
             else:
-                sell_gold = self.sell_gold(prev_state, params)
+                sell_gold = self.sell_gold(params, prev_state)
                 sell_amount = self.minimise_price_impact(sell_amount, sell_gold, params)
                 buy_amount = buy_and_sell.get_buy_amount(
                     params=params,

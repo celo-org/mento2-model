@@ -37,7 +37,7 @@ state_update_block_market_price_change = {
     "variables": {
         "market_price": update_from_signal("market_price"),
         "market_buckets": update_from_signal("market_buckets"),
-        "mento_rate": update_from_signal("mento_rate")
+        "oracle_rate": update_from_signal("oracle_rate")
     },
 }
 

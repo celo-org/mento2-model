@@ -18,11 +18,11 @@ class ArbitrageTrading(TraderStrategy):
         super().__init__(parent, acting_frequency)
         self.sell_amount = None
 
-    def sell_gold(self, prev_state, params):
+    def sell_gold(self, params, prev_state):
         # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
-        if self.trading_regime(prev_state, params) == "SELL_CUSD":
+        if self.trading_regime(params, prev_state) == "SELL_CUSD":
             sell_gold = False
-        elif self.trading_regime(prev_state, params) == "SELL_CELO":
+        elif self.trading_regime(params, prev_state) == "SELL_CELO":
             sell_gold = True
         else:
             sell_gold = None
@@ -30,7 +30,7 @@ class ArbitrageTrading(TraderStrategy):
         return sell_gold
 
     @staticmethod
-    def trading_regime(prev_state, params):
+    def trading_regime(params, prev_state):
         """
         Indicates how the trader will act depending on the relation of mento price
         and market price
@@ -66,7 +66,7 @@ class ArbitrageTrading(TraderStrategy):
             / prev_state["market_price"]["cusd_usd"]
         )
 
-        if self.trading_regime(prev_state, params) == "SELL_CUSD":
+        if self.trading_regime(params, prev_state) == "SELL_CUSD":
             self.expressions["profit"] = (
                 -self.variables["sell_amount"]
                 * prev_state["mento_buckets"]["celo"]
@@ -81,7 +81,7 @@ class ArbitrageTrading(TraderStrategy):
             #     price_celo_cusd,
             #     params["spread"],
             # )
-        elif self.trading_regime(prev_state, params) == "SELL_CELO":
+        elif self.trading_regime(params, prev_state) == "SELL_CELO":
             self.expressions["profit"] = (
                 -self.variables["sell_amount"]
                 * prev_state["mento_buckets"]["cusd"]
@@ -108,9 +108,9 @@ class ArbitrageTrading(TraderStrategy):
 
         return profit
 
-    def trader_passes_step(self, prev_state, params):
+    def trader_passes_step(self, params, prev_state):
 
-        trader_passes_step = (self.trading_regime(prev_state, params) == "PASS") | (
+        trader_passes_step = (self.trading_regime(params, prev_state) == "PASS") | (
             prev_state["timestep"] % self.acting_frequency != 0
         )
 

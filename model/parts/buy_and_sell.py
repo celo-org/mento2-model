@@ -34,7 +34,7 @@ def buckets_should_be_reset(params, prev_state):
 
 def bucket_update(params, prev_state):
     celo_bucket = params['reserve_fraction'] * prev_state['reserve_balance']['celo']
-    cusd_bucket = prev_state['mento_rate'] * celo_bucket
+    cusd_bucket = prev_state['oracle_rate'] * celo_bucket
     mento_buckets = {
         'cusd': cusd_bucket,
         'celo': celo_bucket
@@ -71,7 +71,7 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
     """
     # Todo what was the intention behind this logic?
     #if sell_gold:
-    #    sell_amount = sell_amount / prev_state["mento_rate"]
+    #    sell_amount = sell_amount / prev_state["oracle_rate"]
 
     buy_amount = get_buy_amount(params, sell_amount, sell_gold, prev_state )
 
@@ -94,7 +94,7 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
 
     reserve_balance = {"celo": prev_state["reserve_balance"]["celo"] + delta_celo}
 
-   # mento_rate = mento_buckets["cusd"] / mento_buckets["celo"]
+   # oracle_rate = mento_buckets["cusd"] / mento_buckets["celo"]
     return (
         {
             "mento_buckets": mento_buckets,

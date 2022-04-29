@@ -15,12 +15,11 @@ from model.utils import default
 from model.types import (
     TokenPerToken,
     TokenBalance,
-    TokenPriceInUSD,
     MarketPrice,
     MarketBuckets,
 )
 
-from data.historical_values import celo_price_mean, celo_supply_mean, cusd_supply_mean
+from data.historical_values import  celo_supply_mean, cusd_supply_mean
 
 
 @dataclass
@@ -39,7 +38,7 @@ class StateVariables:
     """
 
     # Celo state variables
-    mento_rate: TokenPerToken = 3
+    oracle_rate: TokenPerToken = 3
     """The Mento CELO/cUSD rate """
 
     # Reserve state variable
@@ -52,7 +51,7 @@ class StateVariables:
     mento_buckets: Dict[str, TokenBalance] = default(
         {
             "celo": 0.025 * 1200000000,
-            "cusd": 0.025 * 1200000000 * mento_rate,
+            "cusd": 0.025 * 1200000000 * oracle_rate,
         }
     )
 
@@ -67,12 +66,6 @@ class StateVariables:
     market_price: MarketPrice = default({"cusd_usd": 1, "celo_usd": 3})
 
     number_of_accounts: int = default(1)
-
-    # Celo state variables
-    celo_usd_price: TokenPriceInUSD = celo_price_mean
-    """The CELO spot price in USD"""
-    cusd_usd_price: TokenPriceInUSD = 1.0
-    """The CELO spot price"""
 
 
 # Initialize State Variables instance with default values

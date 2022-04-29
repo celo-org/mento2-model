@@ -25,7 +25,7 @@ def p_market_price(
     return {
         "market_price": market_price,
         "market_buckets": market_buckets,
-        "mento_rate": market_price["celo_usd"],
+        "oracle_rate": market_price["celo_usd"],
     }
 
 

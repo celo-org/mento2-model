@@ -167,8 +167,6 @@ class MarketPriceGenerator(Generator):
         """
         calculates the price impact of a trade
         """
-        # if mode == PriceImpact.CONSTANT_PRODUCT:
-        #    impact_function = lambda asset_1, asset_2: asset_1 / asset_2
         if mode == PriceImpact.ROOT_QUANTITY:
             impact_function = (
                 lambda asset_quantity, variance_daily, average_daily_volume: -np.sign(
@@ -197,7 +195,6 @@ class MarketPriceGenerator(Generator):
             ccy: supply - pre_floating_supply[ccy]
             for ccy, supply in floating_supply.items()
         }
-        # quote_ccy = list(market_buckets.keys())[0]
         self.impact_delay(block_supply_change, current_step)
         variance_daily_cusd_cusd = params["covariance_market_price"][0][0] / 365
         variance_daily_celo_usd = params["covariance_market_price"][1][1] / 365
@@ -218,11 +215,6 @@ class MarketPriceGenerator(Generator):
 
         price_celo_usd = market_prices["celo_usd"] + price_impact["celo_usd"]
         price_cusd_usd = market_prices["cusd_usd"] + price_impact["cusd_usd"]
-
-        # effective_supply = {
-        #    ccy: self.supply_changes[ccy][current_step] + pre_supply
-        #    for ccy, pre_supply in pre_floating_supply.items()
-        # }
 
         return {"cusd_usd": price_cusd_usd, "celo_usd": price_celo_usd}
 
@@ -245,7 +237,6 @@ class MarketPriceGenerator(Generator):
             "celo_usd": increments[:, 1],
         }
 
-
     def impact_delay(
         self, block_supply_change, current_step, impact_delay=ImpactDelay.INSTANT
     ):
@@ -254,26 +245,14 @@ class MarketPriceGenerator(Generator):
                 self.supply_changes[ccy][current_step] += block_supply_change[ccy]
 
     def historical_returns(self, sample_size):
-        """Creates a random sample from a set of historical log-returns"""
+        """Passes a historic scenario or creates a random sample from a set of
+        historical log-returns"""
         # TODO Consider different sampling options
         # TODO Random Seed
         data, length = (data_feed.data, data_feed.length)
         if self.model == MarketPriceModel.HIST_SIM:
             data = data[np.random.randint(low=0, high=length - 1, size=sample_size), :]
-        # elif self.model == MarketPriceModel.SCENARIO:
-        #    samples = data[np.random.randint(low=0, high=length - 1, size=sample_size), :]
 
         self.increments = {"cusd_usd": data[:, 0], "celo_usd": data[:, 1]}
 
         logging.info("Historic increments created")
-
-    @property
-    def cusd_usd_price(self):
-        return self.cusd_usd_price
-
-    @cusd_usd_price.setter
-    def cusd_usd_price(self, value):
-        self.cusd_usd_price = value
-
-    def next_state(self, prev_state):
-        pass

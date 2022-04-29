@@ -45,7 +45,7 @@ class Trader(Account):
                 "mento_buckets": prev_state["mento_buckets"],
                 "floating_supply": prev_state["floating_supply"],
                 "reserve_balance": prev_state["reserve_balance"],
-                "mento_rate": prev_state["mento_rate"],
+                "oracle_rate": prev_state["oracle_rate"],
             }
         else:
             sell_amount = order["sell_amount"]

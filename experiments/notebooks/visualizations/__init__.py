@@ -1,3 +1,6 @@
+"""
+Default functions for visualization
+"""
 import itertools
 import math
 from datetime import datetime
@@ -14,7 +17,9 @@ from experiments.notebooks.visualizations.plotly_theme import (
 pd.options.plotting.backend = "plotly"
 
 
-def plot_celo_price(df):
-
-    fig = px.line(df, x='timestep', y='mento_rate', facet_col='subset')
+def plot_oracle_rate(data_frame):
+    """
+    Plots oracle rate
+    """
+    fig = px.line(data_frame, x='timestep', y='oracle_rate', facet_col='subset')
     return fig
