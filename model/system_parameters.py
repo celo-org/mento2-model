@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from types import FunctionType
 from typing import List, Dict
 import experiments.simulation_configuration as simulation
-from model.types import AccountType
+from model.types import TraderType
 from model.generators.markets import MarketPriceModel
 
 from model.types import Blocknumber
@@ -48,20 +48,19 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.HIST_SIM])
-    # covariance_market_price: List[float] = default([[[1, 0], [0, 1]]])
-    # drift_market_price: List[float] = default([[0, 0]])
+    model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
+    covariance_market_price: List[float] = default([[[1, 0], [0, 1]]])
+    drift_market_price: List[float] = default([[0, 0]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
     custom_impact: List[FunctionType] = default(
         [lambda asset_1, asset_2: asset_1**2 / asset_2]
     )
 
-    number_of_accounts: List[Dict[AccountType, int]] = default(
+    traders: List[Dict[TraderType, int]] = default(
         [
             {
-                AccountType.RANDOM_TRADER: 1,
-                AccountType.ARB_TRADER: 2,
-                AccountType.CONTRACT: 0,
+                TraderType.RANDOM_TRADER: 1,
+                TraderType.MAX_TRADER: 1
             }
         ]
     )

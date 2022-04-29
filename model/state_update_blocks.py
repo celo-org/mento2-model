@@ -2,29 +2,16 @@
 cadCAD model State Update Block structure, composed of Policy and State Update Functions
 """
 import logging
-from model.parts import accounting
-import model.parts.market_prices as market_price
+from typing import Type
 
 # from model.system_parameters import parameters
+from model.generators.accounts import AccountGenerator
 from model.parts import buy_and_sell
 from model.parts import celo_system
+from model.parts import states_from_generators
+import model.parts.market_prices as market_price
 from model.utils import update_from_signal
-from model.parts.utils import states_from_generators
-
-
-state_update_block_random_trading = {
-    "description": """
-        Single random trader
-    """,
-    "policies": {"random_trade": accounting.p_random_trading},
-    "variables": {
-        "mento_buckets": update_from_signal("mento_buckets"),
-        "reserve_balance": update_from_signal("reserve_balance"),
-        "floating_supply": update_from_signal("floating_supply"),
-        "mento_rate": update_from_signal("mento_rate"),
-    },
-}
-
+from model.utils.generator import Generator
 
 # according to impact timing function
 state_update_block_price_impact = {
@@ -88,14 +75,22 @@ state_update_block_update_state_variables_from_generators = {
     }
 }
 
+def generator_update_blocks(generator_class: Type[Generator]):
+    return {
+        'description': 'Dynamic block to be replaced by generator returned blocks',
+        'type': 'dynamic',
+        'source': generator_class
+    }
+
 # Create state_update blocks list
 _state_update_blocks = [
     state_update_block_market_price_change,
     state_update_block_periodic_mento_bucket_update,
-    state_update_block_random_trading,
+    generator_update_blocks(AccountGenerator),
     state_update_block_price_impact,
     state_update_block_epoch_rewards,
     #state_update_block_update_state_variables_from_generators
+    state_update_block_price_impact,
 ]
 
 price_impact_not_last = (state_update_block_price_impact in _state_update_blocks) and (
