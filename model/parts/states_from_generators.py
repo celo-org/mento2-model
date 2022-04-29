@@ -2,11 +2,10 @@
 Pipe data that lives in generators into state variables
 """
 from model.generators.accounts import AccountGenerator
-from model.generators.container import container
-from model.types import AccountType
+from model.utils.generator_container import inject
 
 
-@container.inject(AccountGenerator)
+@inject(AccountGenerator)
 def p_state_variables_from_generators(_params, _substep, _state_history, _prev_state,
                                       account_generator: AccountGenerator):
     """
@@ -17,10 +16,8 @@ def p_state_variables_from_generators(_params, _substep, _state_history, _prev_s
         'cusd': account_generator.floating_supply_cusd
     }
     reserve_balance = {
-        'celo': account_generator.get_account(account_id=0,
-                                              account_type=AccountType.CONTRACT).balance["celo"],
-        'cusd':  account_generator.get_account(account_id=0,
-                                               account_type=AccountType.CONTRACT).balance["cUSD"],
+        'celo': account_generator.reserve.balance.celo,
+        'cusd':  account_generator.reserve.balance.cusd,
     }
 
     return {

@@ -4,7 +4,7 @@ The abstract Generator Class
 from abc import ABC, abstractmethod
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,no-self-use
 class Generator(ABC):
     '''
     Abstract Generator class, this is very light at the moment
@@ -17,3 +17,6 @@ class Generator(ABC):
     @abstractmethod
     def from_parameters(cls, params) -> "Generator":
         pass
+
+    def state_update_blocks(self):
+        return []

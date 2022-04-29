@@ -10,11 +10,12 @@
 """
 from cvxpy import Maximize, Minimize, Problem, Variable
 import cvxpy
+from model.entities.balance import Balance
 from model.parts import buy_and_sell
 
 # pylint: disable= missing-class-docstring
 # pylint: disable=broad-except
-class TraderStrategyAbstract:
+class TraderStrategy:
     def __init__(self, parent, acting_frequency):
         self.parent = parent
         self.acting_frequency = acting_frequency
@@ -194,14 +195,7 @@ class TraderStrategyAbstract:
             # delta_celo = sell_amount - self.balance["celo"]
             delta_cusd = -account.balance["cusd"]
             delta_celo = -delta_cusd / price_celo_cusd
-
-            account.parent.change_account_balance(
-                account_id=account.account_id,
-                delta_celo=delta_celo,
-                delta_cusd=delta_cusd,
-                account_type=account.account_type,
-            )
-
+            account.balance += Balance(cusd=delta_cusd, celo=delta_celo)
         elif (not sell_gold) and (account.balance["cusd"] < sell_amount):
             price_celo_cusd = (
                 prev_state["market_price"]["celo_usd"]
@@ -209,9 +203,4 @@ class TraderStrategyAbstract:
             )
             delta_celo = -account.balance["celo"]
             delta_cusd = -delta_celo * price_celo_cusd
-            account.parent.change_account_balance(
-                account_id=account.account_id,
-                delta_celo=delta_celo,
-                delta_cusd=delta_cusd,
-                account_type=account.account_type,
-            )
+            account.balance += Balance(cusd=delta_cusd, celo=delta_celo)

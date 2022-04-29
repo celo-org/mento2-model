@@ -9,13 +9,13 @@ By using a dataclass to represent the State Variables:
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Dict
 from model.utils import default
 
 from model.types import (
     TokenPerToken,
     TokenBalance,
     TokenPriceInUSD,
-    Account,
     MarketPrice,
     MarketBuckets,
 )
@@ -35,7 +35,7 @@ class StateVariables:
     timestamp: datetime = None
     """
     The timestamp for each timestep as a Python `datetime` object, starting
-    from `date_start` Psarameter.
+    from `date_start` Parameter.
     """
 
     # Celo state variables
@@ -43,13 +43,13 @@ class StateVariables:
     """The Mento CELO/cUSD rate """
 
     # Reserve state variable
-    reserve_balance: Account = default(
+    reserve_balance: Dict[str, TokenBalance] = default(
         {"celo": 120000000.0, "cusd": 0.0}
     )
 
     # Mento state variables
     # TODO initial calibration of buckets
-    mento_buckets: TokenBalance = default(
+    mento_buckets: Dict[str, TokenBalance] = default(
         {
             "celo": 0.025 * 1200000000,
             "cusd": 0.025 * 1200000000 * mento_rate,

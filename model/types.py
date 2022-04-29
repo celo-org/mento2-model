@@ -8,9 +8,7 @@ from typing import TypedDict
 from enum import Enum
 
 from model.generators.markets import MarketPriceGenerator
-from model.parts.strategy_arbitrage_trader import ArbitrageTrading
-from model.parts.strategy_random_trader import RandomTrading
-from model.parts.strategy_sell_max import SellMax
+from model.entities.strategies import RandomTrading, SellMax, ArbitrageTrading
 
 # Celo system types
 Gas = int
@@ -38,8 +36,7 @@ Timestep = int
 Blocknumber = int
 Day = int
 
-
-class AccountType(Enum):
+class TraderType(Enum):
     """
     different account holders
     """
@@ -47,28 +44,6 @@ class AccountType(Enum):
     ARBITRAGE_TRADER = ArbitrageTrading
     RANDOM_TRADER = RandomTrading
     MAX_TRADER = SellMax
-    CONTRACT = "contract"
-
-
-# TODO: Is there a better type for the below classes then TypedDicts?
-class AccountBalance(TypedDict):
-    """
-    Class for an on-chain token balance
-    """
-
-    cusd: float
-    celo: float
-
-
-class Account(AccountBalance):
-    """
-    Class for an on-chain account
-    """
-
-    # pylint: disable=too-few-public-methods
-    account_id: int
-    account_name: object
-
 
 class MarketPrice(TypedDict):
     cusd_usd: float
@@ -81,12 +56,3 @@ class MarketPriceG(TypedDict):
 
 class MarketBuckets(TypedDict):
     usd: float
-
-
-class Actor(TypedDict):
-    """
-    Class for a single actor
-    """
-
-    actor_id: int
-    account: Account

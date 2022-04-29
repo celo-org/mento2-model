@@ -150,3 +150,6 @@ drafts/
 ./TODOS.md
 TODOS.md
 experiments/notebooks/debug.ipynb
+
+# Data
+data/mock_logreturns.prq

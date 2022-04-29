@@ -9,8 +9,8 @@ import numpy as np
 # import dask.dataframe as dd
 from experiments import simulation_configuration
 from model import constants
-from model.generators import Generator
-from model.utils import data_feed
+from model.utils.data_feed import data_feed
+from model.utils.generator import Generator
 
 
 class MarketPriceModel(Enum):

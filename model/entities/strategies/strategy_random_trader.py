@@ -1,15 +1,16 @@
 """
 Strategy: Random Trader
 """
+from cvxpy import Variable
 import numpy as np
 
 from experiments import simulation_configuration
 
-from model.parts.strategies import TraderStrategyAbstract
+from .trader_strategy import TraderStrategy
 
 
 # pylint: disable=using-constant-test
-class RandomTrading(TraderStrategyAbstract):
+class RandomTrading(TraderStrategy):
     """
     Random Trading
     """
@@ -24,11 +25,44 @@ class RandomTrading(TraderStrategyAbstract):
         # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
         return self.orders[prev_state["timestep"]]["sell_gold"]
 
+    def define_variables(self):
+        self.variables["sell_amount"] = Variable(pos=True)
+
     def define_expressions(self, params, prev_state):
         """
         Defines and returns the expressions (made of variables and parameters)
         that are used in the optimization
         """
+
+    def define_objective_function(self, params, prev_state):
+        """
+        Defines and returns the cvxpy objective_function
+        """
+        self.objective_function = self.variables["sell_amount"]
+        self.optimization_direction = "maximize"
+
+    def define_constraints(self, params, prev_state):
+        """
+        Defines and returns the constraints under which the optimization is conducted
+        """
+        self.constraints = []
+        # TODO: Get budget based on account
+        max_budget_cusd = self.parent.balance["cusd"]
+        max_budget_celo = self.parent.balance["celo"]
+        if self.sell_gold(prev_state):
+            self.constraints.append(
+                self.variables["sell_amount"]
+                <= min(
+                    max_budget_celo, self.orders[prev_state["timestep"]]["sell_amount"]
+                )
+            )
+        else:
+            self.constraints.append(
+                self.variables["sell_amount"]
+                <= min(
+                    max_budget_cusd, self.orders[prev_state["timestep"]]["sell_amount"]
+                )
+            )
 
     def generate_sell_amounts(
         self,
@@ -53,5 +87,4 @@ class RandomTrading(TraderStrategyAbstract):
         """
         Calculates optimal trade if analytical solution is available
         """
-        # Todo add balance constraint to analytic method
         self.sell_amount = self.orders[prev_state["timestep"]]["sell_amount"]

@@ -3,12 +3,12 @@ Strategy: Arbitrage Trader
 """
 import numpy as np
 
-from model.parts.strategies import TraderStrategyAbstract
+from .trader_strategy import TraderStrategy
 
 
 # pylint: disable=using-constant-test
 # pylint: disable=duplicate-code
-class ArbitrageTrading(TraderStrategyAbstract):
+class ArbitrageTrading(TraderStrategy):
     """
     Random Trading
     """
@@ -149,8 +149,8 @@ class ArbitrageTrading(TraderStrategyAbstract):
         self.sell_amount = self.order["sell_amount"]
 
     def sell_order_cusd(self, bucket_cusd, bucket_celo, price_celo_cusd, spread):
-        balance_cusd = self.parent.balance["cusd"]
-        balance_celo = self.parent.balance["celo"]
+        balance_cusd = self.parent.balance.cusd
+        balance_celo = self.parent.balance.celo
         max_budget_cusd = balance_cusd + price_celo_cusd * balance_celo
         sell_amount = self.optimal_sell_amount(
             bucket_cusd, bucket_celo, price_celo_cusd, spread
@@ -164,8 +164,8 @@ class ArbitrageTrading(TraderStrategyAbstract):
         }
 
     def sell_order_celo(self, bucket_cusd, bucket_celo, price_celo_cusd, spread):
-        balance_cusd = self.parent.balance["cusd"]
-        balance_celo = self.parent.balance["celo"]
+        balance_cusd = self.parent.balance.cusd
+        balance_celo = self.parent.balance.celo
         max_budget_celo = balance_celo + balance_cusd / price_celo_cusd
         sell_amount = self.optimal_sell_amount(
             bucket_celo, bucket_cusd, 1 / price_celo_cusd, spread
