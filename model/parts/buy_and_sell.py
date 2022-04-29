@@ -100,7 +100,6 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
             "mento_buckets": mento_buckets,
             "floating_supply": floating_supply,
             "reserve_balance": reserve_balance,
-            #"mento_rate": mento_rate,
         },
         {"cusd": delta_cusd, "celo": delta_celo},
     )
