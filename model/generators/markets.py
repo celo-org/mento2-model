@@ -237,7 +237,7 @@ class MarketPriceGenerator(Generator):
         # TODO use quantlib
         timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
         sample_size = timesteps * blocks_per_timestep + 1
-        drift = np.array(self.mc_parameter["drift"])
+        drift = np.array(self.mc_parameter["drift"]) / (timesteps_per_year)
         cov = np.array(self.mc_parameter["covariance"]) / (timesteps_per_year)
         increments = np.exp(np.random.multivariate_normal(drift, cov, sample_size))
         self.increments = {
@@ -245,7 +245,6 @@ class MarketPriceGenerator(Generator):
             "celo_usd": increments[:, 1],
         }
 
-        # return increments
 
     def impact_delay(
         self, block_supply_change, current_step, impact_delay=ImpactDelay.INSTANT
@@ -278,8 +277,3 @@ class MarketPriceGenerator(Generator):
 
     def next_state(self, prev_state):
         pass
-
-
-# class DemandGenerator:
-#    def __init__(self):
-#        self.demand_increment = None

@@ -120,7 +120,7 @@ _state_update_blocks = [
     state_update_block_market_price_change,
     state_update_block_periodic_mento_bucket_update,
     state_update_block_arbitrage_trading,
-    state_update_block_random_trading,
+    #state_update_block_random_trading,
     #state_update_block_max_trading,
     state_update_block_price_impact,
     state_update_block_epoch_rewards,

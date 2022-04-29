@@ -31,7 +31,7 @@ class TraderStrategyAbstract:
         self.sell_amount = None
         self.order = None
 
-    def sell_gold(self, prev_state):
+    def sell_gold(self, prev_state, params):
         """
         Provides a function indicating the direction of the celo cashflow
         """
@@ -47,7 +47,7 @@ class TraderStrategyAbstract:
         """
         raise NotImplementedError("Subclasses must implement define_expressions()")
 
-    def define_constraints(self, _params, prev_state):
+    def define_constraints(self, params, prev_state):
         """
         Defines and returns the constraints under which the optimization is conducted
         """
@@ -55,20 +55,11 @@ class TraderStrategyAbstract:
         # TODO: Get budget based on account
         max_budget_cusd = self.parent.balance["cusd"]
         max_budget_celo = self.parent.balance["celo"]
-        if self.sell_gold(prev_state):
-            self.constraints.append(
-                self.variables["sell_amount"]
-                <= min(
-                    max_budget_celo, self.order[prev_state["timestep"]]["sell_amount"]
-                )
-            )
+        if self.sell_gold(prev_state, params):
+            self.constraints.append(self.variables["sell_amount"] <= max_budget_celo)
+
         else:
-            self.constraints.append(
-                self.variables["sell_amount"]
-                <= min(
-                    max_budget_cusd, self.order[prev_state["timestep"]]["sell_amount"]
-                )
-            )
+            self.constraints.append(self.variables["sell_amount"] <= max_budget_cusd)
 
     def define_objective_function(self, _params, _prev_state):
         """
@@ -99,7 +90,7 @@ class TraderStrategyAbstract:
                 abstol=1e-6,
                 reltol=1e-6,
                 max_iters=10000,
-                verbose=False,
+                verbose=True,
             )
 
         except Exception as error:
@@ -153,11 +144,14 @@ class TraderStrategyAbstract:
             )
         return sell_amount_adjusted
 
+    def trader_passes_step(self, prev_state, _params):
+        return prev_state["timestep"] % self.acting_frequency != 0
+
     def return_optimal_trade(self, params, prev_state):
         """
         Returns the optimal action to be executed by actor
         """
-        if prev_state["timestep"] % self.acting_frequency != 0:
+        if self.trader_passes_step(prev_state, params):
             # Actor not acting this timestep
             trade = None
         else:
@@ -170,7 +164,7 @@ class TraderStrategyAbstract:
             if sell_amount is None:
                 trade = None
             else:
-                sell_gold = self.sell_gold(prev_state)
+                sell_gold = self.sell_gold(prev_state, params)
                 sell_amount = self.minimise_price_impact(sell_amount, sell_gold, params)
                 buy_amount = buy_and_sell.get_buy_amount(
                     params=params,
@@ -186,3 +180,38 @@ class TraderStrategyAbstract:
                 }
 
         return trade
+
+    @staticmethod
+    def portfolio_balancing(account, sell_amount, sell_gold, prev_state):
+        """
+        trader strategy to balance portfolio for maximum arbitrage profit
+        """
+        if sell_gold and account.balance["celo"] < sell_amount:
+            price_celo_cusd = (
+                prev_state["market_price"]["celo_usd"]
+                / prev_state["market_price"]["cusd_usd"]
+            )
+            # delta_celo = sell_amount - self.balance["celo"]
+            delta_cusd = -account.balance["cusd"]
+            delta_celo = -delta_cusd / price_celo_cusd
+
+            account.parent.change_account_balance(
+                account_id=account.account_id,
+                delta_celo=delta_celo,
+                delta_cusd=delta_cusd,
+                account_type=account.account_type,
+            )
+
+        elif (not sell_gold) and (account.balance["cusd"] < sell_amount):
+            price_celo_cusd = (
+                prev_state["market_price"]["celo_usd"]
+                / prev_state["market_price"]["cusd_usd"]
+            )
+            delta_celo = -account.balance["celo"]
+            delta_cusd = -delta_celo * price_celo_cusd
+            account.parent.change_account_balance(
+                account_id=account.account_id,
+                delta_celo=delta_celo,
+                delta_cusd=delta_cusd,
+                account_type=account.account_type,
+            )

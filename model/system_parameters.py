@@ -40,7 +40,7 @@ class Parameters:
 
     # Buy_and_sell-related parameters
     cusd_demand: List[float] = default([10000000])
-    reserve_fraction: List[float] = default([0.01])
+    reserve_fraction: List[float] = default([0.1])
     spread: List[float] = default([0.0025])
     max_sell_fraction_of_float: List[float] = default(
         [0.0001]
@@ -48,9 +48,9 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
-    covariance_market_price: List[float] = default([[[0.1, 0], [0, 1]]])
-    drift_market_price: List[float] = default([[0, 0]])
+    model: List[MarketPriceModel] = default([MarketPriceModel.SCENARIO])
+    covariance_market_price: List[float] = default([[[0.01, 0], [0, 1]]])
+    drift_market_price: List[float] = default([[-5*5, 0]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
     # custom_impact: List[FunctionType] = default(
     #    [lambda asset_1, asset_2: asset_1**2 / asset_2]
@@ -61,9 +61,12 @@ class Parameters:
     number_of_accounts: List[Dict[AccountType, int]] = default(
         [
             {
-                AccountType.RANDOM_TRADER: 1,
+                # AccountType.RANDOM_TRADER: 1,
                 # AccountType.MAX_TRADER: 1,
-                AccountType.ARBITRAGE_TRADER: 1
+                AccountType.ARBITRAGE_TRADER: {
+                    "number": 1,
+                    "balance": {"celo": 500000, "cusd": 1000000},
+                }
             }
         ]
     )

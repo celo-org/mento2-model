@@ -3,6 +3,7 @@ Provides Traders / Actors
 """
 from abc import ABC, abstractmethod
 from model.parts import buy_and_sell
+from model.parts.strategies import TraderStrategyAbstract
 
 
 from model.types import AccountType
@@ -81,36 +82,12 @@ class AccountHolder(AccountBase):
             sell_amount = order["sell_amount"]
             sell_gold = order["sell_gold"]
             # print(self.balance,self.parent.reserve_account.balance)
-            if sell_gold and self.balance["celo"] < sell_amount:
-                price_celo_cusd = (
-                    prev_state["market_price"]["celo_usd"]
-                    / prev_state["market_price"]["cusd_usd"]
-                )
-                # delta_celo = sell_amount - self.balance["celo"]
-                delta_cusd = -self.balance["cusd"]
-                delta_celo = -delta_cusd / price_celo_cusd
-
-                self.parent.change_account_balance(
-                    account_id=self.account_id,
-                    delta_celo=delta_celo,
-                    delta_cusd=delta_cusd,
-                    account_type=self.account_type,
-                )
-
-            elif (not sell_gold) and (self.balance["cusd"] < sell_amount):
-                price_celo_cusd = (
-                    prev_state["market_price"]["celo_usd"]
-                    / prev_state["market_price"]["cusd_usd"]
-                )
-                delta_celo = -self.balance["celo"]
-                delta_cusd = -delta_celo * price_celo_cusd
-                self.parent.change_account_balance(
-                    account_id=self.account_id,
-                    delta_celo=delta_celo,
-                    delta_cusd=delta_cusd,
-                    account_type=self.account_type,
-                )
-            # print(self.balance,self.parent.reserve_account.balance)
+            TraderStrategyAbstract.portfolio_balancing(
+                self,
+                sell_amount=sell_amount,
+                sell_gold=sell_gold,
+                prev_state=prev_state,
+            )
             states, deltas = buy_and_sell.exchange(
                 params, sell_amount, sell_gold, substep, state_history, prev_state
             )

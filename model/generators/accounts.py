@@ -44,11 +44,11 @@ class AccountGenerator(Generator):
 
         for account_type in params["number_of_accounts"]:
             index = 0
-            for index in range(params["number_of_accounts"][account_type]):
+            for index in range(params["number_of_accounts"][account_type]['number']):
                 accounts.create_funded_account(
                     account_name=f"{account_type}_{index}",
-                    celo=5000000,
-                    cusd=10000000,
+                    celo=params["number_of_accounts"][account_type]['balance']['celo'],
+                    cusd=params["number_of_accounts"][account_type]['balance']['cusd'],
                     account_type=account_type,
                 )
         return accounts
