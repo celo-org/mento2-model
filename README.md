@@ -28,7 +28,7 @@ A modular dynamical-systems model of the Mento2.0 design, based on the open-sour
 
 ## Introduction
 
-This repo features a cadCAD model for Mento2.0. The structure of this repo is heavily based on the [Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model) which was developed as part of the "[cadCAD Masterclass: Ethereum Validator Economics](https://www.cadcad.education/course/masterclass-ethereum)" and is focused on epoch- and population-level Ethereum validator economics. Please see [Mento2.0 Model Assumptions](ASSUMPTIONS.md) for further context.
+This repo features a cadCAD model for Mento2.0. The structure of this repo is heavily based on the [Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model).
 
 ### Model Features
 
@@ -123,16 +123,11 @@ jupyter notebook
 jupyter lab
 ```
 
-#### Windows Issues
-
-If you receive the following error and you use Anaconda, try: `conda install -c anaconda pywin32`
-> DLL load failed while importing win32api: The specified procedure could not be found.
-
 ## Simulation Experiments
 
 The [experiments/](experiments/) directory contains modules for configuring and executing simulation experiments, as well as performing post-processing of the results.
 
-The [experiments/notebooks/](experiments/notebooks/) directory contains initial validator-level and network-level experiment notebooks and analyses. These notebooks and analyses do not aim to comprehensively illuminate the Ethereum protocol, but rather to suggest insights into a few salient questions the Ethereum community has been discussing, and to serve as inspiration for researchers building out their own, customized analyses and structural model extensions.
+The [experiments/notebooks/](experiments/notebooks/) directory contains initial Mento experiment notebooks and analyses. These notebooks and analyses do not aim to comprehensively illuminate the Celo and Mento protocols, but rather to suggest insights into a few salient questions the Celo and Mento community has been discussing, and to serve as inspiration for researchers building out their own, customized analyses and structural model extensions.
 
 The [Experiment README notebook](experiments/notebooks/0_README.ipynb) contains an overview of how to execute existing experiment notebooks, and how to configure and execute new ones.
 
@@ -144,15 +139,9 @@ Could potentially contain a backtest of a Mento 1.0 model against empirical data
 
 The purpose of this notebook is to explore the risks & returns that stability providers can expect.
 
-[comment]: <> (* Analysis 1: Revenue and Profit Yields Over Time)
+[comment]: <> (* Analysis 1: )
 
-[comment]: <> (* Analysis 2: Revenue and Profit Yields Over ETH Staked)
-
-[comment]: <> (* Analysis 3: Revenue and Profit Yields Over ETH Price)
-
-[comment]: <> (* Analysis 4: Profit Yields Over ETH Staked vs. ETH Price &#40;Yield Surface&#41;)
-
-[comment]: <> (* Analysis 5: Profit Yields By Validator Environment Over Time)
+[comment]: <> (* Analysis 2: )
 
 #### Notebook 3. Arbitrage Provider Analysis
 
@@ -163,7 +152,6 @@ The purpose of this notebook is to explore the risks & returns that arbitrage pr
 ## Model Extension Roadmap
 
 Nothing here yet.
-[comment]: <> (The modular nature of the model makes structural and experiment-level extensions straightforward. The [Model Extension Roadmap]&#40;ROADMAP.md&#41; provides some inspiration.)
 
 ## Tests
 
@@ -195,30 +183,28 @@ Since we borrow so heavily from previous work, we would like to thank:
 ## Contributors ✨
 
 ## License
-Needs to be updated to account for Mento 2.0 fork!
-
-The code repository `CADLabs/ethereum-economic-model` is licensed under the GNU General Public License v3.0.
+The code repository `celo-org/mento2-model` is licensed under the GNU General Public License v3.0.
 Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
 If you'd like to cite this code and/or research, we suggest the following format:
-> CADLabs, Ethereum Economic Model, (2021), GitHub repository, https://github.com/CADLabs/ethereum-economic-model
+> cLabs, Mento2 Model, (2021), GitHub repository, https://github.com/celo-org/mento2-model
 
 ```latex
 
-[comment]: <> (@misc{CADLabs2021,)
+[comment]: <> (@misc{cLabs2022,)
 
-[comment]: <> (  author = {CADLabs},)
+[comment]: <> (  author = {cLabs},)
 
-[comment]: <> (  title = {Ethereum Economic Model},)
+[comment]: <> (  title = {Mento2 Model},)
 
-[comment]: <> (  year = {2021},)
+[comment]: <> (  year = {2022},)
 
 [comment]: <> (  publisher = {GitHub},)
 
 [comment]: <> (  journal = {GitHub repository},)
 
-[comment]: <> (  howpublished = {\url{https://github.com/CADLabs/ethereum-economic-model}},)
+[comment]: <> (  howpublished = {\url{https://github.com/celo-org/mento2-model}},)
 
-[comment]: <> (  version = {v1.1.7})
+[comment]: <> (  version = {v0.0.0})
 
 [comment]: <> (})
 ```
