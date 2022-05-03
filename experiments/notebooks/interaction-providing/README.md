@@ -1,4 +1,4 @@
-# Interaction farming
+# Interaction providing
 
 **Main idea**: Allow users to earn by committing funds to a contract that guarantees healthy, on-chain protocol interactions at any time.
 
@@ -16,7 +16,7 @@ Mechanics explained:
 - For sources of rewards, see CPs
 - As with CPs, funds to the IC have to be provided in the same proportions as current contract holdings of the other ICs in order to achieve IP-token fungibility. As with LP-tokens and CP-tokens, IP-tokens are redeemable for funds in the IP contract on a pro-rata basis.
 
-Guaranteed interactions via “Interaction Farming” - what it achieves:
+Guaranteed interactions via “Interaction providing” - what it achieves:
 
 - “Guaranteed” healthy stability protocol interactions - also during crisis periods /  black-swan events
 - Increased on-chain market efficiency
