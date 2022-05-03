@@ -13,10 +13,10 @@ An illustration of the mechanics of collateral providing:
 - That means that if another CP, let’s call her CP#2, is providing collateral, this collateral must be provided in the same proportion as the current position of CP#1.
 - CP#1 gets incentivized to participate by
 - Receiving mento trading fees (spread) on pro-rata basis
-- Receiving collateral providing incentives:
+- Receiving collateral provision incentives:
 - CP-tokens can be locked up for extended periods of time (1M, 3M, 6M, 1Y, 5Y, 10Y) which leads to the CP receiving rewards from Mento.
 - The incentivized long lockup periods for CP-tokens lead to protocol owned collateral beyond the original reserve collateral
-- Sources of collateral providing rewards: Yield of staked collateral, excess collateral, Mento token
+- Sources of collateral provision rewards: Yield of staked collateral, excess collateral, Mento token
 
 Properties of collateral providing:
 
