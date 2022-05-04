@@ -1,3 +1,7 @@
+"""
+Post processing results
+"""
+
 import pandas as pd
 from radcad.core import generate_parameter_sweep
 
@@ -5,6 +9,9 @@ from model.system_parameters import parameters, Parameters
 
 
 def assign_parameters(df: pd.DataFrame, parameters: Parameters, set_params=[]):
+    """
+    parameters that change in the parameter grid (if there are any) are attached as columns to the end of the dataframe
+    """
     if set_params:
         parameter_sweep = generate_parameter_sweep(parameters)
         parameter_sweep = [{param: subset[param]
@@ -17,6 +24,9 @@ def assign_parameters(df: pd.DataFrame, parameters: Parameters, set_params=[]):
 
 
 def post_process(df: pd.DataFrame, drop_timestep_zero=True, parameters=parameters):
+    """
+    Apply post processing functions to simulation output dataframe
+    """
     # Show parameters that have taken more than one value in df
     grid_keys = []
     for key, value in parameters.items():
@@ -25,4 +35,24 @@ def post_process(df: pd.DataFrame, drop_timestep_zero=True, parameters=parameter
 
     assign_parameters(df, parameters, grid_keys)
 
+    # Expand dictionaries to columns
+    df = dict_to_columns(df)
+
+    # Drop the initial state for plotting
+    if drop_timestep_zero:
+        df = df.drop(df.query('timestep == 0').index)
+
+    return df
+
+def dict_to_columns(df):
+    """
+    Expands dicts to columns in a dataframe
+    :param df: pandas dataframe
+    :return: pandas dataframe
+    """
+    for column in df:
+        if isinstance(df[column][0], dict):
+            expanded_dicts = pd.json_normalize(df[column]).add_prefix(f"{df[column].name}_")
+            df = pd.concat([df, expanded_dicts], axis=1)
+            df = df.drop(columns=column)
     return df
