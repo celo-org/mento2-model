@@ -1,7 +1,5 @@
 # cLabs Mento2 Model
 
-[![Python package](https://github.com/celo-org/mento2-model/actions/workflows/python.yml/badge.svg)](https://github.com/celo-org/mento2-model/actions/workflows/python.yml)
-
 A modular dynamical-systems model of the Mento2.0 design, based on the open-source Python library [radCAD](https://github.com/CADLabs/radCAD), an extension to [cadCAD](https://cadcad.org).
 
 * Latest model release version: [Private fork of Ethereum Economic Model / v0.0.0](https://github.com/celo-org/mento2-model/releases/tag/v0.0.0)
