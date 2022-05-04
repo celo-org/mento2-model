@@ -4,6 +4,9 @@ Buy and sell (Mento1) related policy and state update functions
 import numpy as np
 from model.constants import blocktime_seconds
 
+# raise numpy warnings as errors
+np.seterr(all='raise')
+
 
 def p_bucket_update(
     params,
