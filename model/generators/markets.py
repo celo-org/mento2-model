@@ -1,16 +1,17 @@
 """
-# Market related policy and state update functions
+market price generator and related functions
 """
-import logging
 from enum import Enum
+import logging
 import numpy as np
 
-
-# import dask.dataframe as dd
 from experiments import simulation_configuration
 from model import constants
 from model.utils.data_feed import data_feed
 from model.utils.generator import Generator
+
+# raise numpy warnings as errors
+np.seterr(all='raise')
 
 
 class MarketPriceModel(Enum):
