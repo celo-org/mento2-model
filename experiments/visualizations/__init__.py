@@ -1,6 +1,6 @@
-import itertools
-import math
-from datetime import datetime
+"""
+visualization functions
+"""
 
 import pandas as pd
 import plotly.express as px
@@ -10,9 +10,23 @@ pd.options.plotting.backend = "plotly"
 
 
 def plot_celo_market_price(df):
-
+    """
+    Plot the CELO market price for each subset (each parameter grid combination)
+    :param df: simulation output dataframe after postprocessing
+    :return: plotly express fig
+    """
     fig = px.line(df, x='timestep', y='market_price_celo_usd', color='run', facet_col='subset',
                   title='CELO price')
+    return fig
+
+def plot_cusd_market_price(df):
+    """
+    Plot the cUSD market price for each subset (each parameter grid combination)
+    :param df: simulation output dataframe after postprocessing
+    :return: plotly express fig
+    """
+    fig = px.line(df, x='timestep', y='market_price_cusd_usd', color='run', facet_col='subset',
+                  title='cUSD price')
     return fig
 
 def plot_celo_floating_supply(df):
