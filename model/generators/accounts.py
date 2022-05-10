@@ -47,12 +47,11 @@ class AccountGenerator(Generator):
     def from_parameters(cls, params):
         accounts = cls(params["reserve_inventory"])
 
-        for trader_type in params["traders"]:
-            index = 0
-            for index in range(params["traders"][trader_type]):
+        for (trader_type, trader_params) in params["traders"].items():
+            for index in range(trader_params["count"]):
                 accounts.create_trader(
                     account_name=f"{trader_type}_{index}",
-                    initial_balance=Balance(celo=1000, cusd=10000),
+                    initial_balance=trader_params["balance"],
                     trader_type=trader_type
                 )
         return accounts
@@ -104,7 +103,6 @@ class AccountGenerator(Generator):
                     "mento_buckets": update_from_signal("mento_buckets"),
                     "reserve_balance": update_from_signal("reserve_balance"),
                     "floating_supply": update_from_signal("floating_supply"),
-                    "mento_rate": update_from_signal("mento_rate"),
                 },
 
             } for trader in self.traders()

@@ -22,12 +22,16 @@ def p_market_price(
     market_buckets = {
         "usd": prev_state["floating_supply"]["cusd"] * market_price["cusd_usd"]
     }
-    return {"market_price": market_price, "market_buckets": market_buckets}
+    return {
+        "market_price": market_price,
+        "market_buckets": market_buckets,
+        "oracle_rate": market_price["celo_usd"],
+    }
 
 
 @inject(MarketPriceGenerator)
 def p_price_impact(
-    _params,
+    params,
     _substep,
     state_history,
     prev_state,
@@ -41,9 +45,11 @@ def p_price_impact(
     # TODO make this block dependent
     # TODO make sure the right step is picked
     market_price = market_price_generator.valuate_price_impact(
-        prev_state["floating_supply"],
-        state_history[-1][-1]["floating_supply"],
-        prev_state["market_buckets"],
-        prev_state["timestep"],
+        floating_supply=prev_state["floating_supply"],
+        pre_floating_supply=state_history[-1][-1]["floating_supply"],
+        current_step=prev_state["timestep"],
+        market_prices=prev_state["market_price"],
+        params=params,
     )
+
     return {"market_price": market_price}
