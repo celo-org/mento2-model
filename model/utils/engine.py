@@ -115,9 +115,10 @@ def __hydrate_state_update_blocks__(state_update_blocks, params):
     container = params.get(GENERATOR_CONTAINER_PARAM_KEY)
     flat_state_update_blocks = []
     for state_update_block in state_update_blocks:
-        if state_update_block.get('type') == 'dynamic':
+        if state_update_block.get('type') == 'generator':
             generator = container.get(state_update_block.get('source'))
-            flat_state_update_blocks += generator.state_update_blocks()
+            selectors = state_update_block.get('selectors', [])
+            flat_state_update_blocks += generator.state_update_blocks(selectors)
         else:
             flat_state_update_blocks += [state_update_block]
     return flat_state_update_blocks

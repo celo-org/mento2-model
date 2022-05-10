@@ -12,7 +12,7 @@ from model.entities.trader import Trader
 from model.entities.balance import Balance
 from model.types import TraderType
 from model.utils import update_from_signal
-from model.utils.generator import Generator
+from model.utils.generator import Generator, state_update_blocks
 
 ACCOUNTS_NS = uuid4()
 
@@ -92,13 +92,51 @@ class AccountGenerator(Generator):
         self.accounts_by_id[account.account_id] = account
         return account
 
-    def state_update_blocks(self):
+    @state_update_blocks("checkpoint")
+    def checkpoint_state_update_blocks(self):
+        return [{
+            "description": """
+            Checkpoint accounts generator totals to simulation state
+            """,
+            'policies': {
+                'state_variables_from_generators': self.checkpoint_policy()
+            },
+            'variables': {
+                'reserve_balance': update_from_signal('reserve_balance'),
+                'floating_supply': update_from_signal('floating_supply')
+            }
+        }]
+
+    def checkpoint_policy(self):
+        """
+        Policy function which updates state variables from generator objects
+        """
+        def _(_params, _substep, _state_history, _prev_state):
+            floating_supply = {
+                'celo': self.floating_supply_celo,
+                'cusd': self.floating_supply_cusd
+            }
+            reserve_balance = {
+                'celo': self.reserve.balance.celo,
+                'cusd':  self.reserve.balance.cusd,
+            }
+
+            return {
+                'reserve_balance': reserve_balance,
+                'floating_supply': floating_supply
+            }
+        return _
+
+    @state_update_blocks("traders")
+    def all_trader_state_update_blocks(self):
         return [
             {
                 "description": f"""
                     Trader update blocks for {trader.account_id}
                 """,
-                "policies": {"random_trade": self.trader_policy(trader.account_id)},
+                "policies": {
+                    "random_trade": self.trader_policy(trader.account_id)
+                },
                 "variables": {
                     "mento_buckets": update_from_signal("mento_buckets"),
                     "reserve_balance": update_from_signal("reserve_balance"),
