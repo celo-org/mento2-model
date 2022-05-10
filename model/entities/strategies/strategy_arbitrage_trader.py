@@ -1,16 +1,22 @@
 """
 Strategy: Arbitrage Trader
 """
+from enum import Enum
 import numpy as np
 
 from .trader_strategy import TraderStrategy
+
+class TradingRegime(Enum):
+    SELL_CUSD = "SELL_CUSD"
+    SELL_CELO = "SELL_CELO"
+    PASS = "PASS"
 
 
 # pylint: disable=using-constant-test
 # pylint: disable=duplicate-code
 class ArbitrageTrading(TraderStrategy):
     """
-    Random Trading
+    Arbitrage Trading
     """
 
     def __init__(self, parent, acting_frequency=1):
@@ -20,17 +26,10 @@ class ArbitrageTrading(TraderStrategy):
 
     def sell_gold(self, params, prev_state):
         # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
-        if self.trading_regime(params, prev_state) == "SELL_CUSD":
-            sell_gold = False
-        elif self.trading_regime(params, prev_state) == "SELL_CELO":
-            sell_gold = True
-        else:
-            sell_gold = None
-
-        return sell_gold
+        return self.trading_regime(params, prev_state) == TradingRegime.SELL_CELO
 
     @staticmethod
-    def trading_regime(params, prev_state):
+    def trading_regime(params, prev_state) -> TradingRegime:
         """
         Indicates how the trader will act depending on the relation of mento price
         and market price
@@ -48,13 +47,12 @@ class ArbitrageTrading(TraderStrategy):
             price_celo_cusd / (1 - params["spread"])
             < prev_state["mento_buckets"]["cusd"] / prev_state["mento_buckets"]["celo"]
         )
+
         if price_up_profit:
-            regime = "SELL_CUSD"
-        elif price_down_profit:
-            regime = "SELL_CELO"
-        else:
-            regime = "PASS"
-        return regime
+            return TradingRegime.SELL_CUSD
+        if price_down_profit:
+            return TradingRegime.SELL_CELO
+        return TradingRegime.PASS
 
     def define_expressions(self, params, prev_state):
         """
@@ -109,12 +107,8 @@ class ArbitrageTrading(TraderStrategy):
         return profit
 
     def trader_passes_step(self, params, prev_state):
-
-        trader_passes_step = (self.trading_regime(params, prev_state) == "PASS") | (
-            prev_state["timestep"] % self.acting_frequency != 0
-        )
-
-        return trader_passes_step
+        return (self.trading_regime(params, prev_state) == "PASS") | \
+               (prev_state["timestep"] % self.acting_frequency != 0)
 
     # # pylint: disable=attribute-defined-outside-init
     def calculate(self, params, prev_state):

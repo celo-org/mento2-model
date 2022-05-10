@@ -70,12 +70,8 @@ def get_buy_amount(params, sell_amount, sell_gold, prev_state,  min_buy_amount=0
 
 def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_state):
     """
-    Making pylint happy
+    Update the simulation state with a trade between CELO And cUSD
     """
-    # Todo what was the intention behind this logic?
-    #if sell_gold:
-    #    sell_amount = sell_amount / prev_state["oracle_rate"]
-
     buy_amount = get_buy_amount(params, sell_amount, sell_gold, prev_state )
 
     if sell_gold:
