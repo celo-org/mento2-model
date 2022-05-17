@@ -3,7 +3,7 @@ The abstract Generator Class
 '''
 import logging
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Type
 
 def state_update_blocks(selector: str) -> Callable:
     """
@@ -15,7 +15,6 @@ def state_update_blocks(selector: str) -> Callable:
         method.__state_update_block_provider_selector__ = selector
         return method
     return decorator
-
 
 # pylint: disable=too-few-public-methods,no-self-use
 class Generator(ABC):
@@ -75,3 +74,15 @@ class Generator(ABC):
             if is_provider:
                 selector = method.__state_update_block_provider_selector__
                 self.__state_update_block_providers__[selector] = method
+
+def generator_state_update_block(generator_class: Type[Generator], *selectors: List[str]):
+    """
+    Returns a placeholder for one or more state update blocks which
+    are dynamically inserted for each simulation run from the generator.
+    These are processed by the model.utils.engine.Engine class.
+    """
+    return {
+        'type': 'generator',
+        'source': generator_class,
+        'selectors': selectors
+    }

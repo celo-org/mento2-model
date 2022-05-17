@@ -93,13 +93,13 @@ class AccountGenerator(Generator):
         return account
 
     @state_update_blocks("checkpoint")
-    def checkpoint_state_update_blocks(self):
+    def checkpoint_balances(self):
         return [{
             "description": """
             Checkpoint accounts generator totals to simulation state
             """,
             'policies': {
-                'state_variables_from_generators': self.checkpoint_policy()
+                'save_balances': self.get_save_balances_policy()
             },
             'variables': {
                 'reserve_balance': update_from_signal('reserve_balance'),
@@ -107,35 +107,25 @@ class AccountGenerator(Generator):
             }
         }]
 
-    def checkpoint_policy(self):
-        """
-        Policy function which updates state variables from generator objects
-        """
-        def _(_params, _substep, _state_history, _prev_state):
-            floating_supply = {
-                'celo': self.floating_supply_celo,
-                'cusd': self.floating_supply_cusd
-            }
-            reserve_balance = {
-                'celo': self.reserve.balance.celo,
-                'cusd':  self.reserve.balance.cusd,
-            }
-
-            return {
-                'reserve_balance': reserve_balance,
-                'floating_supply': floating_supply
-            }
-        return _
+    def get_save_balances_policy(self):
+        def policy(_params, _substep, _state_history, _prev_state):
+            return dict(
+                reserve_balance=self.reserve.balance.__dict__,
+                floating_supply=dict(
+                    celo=self.floating_supply_celo,
+                    cusd=self.floating_supply_cusd
+                ))
+        return policy
 
     @state_update_blocks("traders")
-    def all_trader_state_update_blocks(self):
+    def traders_execute(self):
         return [
             {
                 "description": f"""
                     Trader update blocks for {trader.account_id}
                 """,
                 "policies": {
-                    "random_trade": self.trader_policy(trader.account_id)
+                    "trader_policy": self.get_trader_policy(trader.account_id)
                 },
                 "variables": {
                     "mento_buckets": update_from_signal("mento_buckets"),
@@ -146,14 +136,15 @@ class AccountGenerator(Generator):
             } for trader in self.traders()
         ]
 
-    def traders(self) -> List[Trader]:
-        return filter(lambda account: isinstance(account, Trader), self.accounts_by_id.values())
-
-    def trader_policy(self, account_id):
+    def get_trader_policy(self,account_id):
         def policy(params, substep, state_history, prev_state):
-            trader = self.accounts_by_id[account_id]
+            trader = self.get(account_id)
             return trader.execute(params, substep, state_history, prev_state)
         return policy
+
+
+    def traders(self) -> List[Trader]:
+        return filter(lambda account: isinstance(account, Trader), self.accounts_by_id.values())
 
     def get(self, account_id) -> Account:
         account = self.accounts_by_id.get(account_id)

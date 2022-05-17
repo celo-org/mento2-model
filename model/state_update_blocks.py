@@ -2,7 +2,6 @@
 cadCAD model State Update Block structure, composed of Policy and State Update Functions
 """
 import logging
-from typing import List, Type
 
 # from model.system_parameters import parameters
 from model.generators.accounts import AccountGenerator
@@ -10,7 +9,7 @@ from model.parts import buy_and_sell
 from model.parts import celo_system
 import model.parts.market_prices as market_price
 from model.utils import update_from_signal
-from model.utils.generator import Generator
+from model.utils.generator import generator_state_update_block
 
 # according to impact timing function
 state_update_block_price_impact = {
@@ -65,25 +64,13 @@ state_update_block_epoch_rewards = {
     }
 }
 
-def generator_update_blocks(generator_class: Type[Generator], *selectors: List[str]):
-    """
-    Returns a placeholder for one or more state update blocks which
-    are dynamically inserted for each simulation run from the generator.
-    These are processed by the model.utils.engine.Engine class.
-    """
-    return {
-        'type': 'generator',
-        'source': generator_class,
-        'selectors': selectors
-    }
-
 # Create state_update blocks list
 _state_update_blocks = [
     state_update_block_market_price_change,
     state_update_block_periodic_mento_bucket_update,
-    generator_update_blocks(AccountGenerator, "traders"),
+    generator_state_update_block(AccountGenerator, "traders"),
     state_update_block_epoch_rewards,
-    # generator_update_blocks(AccountGenerator, "checkpoint"),
+    # generator_state_update_block(AccountGenerator, "checkpoint"),
     state_update_block_price_impact,
 ]
 
