@@ -1,7 +1,7 @@
 """
 visualization functions
 """
-
+# pylint: disable=invalid-name
 import pandas as pd
 import plotly.express as px
 
@@ -37,6 +37,16 @@ def plot_celo_floating_supply(df):
     """
     fig = px.line(df, x='timestep', y='floating_supply_celo', color='run', facet_col='subset',
                   title='Floating supply CELO')
+    return fig
+
+def plot_cusd_floating_supply(df):
+    """
+    Plot the celo floating supply for each subset (each parameter grid combination)
+    :param df: simulation output dataframe after postprocessing
+    :return: plotly express fig
+    """
+    fig = px.line(df, x='timestep', y='floating_supply_cusd', color='run', facet_col='subset',
+                  title='Floating supply cUSD')
     return fig
 
 def plot_reserve_balance(df):

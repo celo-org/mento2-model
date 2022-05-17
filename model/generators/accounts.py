@@ -25,7 +25,7 @@ class AccountGenerator(Generator):
     # Holds the amount of floating supply in circulation
     # with entities that aren't tracked as part of the
     # generator.
-    non_tracked_balances: Balance
+    untracked_floating_supply: Balance
 
     def __init__(self, reserve_inventory: Balance, initial_floating_supply: Balance):
         # reserve account with account_id=0

@@ -60,7 +60,9 @@ state_update_block_epoch_rewards = {
         'target_epoch_rewards': celo_system.p_epoch_rewards
     },
     'variables': {
-        'floating_supply': update_from_signal('floating_supply')
+        'mento_buckets': update_from_signal('mento_buckets'),
+        'floating_supply': update_from_signal('floating_supply'),
+        "reserve_balance": update_from_signal("reserve_balance")
     }
 }
 

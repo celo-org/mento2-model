@@ -19,7 +19,7 @@ def p_epoch_rewards(params, substep, state_history, prev_state,
     that logarithmically. Here it's only about the next 15 linear years
     """
 
-    is_not_epoch_block = (prev_state['timestep'] * blocktime_seconds) % seconds_per_epoch != 0
+    is_not_epoch_block = ((prev_state['timestep'] * blocktime_seconds) % seconds_per_epoch) != 0
     if is_not_epoch_block or prev_state['timestep'] == 0:
         return dict(
             mento_buckets=prev_state["mento_buckets"],
@@ -31,18 +31,18 @@ def p_epoch_rewards(params, substep, state_history, prev_state,
     celo_rewards = target_epoch_rewards_downscaled - validator_rewards
 
     mento_buckets, deltas = buy_and_sell.exchange(params=params,
-                                                    sell_amount=validator_rewards,
-                                                    sell_gold=True,
-                                                    _substep=substep,
-                                                    _state_history=state_history,
-                                                    prev_state=prev_state)
+                                                  sell_amount=validator_rewards,
+                                                  sell_gold=True,
+                                                  _substep=substep,
+                                                  _state_history=state_history,
+                                                  prev_state=prev_state)
 
-    account_generator.reserve.balance -= Balance(
-        celo=deltas["celo"] - celo_rewards,
-        cusd=deltas["cusd"]
+    account_generator.reserve.balance += Balance(
+        celo=deltas["celo"],
+        cusd=0
     )
     account_generator.untracked_floating_supply += Balance(
-        celo=celo_rewards,
+        celo=celo_rewards - deltas["celo"],
         cusd=deltas["cusd"]
     )
 
