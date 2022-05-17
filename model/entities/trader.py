@@ -41,24 +41,27 @@ class Trader(Account):
         """
         order = self.strategy.return_optimal_trade(params, prev_state)
         if order is None:
-            states = {
-                "mento_buckets": prev_state["mento_buckets"],
-                "floating_supply": prev_state["floating_supply"],
-                "reserve_balance": prev_state["reserve_balance"],
-                "oracle_rate": prev_state["oracle_rate"],
-            }
-        else:
-            sell_amount = order["sell_amount"]
-            sell_gold = order["sell_gold"]
-            self.rebalance_portfolio(sell_amount, sell_gold, prev_state)
-
-            states, deltas = exchange(
-                params, sell_amount, sell_gold, substep, state_history, prev_state
+            return dict(
+                mento_buckets=prev_state["mento_buckets"],
+                floating_supply=prev_state["floating_supply"],
+                reserve_balance=prev_state["reserve_balance"],
             )
 
-            self.balance += Balance(**deltas)
-            self.parent.reserve.balance += Balance(celo=deltas["celo"], cusd=0)
-        return states
+        sell_amount = order["sell_amount"]
+        sell_gold = order["sell_gold"]
+        self.rebalance_portfolio(sell_amount, sell_gold, prev_state)
+
+        mento_buckets, deltas = exchange(
+            params, sell_amount, sell_gold, substep, state_history, prev_state
+        )
+
+        self.balance += Balance(**deltas)
+        self.parent.reserve.balance += Balance(celo=deltas["celo"], cusd=0)
+
+        return dict(
+            mento_buckets=mento_buckets,
+            floating_supply=self.parent.floating_supply.__dict__,
+            reserve_balance=self.parent.reserve.balance.__dict__)
 
     def rebalance_portfolio(self, target_amount, target_is_celo, prev_state):
         """
@@ -82,4 +85,6 @@ class Trader(Account):
                 cusd=self.balance.celo * price_celo_cusd,
                 celo=-self.balance.celo
             )
+
         self.balance += delta
+        self.parent.untracked_floating_supply -= delta

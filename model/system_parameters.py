@@ -8,18 +8,16 @@ By using a dataclass to represent the System Parameters:
 
 from dataclasses import dataclass
 from typing import Any, List, Dict
+
 import experiments.simulation_configuration as simulation
+
 from model.entities.balance import Balance
-from model.types import TraderType
 from model.generators.markets import MarketPriceModel
-
-from model.types import Blocknumber
-
+from model.types import Blocknumber, TraderType
 from model.utils import default
 
+
 # pylint: disable=too-many-instance-attributes
-
-
 @dataclass
 class Parameters:
     """System Parameters

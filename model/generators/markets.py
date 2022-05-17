@@ -74,7 +74,7 @@ class MarketPriceGenerator(Generator):
         self.custom_impact_function = custom_impact_function
 
     @classmethod
-    def from_parameters(cls, params):
+    def from_parameters(cls, params, _initial_state):
         if params["model"] == MarketPriceModel.GBM:
             market_price_generator = cls(
                 params["model"],

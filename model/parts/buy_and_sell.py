@@ -72,7 +72,7 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
     """
     Update the simulation state with a trade between CELO And cUSD
     """
-    buy_amount = get_buy_amount(params, sell_amount, sell_gold, prev_state )
+    buy_amount = get_buy_amount(params, sell_amount, sell_gold, prev_state)
 
     if sell_gold:
         delta_cusd = -buy_amount
@@ -86,19 +86,22 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
         "celo": prev_state["mento_buckets"]["celo"] + delta_celo,
     }
 
-    floating_supply = {
-        "cusd": prev_state["floating_supply"]["cusd"] - delta_cusd,
-        "celo": prev_state["floating_supply"]["celo"] - delta_celo,
-    }
+    # floating_supply = {
+    #     "cusd": prev_state["floating_supply"]["cusd"] - delta_cusd,
+    #     "celo": prev_state["floating_supply"]["celo"] - delta_celo,
+    # }
 
-    reserve_balance = {"celo": prev_state["reserve_balance"]["celo"] + delta_celo}
+    # reserve_balance = {"celo": prev_state["reserve_balance"]["celo"] + delta_celo}
+    # accounts.reserve += delta
+
 
    # oracle_rate = mento_buckets["cusd"] / mento_buckets["celo"]
     return (
-        {
-            "mento_buckets": mento_buckets,
-            "floating_supply": floating_supply,
-            "reserve_balance": reserve_balance,
-        },
+        mento_buckets,
+        # {
+        #     "mento_buckets": mento_buckets,
+        #     "floating_supply": accounts.floating_supply,
+        #     "reserve_balance": accounts.reserve
+        # },
         {"cusd": delta_cusd, "celo": delta_celo},
     )

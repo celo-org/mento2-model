@@ -54,7 +54,7 @@ class Engine(RadCadEngine):
                             params
                         )
                         self.executable._before_subset(context=context)
-                        params_for_run = __inject_generator_container__(param_set)
+                        params_for_run = __inject_generator_container__(param_set, initial_state)
                         state_update_blocks_for_run = __hydrate_state_update_blocks__(
                             state_update_blocks,
                             params_for_run)
@@ -81,7 +81,7 @@ class Engine(RadCadEngine):
                     self.executable._before_run(context=context)
                     self.executable._before_subset(context=context)
 
-                    params_for_run = __inject_generator_container__(param_set)
+                    params_for_run = __inject_generator_container__(param_set, initial_state)
                     state_update_blocks_for_run = __hydrate_state_update_blocks__(
                         state_update_blocks,
                         params_for_run)
@@ -104,10 +104,12 @@ class Engine(RadCadEngine):
                 simulation=simulation
             )
 
-def __inject_generator_container__(_params):
-    params = copy.deepcopy(_params)
+def __inject_generator_container__(params, initial_state):
     params.update({
-        GENERATOR_CONTAINER_PARAM_KEY: GeneratorContainer(params)
+        GENERATOR_CONTAINER_PARAM_KEY: GeneratorContainer(
+            copy.deepcopy(params),
+            copy.deepcopy(initial_state)
+        )
     })
     return params
 
