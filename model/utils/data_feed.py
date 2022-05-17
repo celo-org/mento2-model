@@ -31,6 +31,11 @@ class DataFeed:
 
 
 # TODO Quick and dirt hack to load historical data only once
-DATA_FOLDER = '../../data/'
+DATA_FOLDER = '../../../data/'
 data_feed = DataFeed(DATA_FOLDER)
-# data_feed.load_historical_data('mock_logreturns.prq')
+try:
+    data_feed.load_historical_data('mock_logreturns.prq')
+except FileNotFoundError as e:
+    raise RuntimeError(
+        "Run `python data/mock_data.py` to generate the mock_logreturns.prg file"
+        ) from e

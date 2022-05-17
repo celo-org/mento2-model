@@ -167,10 +167,6 @@ source venv/bin/activate
 make test
 ```
 
-## Change Log
-
-See [CHANGELOG.md](CHANGELOG.md) for notable changes and versions.
-
 ## Acknowledgements
 
 This Mento 2.0 analysis is a fork of the [Ethereum Economic Model](https://github.com/CADLabs/ethereum-economic-model). We actively try to stay as close as possible to the structure of the Ethereum Economic Model to make it easier for the broader community to follow our analysis.

@@ -44,5 +44,5 @@ def p_epoch_rewards(params, substep, state_history, prev_state,
         "mento_buckets": prev_state["mento_buckets"],
         "floating_supply": prev_state["floating_supply"],
         "reserve_balance": prev_state["reserve_balance"],
-        "mento_rate": prev_state["mento_rate"],
+        "oracle_rate": prev_state["oracle_rate"],
     }

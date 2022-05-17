@@ -49,12 +49,12 @@ def plot_reserve_balance(df):
                   title='reserve balance CELO')
     return fig
 
-def plot_mento_rate(df):
+def plot_oracle_rate(df):
     """
-    Plot the mento rate for each subset (each parameter grid combination)
+    Plot the oracle rate for each subset (each parameter grid combination)
     :param df: simulation output dataframe after postprocessing
     :return: plotly express fig
     """
-    fig = px.line(df, x='timestep', y='mento_rate', color='run', facet_col='subset',
-                  title='Mento rate')
+    fig = px.line(df, x='timestep', y='oracle_rate', color='run', facet_col='subset',
+                  title='Oracle rate')
     return fig

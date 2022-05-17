@@ -9,18 +9,17 @@ By using a dataclass to represent the State Variables:
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Dict
 from model.utils import default
 
 from model.types import (
     TokenPerToken,
     TokenBalance,
-    TokenPriceInUSD,
-    Account,
     MarketPrice,
     MarketBuckets,
 )
 
-from data.historical_values import celo_price_mean, celo_supply_mean, cusd_supply_mean
+from data.historical_values import  celo_supply_mean, cusd_supply_mean
 
 
 @dataclass
@@ -35,24 +34,24 @@ class StateVariables:
     timestamp: datetime = None
     """
     The timestamp for each timestep as a Python `datetime` object, starting
-    from `date_start` Psarameter.
+    from `date_start` Parameter.
     """
 
     # Celo state variables
-    mento_rate: TokenPerToken = celo_price_mean
+    oracle_rate: TokenPerToken = 3
     """The Mento CELO/cUSD rate """
 
     # Reserve state variable
-    reserve_balance: Account = default(
+    reserve_balance: Dict[str, TokenBalance] = default(
         {"celo": 120000000.0, "cusd": 0.0}
     )
 
     # Mento state variables
     # TODO initial calibration of buckets
-    mento_buckets: TokenBalance = default(
+    mento_buckets: Dict[str, TokenBalance] = default(
         {
             "celo": 0.025 * 1200000000,
-            "cusd": 0.025 * 1200000000 * mento_rate,
+            "cusd": 0.025 * 1200000000 * oracle_rate,
         }
     )
 
@@ -67,12 +66,6 @@ class StateVariables:
     market_price: MarketPrice = default({"cusd_usd": 1, "celo_usd": 3})
 
     number_of_accounts: int = default(1)
-
-    # Celo state variables
-    celo_usd_price: TokenPriceInUSD = celo_price_mean
-    """The CELO spot price in USD"""
-    cusd_usd_price: TokenPriceInUSD = 1.0
-    """The CELO spot price"""
 
 
 # Initialize State Variables instance with default values

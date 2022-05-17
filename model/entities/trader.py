@@ -45,15 +45,41 @@ class Trader(Account):
                 "mento_buckets": prev_state["mento_buckets"],
                 "floating_supply": prev_state["floating_supply"],
                 "reserve_balance": prev_state["reserve_balance"],
-                "mento_rate": prev_state["mento_rate"],
+                "oracle_rate": prev_state["oracle_rate"],
             }
         else:
             sell_amount = order["sell_amount"]
             sell_gold = order["sell_gold"]
+            self.rebalance_portfolio(sell_amount, sell_gold, prev_state)
+
             states, deltas = exchange(
                 params, sell_amount, sell_gold, substep, state_history, prev_state
             )
-            # TODO this has to happen here to avoid circular referencing, find better solution
+
             self.balance += Balance(**deltas)
             self.parent.reserve.balance += Balance(celo=deltas["celo"], cusd=0)
         return states
+
+    def rebalance_portfolio(self, target_amount, target_is_celo, prev_state):
+        """
+        Sometimes the optimal trade might require selling more of an
+        asset than the trader has in his portfolio, but the total
+        value of the portfolio would cover it therefore they can
+        rebalance and execute the trade.
+        """
+        price_celo_cusd = (
+            prev_state["market_price"]["celo_usd"]
+            / prev_state["market_price"]["cusd_usd"]
+        )
+        delta = Balance.zero()
+        if target_is_celo and self.balance.celo < target_amount:
+            delta = Balance(
+                cusd=-self.balance.cusd,
+                celo=self.balance.cusd / price_celo_cusd
+            )
+        elif (not target_is_celo) and self.balance.cusd < target_amount:
+            delta = Balance(
+                cusd=self.balance.celo * price_celo_cusd,
+                celo=-self.balance.celo
+            )
+        self.balance += delta
