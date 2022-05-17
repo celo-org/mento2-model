@@ -2,8 +2,10 @@
 DataFeed class used for loading and parsing of
 historical data required by the simulation.
 """
+from pathlib import Path
 import numpy as np
 import pandas as pd
+import data.mock_data # this is necessary to create mock data if not existent
 
 # pylint: disable=too-few-public-methods
 class DataFeed:
@@ -23,16 +25,17 @@ class DataFeed:
         # TODO parser
 
         if file_name[-3:] == "csv":
-            historical_data = pd.read_csv(self.data_folder + file_name)
+            historical_data = pd.read_csv(Path(self.data_folder, file_name))
         elif file_name[-3:] == "prq":
-            historical_data = pd.read_parquet(self.data_folder + file_name)
+            historical_data = pd.read_parquet(Path(self.data_folder, file_name))
         self.data = np.array(historical_data)
         self.length = len(historical_data)
 
 
 # TODO Quick and dirt hack to load historical data only once
-DATA_FOLDER = '../../../data/'
-data_feed = DataFeed(DATA_FOLDER)
+data_folder = Path(__file__, "../../../data/")
+print(data_folder.resolve())
+data_feed = DataFeed(data_folder=data_folder.resolve())
 try:
     data_feed.load_historical_data('mock_logreturns.prq')
 except FileNotFoundError as e:
