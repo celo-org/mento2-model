@@ -5,6 +5,11 @@ from enum import Enum
 import logging
 import numpy as np
 
+from QuantLib import (TimeGrid, StochasticProcessArray,
+                      GeometricBrownianMotionProcess, UniformRandomGenerator,
+                      UniformRandomSequenceGenerator, GaussianPathGenerator,
+                      GaussianRandomSequenceGenerator, GaussianMultiPathGenerator)
+
 from experiments import simulation_configuration
 from model import constants
 from model.utils.data_feed import data_feed
@@ -124,11 +129,11 @@ class MarketPriceGenerator(Generator):
             market_prices = {
                 "cusd_usd": (
                     state["market_price"]["cusd_usd"]
-                    * self.increments["cusd_usd"][step - 1]
+                    * np.exp(self.increments["cusd_usd"][step - 1])
                 ),
                 "celo_usd": (
                     state["market_price"]["celo_usd"]
-                    * self.increments["celo_usd"][step - 1]
+                    * np.exp(self.increments["celo_usd"][step - 1])
                 ),
             }
 
@@ -219,23 +224,100 @@ class MarketPriceGenerator(Generator):
 
         return {"cusd_usd": price_cusd_usd, "celo_usd": price_celo_usd}
 
-    def correlated_returns(
-        self,
-        blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
-        timesteps=simulation_configuration.TIMESTEPS,
-    ):
+    # def correlated_returns(
+    #     self,
+    #     blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
+    #     timesteps=simulation_configuration.TIMESTEPS,
+    # ):
+    #     """
+    #     This function generates lognormal returns
+    #     """
+    #     # TODO use quantlib
+    #     timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
+    #     sample_size = timesteps * blocks_per_timestep + 1
+    #     drift = np.array(self.mc_parameter["drift"]) / (timesteps_per_year)
+    #     cov = np.array(self.mc_parameter["covariance"]) / (timesteps_per_year)
+    #     increments = np.exp(np.random.multivariate_normal(drift, cov, sample_size))
+    #     self.increments = {
+    #         "cusd_usd": increments[:, 0],
+    #         "celo_usd": increments[:, 1],
+    #     }
+
+    def process_container(self,
+                          blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
+                          _timesteps=simulation_configuration.TIMESTEPS, _number_of_paths=1):
         """
-        This function generates lognormal returns
+        Creates an array of processes
         """
-        # TODO use quantlib
-        timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
-        sample_size = timesteps * blocks_per_timestep + 1
-        drift = np.array(self.mc_parameter["drift"]) / (timesteps_per_year)
-        cov = np.array(self.mc_parameter["covariance"]) / (timesteps_per_year)
-        increments = np.exp(np.random.multivariate_normal(drift, cov, sample_size))
-        self.increments = {
-            "cusd_usd": increments[:, 0],
-            "celo_usd": increments[:, 1],
+        _timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
+        #     sample_size = timesteps * blocks_per_timestep + 1
+
+        initial_value = 1
+        mue = 0.01
+        sigma = 0.0099255
+        gbm = GeometricBrownianMotionProcess(initial_value, mue, sigma)
+
+        correlation = [[1.0, 0], [0, 1.0]]
+
+        process_array = StochasticProcessArray([gbm, gbm], correlation)
+        return process_array
+
+    def correlated_returns(self,
+                           _blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
+                           _timesteps=simulation_configuration.TIMESTEPS, _number_of_paths=1):
+        self.increments = self.generate_path()
+
+    # pylint: disable = too-many-locals
+    def generate_path(self,
+                      _blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
+                      timesteps=simulation_configuration.TIMESTEPS, number_of_paths=1):
+        """
+        Generates paths
+        """
+
+        process = self.process_container()
+        time_grid = TimeGrid(timesteps, timesteps)
+        if isinstance(process, StochasticProcessArray):
+            # time points are not really required for block step size but will if we change
+            # to other time delta
+            time_points = []
+            for index, _time in enumerate(time_grid):
+                time_points.append(time_grid[index])
+            steps = (len(time_points) - 1) * process.size()
+            sequence_generator = UniformRandomSequenceGenerator(
+                steps, UniformRandomGenerator())
+            gaussian_sequence_generator = GaussianRandomSequenceGenerator(
+                sequence_generator)
+            path_generator = GaussianMultiPathGenerator(
+                process, time_points, gaussian_sequence_generator, False)
+            paths = np.zeros(shape=(number_of_paths, process.size(), len(time_grid)))
+
+            for path_index in range(number_of_paths):
+                multi_path_generator = path_generator.next().value()
+                for j in range(multi_path_generator.assetNumber()):
+                    path = multi_path_generator[j]
+                    paths[path_index, j, :] = np.array(
+                        [path[k] for k in range(len(path))])
+
+        else:
+            sequence_generator = UniformRandomSequenceGenerator(
+                len(time_grid), UniformRandomGenerator())
+            gaussian_sequence_generator = GaussianRandomSequenceGenerator(
+                sequence_generator)
+            maturity = time_grid[len(time_grid) - 1]
+            path_generator = GaussianPathGenerator(
+                process, maturity, len(time_grid), gaussian_sequence_generator, False)
+            paths = np.zeros(shape=(number_of_paths, len(time_grid)))
+            for path_index in range(number_of_paths):
+                path = path_generator.next().value()
+                paths[path_index, :] = np.array(
+                    [path[j] for j in range(len(time_grid))])
+        log_returns = np.diff(np.log(paths[0]))
+        # the current setup does only support simulation of processes with independent increments
+        # or processes without if the value is not changed in other sub-steps
+        return {
+            "cusd_usd": log_returns[0],
+            "celo_usd": log_returns[1],
         }
 
     def impact_delay(

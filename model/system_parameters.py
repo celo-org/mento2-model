@@ -49,7 +49,7 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.SCENARIO])
+    model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
     covariance_market_price: List[float] = default([[[0.01, 0], [0, 1]]])
     drift_market_price: List[float] = default([[-5*5, 0]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
