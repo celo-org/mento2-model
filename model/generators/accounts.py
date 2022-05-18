@@ -10,7 +10,7 @@ from functools import reduce
 from model.entities.account import Account
 from model.entities.trader import Trader
 from model.entities.balance import Balance
-from model.types import TraderType
+from model.types import TraderType, Traders
 from model.utils import update_from_signal
 from model.utils.generator import Generator, state_update_blocks
 
@@ -27,11 +27,23 @@ class AccountGenerator(Generator):
     # generator.
     untracked_floating_supply: Balance
 
-    def __init__(self, reserve_inventory: Balance, initial_floating_supply: Balance):
+    def __init__(self,
+                reserve_inventory: Balance,
+                initial_floating_supply: Balance,
+                traders: Traders):
         # reserve account with account_id=0
         self.reserve = self.create_reserve_account(
             initial_balance=reserve_inventory
         )
+
+        for (trader_type, trader_params) in traders.items():
+            for index in range(trader_params.count):
+                self.create_trader(
+                    account_name=f"{trader_type}_{index}",
+                    initial_balance=trader_params.balance,
+                    trader_type=trader_type
+                )
+
         self.untracked_floating_supply = initial_floating_supply - self.tracked_floating_supply
 
     @classmethod
@@ -39,15 +51,9 @@ class AccountGenerator(Generator):
         accounts = cls(
             Balance(**params["reserve_inventory"]),
             Balance(**initial_state["floating_supply"]),
+            params["traders"],
         )
 
-        for (trader_type, trader_params) in params["traders"].items():
-            for index in range(trader_params["count"]):
-                accounts.create_trader(
-                    account_name=f"{trader_type}_{index}",
-                    initial_balance=trader_params["balance"],
-                    trader_type=trader_type
-                )
         return accounts
 
     def create_reserve_account(self, initial_balance: Balance):

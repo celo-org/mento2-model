@@ -7,13 +7,13 @@ By using a dataclass to represent the System Parameters:
 """
 
 from dataclasses import dataclass
-from typing import Any, List, Dict
+from typing import List, Dict
 
 import experiments.simulation_configuration as simulation
 
 from model.entities.balance import Balance
 from model.generators.markets import MarketPriceModel
-from model.types import Blocknumber, TraderType
+from model.types import Blocknumber, TraderConfig, TraderType, Traders
 from model.utils import default
 
 
@@ -58,12 +58,12 @@ class Parameters:
         [{"celo_usd": 1000000, "cusd_usd": 1000000}]
     )
 
-    traders: List[Dict[TraderType, Dict[str, Any]]] = default(
+    traders: List[Traders] = default(
         [
             {
-                TraderType.ARBITRAGE_TRADER: dict(
+                TraderType.ARBITRAGE_TRADER: TraderConfig(
                     count=1,
-                    balance=Balance(celo= 500000, cusd=1000000)
+                    balance=Balance(celo=500000, cusd=1000000)
                 )
             }
         ]
