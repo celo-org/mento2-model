@@ -1,12 +1,13 @@
 """
 market price generator and related functions
 """
+
 from enum import Enum
 import logging
 import numpy as np
 
 from QuantLib import (TimeGrid, StochasticProcessArray,
-                      GeometricBrownianMotionProcess, UniformRandomGenerator,
+                      UniformRandomGenerator,
                       UniformRandomSequenceGenerator, GaussianPathGenerator,
                       GaussianRandomSequenceGenerator, GaussianMultiPathGenerator)
 
@@ -51,8 +52,8 @@ class MarketPriceGenerator(Generator):
     def __init__(
         self,
         model,
-        drift,
-        covariance,
+        processes,
+        correlation,
         price_impact_model=PriceImpact.ROOT_QUANTITY,
         increments=None,
         seed=1,
@@ -60,8 +61,9 @@ class MarketPriceGenerator(Generator):
     ):
         self.seed = seed
         self.price_impact_model = price_impact_model
+        self.processes = processes
+        self.correlation = correlation
         self.model = model
-        self.mc_parameter = {"drift": drift, "covariance": covariance}
         self.increments = increments
         self.supply_changes = {
             "cusd": np.zeros(
@@ -83,12 +85,12 @@ class MarketPriceGenerator(Generator):
         if params["model"] == MarketPriceModel.GBM:
             market_price_generator = cls(
                 params["model"],
-                params["drift_market_price"],
-                params["covariance_market_price"],
+                params["processes"],
+                params["correlation"],
             )
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
                 market_price_generator.custom_impact_function = params["custom_impact"]
-            market_price_generator.correlated_returns()
+            market_price_generator.correlated_returns(params=params)
         elif params["model"] == MarketPriceModel.PRICE_IMPACT:
             market_price_generator = cls(params["model"], None, None)
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
@@ -202,8 +204,8 @@ class MarketPriceGenerator(Generator):
             for ccy, supply in floating_supply.items()
         }
         self.impact_delay(block_supply_change, current_step)
-        variance_daily_cusd_cusd = params["covariance_market_price"][0][0] / 365
-        variance_daily_celo_usd = params["covariance_market_price"][1][1] / 365
+        variance_daily_cusd_cusd = params["variance_market_price"]['cusd_usd'] / 365
+        variance_daily_celo_usd = params["variance_market_price"]['celo_usd'] / 365
         average_daily_volume_cusd_usd = params["average_daily_volume"]["cusd_usd"]
         average_daily_volume_celo_usd = params["average_daily_volume"]["celo_usd"]
         price_impact = {
@@ -243,39 +245,40 @@ class MarketPriceGenerator(Generator):
     #         "celo_usd": increments[:, 1],
     #     }
 
-    def process_container(self,
+    def process_container(self, params,
                           blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
-                          _timesteps=simulation_configuration.TIMESTEPS, _number_of_paths=1):
+                          _timesteps=simulation_configuration.TIMESTEPS, _number_of_paths=1, ):
         """
         Creates an array of processes
         """
-        _timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
+        timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
         #     sample_size = timesteps * blocks_per_timestep + 1
-
+        # as we use the log returns of each process initial value is irrelevant for processes
+        # with independent multiplicative increments
         initial_value = 1
-        mue = 0.01
-        sigma = 0.0099255
-        gbm = GeometricBrownianMotionProcess(initial_value, mue, sigma)
 
-        correlation = [[1.0, 0], [0, 1.0]]
-
-        process_array = StochasticProcessArray([gbm, gbm], correlation)
+        correlation = params['correlation']
+        processes = [asset['process'](
+            initial_value,
+            asset['param_1'] / timesteps_per_year,
+            asset['param_2'] / np.sqrt(timesteps_per_year))
+            for ticker, asset in params['processes'].items()]
+        process_array = StochasticProcessArray(processes, correlation)
         return process_array
 
-    def correlated_returns(self,
+    def correlated_returns(self, params,
                            _blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
                            _timesteps=simulation_configuration.TIMESTEPS, _number_of_paths=1):
-        self.increments = self.generate_path()
+        self.increments = self.generate_path(params=params)
 
     # pylint: disable = too-many-locals
-    def generate_path(self,
+    def generate_path(self, params,
                       _blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
-                      timesteps=simulation_configuration.TIMESTEPS, number_of_paths=1):
+                      timesteps=simulation_configuration.TIMESTEPS, number_of_paths=1, ):
         """
         Generates paths
         """
-
-        process = self.process_container()
+        process = self.process_container(params=params)
         time_grid = TimeGrid(timesteps, timesteps)
         if isinstance(process, StochasticProcessArray):
             # time points are not really required for block step size but will if we change
@@ -315,6 +318,7 @@ class MarketPriceGenerator(Generator):
         log_returns = np.diff(np.log(paths[0]))
         # the current setup does only support simulation of processes with independent increments
         # or processes without if the value is not changed in other sub-steps
+
         return {
             "cusd_usd": log_returns[0],
             "celo_usd": log_returns[1],

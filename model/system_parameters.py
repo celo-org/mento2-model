@@ -8,6 +8,7 @@ By using a dataclass to represent the System Parameters:
 
 from dataclasses import dataclass
 from typing import Any, List, Dict
+from QuantLib import GeometricBrownianMotionProcess
 import experiments.simulation_configuration as simulation
 from model.entities.balance import Balance
 from model.types import TraderType
@@ -50,7 +51,22 @@ class Parameters:
 
     # Market parameters for MarketPriceGenerator
     model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
-    covariance_market_price: List[float] = default([[[0.01, 0], [0, 1]]])
+
+    # check order of parameters for each model, e.g. for GBM param_1 is drift and
+    # param_2 is volatility
+    processes: List[Dict] = default(
+        [
+            {
+                'celo_usd': {'process': GeometricBrownianMotionProcess,
+                             'param_1': 0,
+                             'param_2': 1},
+                'cusd_usd': {'process': GeometricBrownianMotionProcess,
+                             'param_1': 0,
+                             'param_2': 0.01}
+            }
+        ]
+    )
+    correlation: List[float] = default([[[1, 0], [0, 1]]])
     drift_market_price: List[float] = default([[-5*5, 0]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
     # custom_impact: List[FunctionType] = default(
@@ -59,13 +75,14 @@ class Parameters:
     average_daily_volume: List[Dict] = default(
         [{"celo_usd": 1000000, "cusd_usd": 1000000}]
     )
+    variance_market_price: List[Dict] = default([{"celo_usd": 1, "cusd_usd": 0.01}])
 
     traders: List[Dict[TraderType, Dict[str, Any]]] = default(
         [
             {
                 TraderType.ARBITRAGE_TRADER: dict(
                     count=1,
-                    balance=Balance(celo= 500000, cusd=1000000)
+                    balance=Balance(celo=500000, cusd=1000000)
                 )
             }
         ]
