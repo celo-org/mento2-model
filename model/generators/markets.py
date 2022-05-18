@@ -111,6 +111,11 @@ class MarketPriceGenerator(Generator):
                 + 1
             )
             market_price_generator.historical_returns(sample_size)
+            if sample_size > (market_price_generator.increments["cusd_usd"].shape[0]+1):
+                raise RuntimeError(
+                    "Simulation time longer than historical return time series, "
+                    "`SCENARIO`based market price generation not possible"
+                )
             logging.info("increments updated")
         return market_price_generator
 
