@@ -56,7 +56,7 @@ class Trader(Account):
         )
 
         self.balance += Balance(**deltas)
-        self.parent.reserve.balance += Balance(celo=deltas["celo"], cusd=0)
+        self.parent.reserve.balance += Balance(celo=-deltas["celo"], cusd=0)
 
 
         return dict(
