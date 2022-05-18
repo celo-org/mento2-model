@@ -58,6 +58,7 @@ class Trader(Account):
         self.balance += Balance(**deltas)
         self.parent.reserve.balance += Balance(celo=deltas["celo"], cusd=0)
 
+
         return dict(
             mento_buckets=mento_buckets,
             floating_supply=self.parent.floating_supply.__dict__,

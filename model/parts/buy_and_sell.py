@@ -88,5 +88,5 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
 
     return (
         mento_buckets,
-        {"cusd": delta_cusd, "celo": delta_celo},
+        {"cusd": -delta_cusd, "celo": -delta_celo},
     )

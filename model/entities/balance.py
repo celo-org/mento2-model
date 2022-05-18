@@ -31,3 +31,7 @@ class Balance:
         for (currency, _) in self.__dict__.items():
             setattr(result, currency, combinator(getattr(self, currency), getattr(other, currency)))
         return result
+
+    @property
+    def any_negative(self) -> bool:
+        return self.celo < 0 or self.cusd < 0
