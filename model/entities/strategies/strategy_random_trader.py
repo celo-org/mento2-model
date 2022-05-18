@@ -21,7 +21,7 @@ class RandomTrading(TraderStrategy):
         self.generate_sell_amounts()
         self.sell_amount = None
 
-    def sell_gold(self, prev_state):
+    def sell_gold(self, _params, prev_state):
         # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
         return self.orders[prev_state["timestep"]]["sell_gold"]
 
