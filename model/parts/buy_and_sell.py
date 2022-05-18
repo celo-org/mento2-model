@@ -31,7 +31,7 @@ def p_bucket_update(
 
 def buckets_should_be_reset(params, prev_state):
     update_required = ((blocktime_seconds * prev_state['timestep']) % params[
-        'bucket_update_frequency_seconds'] == 0)
+        'bucket_update_frequency_seconds'] == 0) or (prev_state['timestep'] == 1)
     return update_required
 
 

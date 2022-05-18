@@ -55,8 +55,8 @@ class StateVariables:
     # TODO initial calibration of buckets
     mento_buckets: Dict[str, TokenBalance] = default(
         {
-            "celo": 0.025 * 1200000000,
-            "cusd": 0.025 * 1200000000 * oracle_rate,
+            "celo": 0,
+            "cusd": 0,
         }
     )
 
