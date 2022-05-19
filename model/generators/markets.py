@@ -20,7 +20,7 @@ np.seterr(all='raise')
 
 
 class MarketPriceModel(Enum):
-    GBM = "gbm"
+    QUANTLIB = "quantlib"
     PRICE_IMPACT = "price_impact"
     HIST_SIM = "hist_sim"
     SCENARIO = "scenario"
@@ -51,6 +51,7 @@ class MarketPriceGenerator(Generator):
     def __init__(
         self,
         model,
+        impacted_assets,
         price_impact_model=PriceImpact.ROOT_QUANTITY,
         increments=None,
         seed=1,
@@ -60,26 +61,18 @@ class MarketPriceGenerator(Generator):
         self.price_impact_model = price_impact_model
         self.model = model
         self.increments = increments
-        self.supply_changes = {
-            "cusd": np.zeros(
-                simulation_configuration.BLOCKS_PER_TIMESTEP
-                * simulation_configuration.TIMESTEPS
-                + 1
-            ),
-            "celo": np.zeros(
-                simulation_configuration.BLOCKS_PER_TIMESTEP
-                * simulation_configuration.TIMESTEPS
-                + 1
-            ),
-        }
+        self.supply_changes = {asset.split('_')[0]: np.zeros(
+            simulation_configuration.BLOCKS_PER_TIMESTEP
+            * simulation_configuration.TIMESTEPS
+            + 1) for asset in impacted_assets}
         self.data_folder = "../../data/"
         self.custom_impact_function = custom_impact_function
 
     @classmethod
     def from_parameters(cls, params):
-        if params["model"] == MarketPriceModel.GBM:
+        if params["model"] == MarketPriceModel.QUANTLIB:
             market_price_generator = cls(
-                params["model"]
+                params["model"], params['impacted_assets']
             )
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
                 market_price_generator.custom_impact_function = params["custom_impact"]
@@ -87,11 +80,11 @@ class MarketPriceGenerator(Generator):
                 params['processes'], params['correlation'])
             market_price_generator.increments = quant_lib_wrapper.correlated_returns()
         elif params["model"] == MarketPriceModel.PRICE_IMPACT:
-            market_price_generator = cls(params["model"])
+            market_price_generator = cls(params["model"], params['impacted_assets'])
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
                 market_price_generator.custom_impact_function = params["custom_impact"]
         elif params["model"] == MarketPriceModel.HIST_SIM:
-            market_price_generator = cls(params["model"])
+            market_price_generator = cls(params["model"], params['impacted_assets'])
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
                 market_price_generator.custom_impact_function = params["custom_impact"]
             # market_price_generator.load_historical_data(params["data_file"])
@@ -103,7 +96,7 @@ class MarketPriceGenerator(Generator):
             market_price_generator.historical_returns(sample_size)
             logging.info("increments updated")
         elif params["model"] == MarketPriceModel.SCENARIO:
-            market_price_generator = cls(params["model"])
+            market_price_generator = cls(params["model"], params['impacted_assets'])
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
                 market_price_generator.custom_impact_function = params["custom_impact"]
             # market_price_generator.load_historical_data(params["data_file"])
@@ -122,41 +115,22 @@ class MarketPriceGenerator(Generator):
         """
         # TODO check that slicing with step is correct
         step = state["timestep"]
-        if self.model == MarketPriceModel.GBM:
-            market_prices = {
-                "cusd_usd": (
-                    state["market_price"]["cusd_usd"]
-                    * np.exp(self.increments["cusd_usd"][step - 1])
-                ),
-                "celo_usd": (
-                    state["market_price"]["celo_usd"]
-                    * np.exp(self.increments["celo_usd"][step - 1])
-                ),
-            }
+        market_prices = {}
+        if self.model == MarketPriceModel.QUANTLIB:
+
+            for asset in state["market_price"]:
+                market_prices[asset] = (state["market_price"][asset]
+                                        * np.exp(self.increments[asset][step - 1]))
 
         elif self.model == MarketPriceModel.HIST_SIM:
-            market_prices = {
-                "cusd_usd": (
-                    state["market_price"]["cusd_usd"]
-                    * np.exp(self.increments["cusd_usd"][step])
-                ),
-                "celo_usd": (
-                    state["market_price"]["celo_usd"]
-                    * np.exp(self.increments["celo_usd"][step])
-                ),
-            }
+            for asset in state["market_price"]:
+                market_prices[asset] = (state["market_price"][asset]
+                                        * np.exp(self.increments[asset][step]))
 
         elif self.model == MarketPriceModel.SCENARIO:
-            market_prices = {
-                "cusd_usd": (
-                    state["market_price"]["cusd_usd"]
-                    * np.exp(self.increments["cusd_usd"][step])
-                ),
-                "celo_usd": (
-                    state["market_price"]["celo_usd"]
-                    * np.exp(self.increments["celo_usd"][step])
-                ),
-            }
+            for asset in state["market_price"]:
+                market_prices[asset] = (state["market_price"][asset]
+                                        * np.exp(self.increments[asset][step]))
 
         # elif self.model == MarketPriceModel.PRICE_IMPACT:
         #     # TODO  demand increment missing -> DemandGenerator
@@ -188,7 +162,7 @@ class MarketPriceGenerator(Generator):
         pre_floating_supply,
         current_step,
         market_prices,
-        params,
+        params
     ):
         """
         This functions evaluates price impact of supply changes
@@ -198,46 +172,24 @@ class MarketPriceGenerator(Generator):
             for ccy, supply in floating_supply.items()
         }
         self.impact_delay(block_supply_change, current_step)
-        variance_daily_cusd_cusd = params["variance_market_price"]['cusd_usd'] / 365
-        variance_daily_celo_usd = params["variance_market_price"]['celo_usd'] / 365
-        average_daily_volume_cusd_usd = params["average_daily_volume"]["cusd_usd"]
-        average_daily_volume_celo_usd = params["average_daily_volume"]["celo_usd"]
-        price_impact = {
-            "cusd_usd": self.price_impact_function(self.price_impact_model)(
-                self.supply_changes["cusd"][current_step],
-                variance_daily_cusd_cusd,
-                average_daily_volume_cusd_usd,
-            ),
-            "celo_usd": self.price_impact_function(self.price_impact_model)(
-                self.supply_changes["celo"][current_step],
-                variance_daily_celo_usd,
-                average_daily_volume_celo_usd,
-            ),
-        }
 
-        price_celo_usd = market_prices["celo_usd"] + price_impact["celo_usd"]
-        price_cusd_usd = market_prices["cusd_usd"] + price_impact["cusd_usd"]
+        price_impact = {}
+        prices = {}
 
-        return {"cusd_usd": price_cusd_usd, "celo_usd": price_celo_usd}
+        for asset in params['impacted_assets']:
+            asset_1, _ = asset.split('_')
+            if asset_1 == 'usd':
+                raise Exception(f'Incorrect quoting convention for {asset}')
+            variance_daily = params["variance_market_price"][asset] / 365
+            average_daily_volume = params["average_daily_volume"][asset]
+            price_impact[asset] = self.price_impact_function(self.price_impact_model)(
+                self.supply_changes[asset_1][current_step],
+                variance_daily,
+                average_daily_volume,
+            )
+            prices[asset] = market_prices[asset] + price_impact[asset]
 
-    # def correlated_returns(
-    #     self,
-    #     blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
-    #     timesteps=simulation_configuration.TIMESTEPS,
-    # ):
-    #     """
-    #     This function generates lognormal returns
-    #     """
-    #     # TODO use quantlib
-    #     timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
-    #     sample_size = timesteps * blocks_per_timestep + 1
-    #     drift = np.array(self.mc_parameter["drift"]) / (timesteps_per_year)
-    #     cov = np.array(self.mc_parameter["covariance"]) / (timesteps_per_year)
-    #     increments = np.exp(np.random.multivariate_normal(drift, cov, sample_size))
-    #     self.increments = {
-    #         "cusd_usd": increments[:, 0],
-    #         "celo_usd": increments[:, 1],
-    #     }
+        return prices
 
     def impact_delay(
         self, block_supply_change, current_step, impact_delay=ImpactDelay.INSTANT
@@ -251,11 +203,14 @@ class MarketPriceGenerator(Generator):
         historical log-returns"""
         # TODO Consider different sampling options
         # TODO Random Seed
-        data, length = (data_feed.data, data_feed.length)
+        data, assets, length = (data_feed.data, data_feed.assets, data_feed.length)
+
         if self.model == MarketPriceModel.HIST_SIM:
             data = data[np.random.randint(low=0, high=length - 1, size=sample_size), :]
-
-        self.increments = {"cusd_usd": data[:, 0], "celo_usd": data[:, 1]}
+        increments = {}
+        for index, asset in enumerate(assets):
+            increments[asset] = data[:, index]
+        self.increments = increments
 
         logging.info("Historic increments created")
 
@@ -323,7 +278,7 @@ class QuantLibWrapper():
             path_generator = GaussianMultiPathGenerator(
                 process, time_points, gaussian_sequence_generator, False)
             paths = np.zeros(shape=(self.number_of_paths_per_asset,
-                             process.size(), len(time_grid)))
+                                    process.size(), len(time_grid)))
 
             for path_index in range(self.number_of_paths_per_asset):
                 multi_path_generator = path_generator.next().value()

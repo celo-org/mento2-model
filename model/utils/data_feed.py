@@ -6,16 +6,19 @@ import numpy as np
 import pandas as pd
 
 # pylint: disable=too-few-public-methods
+
+
 class DataFeed:
     """
     Performs data conversion for generators
     """
 
     # TODO Build data_feed
-    def __init__(self, data_folder, data=None, length=0):
+    def __init__(self, data_folder, data=None, length=0, assets=None):
         self.data_folder = data_folder
         self.data = data
         self.length = length
+        self.assets = assets
 
     def load_historical_data(self, file_name):
         """
@@ -28,6 +31,7 @@ class DataFeed:
             historical_data = pd.read_parquet(self.data_folder + file_name)
         self.data = np.array(historical_data)
         self.length = len(historical_data)
+        self.assets = list(historical_data.columns)
 
 
 # TODO Quick and dirt hack to load historical data only once
@@ -38,4 +42,4 @@ try:
 except FileNotFoundError as e:
     raise RuntimeError(
         "Run `python data/mock_data.py` to generate the mock_logreturns.prg file"
-        ) from e
+    ) from e

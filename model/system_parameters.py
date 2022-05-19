@@ -50,7 +50,7 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
+    model: List[MarketPriceModel] = default([MarketPriceModel.QUANTLIB])
 
     # check order of parameters for each model, e.g. for GBM param_1 is drift and
     # param_2 is volatility
@@ -66,6 +66,7 @@ class Parameters:
                 'btc_usd': {'process': GeometricBrownianMotionProcess,
                             'param_1': 0,
                             'param_2': 0.01}
+
             }
         ]
     )
@@ -75,11 +76,15 @@ class Parameters:
     # custom_impact: List[FunctionType] = default(
     #    [lambda asset_1, asset_2: asset_1**2 / asset_2]
     # )
+
+    # Impact Parameters
+    impacted_assets: List[List] = default([['celo_usd', 'cusd_usd']])
     average_daily_volume: List[Dict] = default(
         [{"celo_usd": 1000000, "cusd_usd": 1000000}]
     )
     variance_market_price: List[Dict] = default([{"celo_usd": 1, "cusd_usd": 0.01}])
 
+    # Trader Balances
     traders: List[Dict[TraderType, Dict[str, Any]]] = default(
         [
             {

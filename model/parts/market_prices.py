@@ -49,7 +49,7 @@ def p_price_impact(
         pre_floating_supply=state_history[-1][-1]["floating_supply"],
         current_step=prev_state["timestep"],
         market_prices=prev_state["market_price"],
-        params=params,
+        params=params
     )
 
     return {"market_price": market_price}
