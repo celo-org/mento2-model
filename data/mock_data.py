@@ -1,6 +1,7 @@
 """
  Creating mock data to test historical simulation
 """
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
@@ -18,4 +19,7 @@ samples = np.random.multivariate_normal(
 #samples = np.array([[0.05, 0] if x == 0 else [0, 0] for x in range(0, 125)])
 
 temp = pd.DataFrame(samples, columns=('cusd_usd', 'celo_usd'))
-temp.to_parquet('data/mock_logreturns.prq')
+temp.index += 1
+data_path = Path(__file__, "../mock_logreturns.prq")
+temp = temp.to_parquet(data_path.resolve())
+#temp = temp.to_parquet('../../data/mock_logreturns.prq')

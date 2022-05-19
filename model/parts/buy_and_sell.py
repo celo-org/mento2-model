@@ -31,7 +31,7 @@ def p_bucket_update(
 
 def buckets_should_be_reset(params, prev_state):
     update_required = ((blocktime_seconds * prev_state['timestep']) % params[
-        'bucket_update_frequency_seconds'] == 0)
+        'bucket_update_frequency_seconds'] == 0) or (prev_state['timestep'] == 1)
     return update_required
 
 
@@ -72,7 +72,7 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
     """
     Update the simulation state with a trade between CELO And cUSD
     """
-    buy_amount = get_buy_amount(params, sell_amount, sell_gold, prev_state )
+    buy_amount = get_buy_amount(params, sell_amount, sell_gold, prev_state)
 
     if sell_gold:
         delta_cusd = -buy_amount
@@ -86,19 +86,7 @@ def exchange(params, sell_amount, sell_gold, _substep, _state_history, prev_stat
         "celo": prev_state["mento_buckets"]["celo"] + delta_celo,
     }
 
-    floating_supply = {
-        "cusd": prev_state["floating_supply"]["cusd"] - delta_cusd,
-        "celo": prev_state["floating_supply"]["celo"] - delta_celo,
-    }
-
-    reserve_balance = {"celo": prev_state["reserve_balance"]["celo"] + delta_celo}
-
-   # oracle_rate = mento_buckets["cusd"] / mento_buckets["celo"]
     return (
-        {
-            "mento_buckets": mento_buckets,
-            "floating_supply": floating_supply,
-            "reserve_balance": reserve_balance,
-        },
-        {"cusd": delta_cusd, "celo": delta_celo},
+        mento_buckets,
+        {"cusd": -delta_cusd, "celo": -delta_celo},
     )

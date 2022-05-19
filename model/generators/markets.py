@@ -69,7 +69,7 @@ class MarketPriceGenerator(Generator):
         self.custom_impact_function = custom_impact_function
 
     @classmethod
-    def from_parameters(cls, params):
+    def from_parameters(cls, params, _initial_state):
         if params["model"] == MarketPriceModel.QUANTLIB:
             market_price_generator = cls(
                 params["model"], params['impacted_assets']
@@ -106,6 +106,11 @@ class MarketPriceGenerator(Generator):
                 + 1
             )
             market_price_generator.historical_returns(sample_size)
+            if sample_size > (market_price_generator.increments["cusd_usd"].shape[0]+1):
+                raise RuntimeError(
+                    "Simulation time longer than historical return time series, "
+                    "`SCENARIO`based market price generation not possible"
+                )
             logging.info("increments updated")
         return market_price_generator
 

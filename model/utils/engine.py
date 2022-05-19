@@ -54,7 +54,7 @@ class Engine(RadCadEngine):
                             params
                         )
                         self.executable._before_subset(context=context)
-                        params_for_run = __inject_generator_container__(param_set)
+                        params_for_run = __inject_generator_container__(param_set, initial_state)
                         state_update_blocks_for_run = __hydrate_state_update_blocks__(
                             state_update_blocks,
                             params_for_run)
@@ -81,7 +81,7 @@ class Engine(RadCadEngine):
                     self.executable._before_run(context=context)
                     self.executable._before_subset(context=context)
 
-                    params_for_run = __inject_generator_container__(param_set)
+                    params_for_run = __inject_generator_container__(param_set, initial_state)
                     state_update_blocks_for_run = __hydrate_state_update_blocks__(
                         state_update_blocks,
                         params_for_run)
@@ -104,10 +104,12 @@ class Engine(RadCadEngine):
                 simulation=simulation
             )
 
-def __inject_generator_container__(_params):
-    params = copy.deepcopy(_params)
+def __inject_generator_container__(params, initial_state):
     params.update({
-        GENERATOR_CONTAINER_PARAM_KEY: GeneratorContainer(params)
+        GENERATOR_CONTAINER_PARAM_KEY: GeneratorContainer(
+            copy.deepcopy(params),
+            copy.deepcopy(initial_state)
+        )
     })
     return params
 
@@ -115,9 +117,10 @@ def __hydrate_state_update_blocks__(state_update_blocks, params):
     container = params.get(GENERATOR_CONTAINER_PARAM_KEY)
     flat_state_update_blocks = []
     for state_update_block in state_update_blocks:
-        if state_update_block.get('type') == 'dynamic':
+        if state_update_block.get('type') == 'generator':
             generator = container.get(state_update_block.get('source'))
-            flat_state_update_blocks += generator.state_update_blocks()
+            selectors = state_update_block.get('selectors', [])
+            flat_state_update_blocks += generator.state_update_blocks(selectors)
         else:
             flat_state_update_blocks += [state_update_block]
     return flat_state_update_blocks

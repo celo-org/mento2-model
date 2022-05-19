@@ -2,16 +2,14 @@
 cadCAD model State Update Block structure, composed of Policy and State Update Functions
 """
 import logging
-from typing import Type
 
 # from model.system_parameters import parameters
 from model.generators.accounts import AccountGenerator
 from model.parts import buy_and_sell
 from model.parts import celo_system
-from model.parts import states_from_generators
 import model.parts.market_prices as market_price
 from model.utils import update_from_signal
-from model.utils.generator import Generator
+from model.utils.generator import generator_state_update_block
 
 # according to impact timing function
 state_update_block_price_impact = {
@@ -62,37 +60,18 @@ state_update_block_epoch_rewards = {
         'target_epoch_rewards': celo_system.p_epoch_rewards
     },
     'variables': {
-        'floating_supply': update_from_signal('floating_supply')
+        'floating_supply': update_from_signal('floating_supply'),
+        "reserve_balance": update_from_signal("reserve_balance")
     }
 }
-
-state_update_block_update_state_variables_from_generators = {
-    "description": """
-        Updates state variables from generators
-    """,
-    'policies': {
-        'state_variables_from_generators': states_from_generators.p_state_variables_from_generators
-    },
-    'variables': {
-        'reserve_balance': update_from_signal('reserve_balance'),
-        'floating_supply': update_from_signal('floating_supply')
-    }
-}
-
-def generator_update_blocks(generator_class: Type[Generator]):
-    return {
-        'description': 'Dynamic block to be replaced by generator returned blocks',
-        'type': 'dynamic',
-        'source': generator_class
-    }
 
 # Create state_update blocks list
 _state_update_blocks = [
     state_update_block_market_price_change,
     state_update_block_periodic_mento_bucket_update,
-    generator_update_blocks(AccountGenerator),
+    generator_state_update_block(AccountGenerator, "traders"),
     state_update_block_epoch_rewards,
-    # state_update_block_update_state_variables_from_generators
+    # generator_state_update_block(AccountGenerator, "checkpoint"),
     state_update_block_price_impact,
 ]
 

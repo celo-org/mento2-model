@@ -10,17 +10,14 @@ from dataclasses import dataclass
 from typing import Any, List, Dict
 from QuantLib import GeometricBrownianMotionProcess
 import experiments.simulation_configuration as simulation
+
 from model.entities.balance import Balance
-from model.types import TraderType
 from model.generators.markets import MarketPriceModel
-
-from model.types import Blocknumber
-
+from model.types import Blocknumber, TraderConfig, TraderType
 from model.utils import default
 
+
 # pylint: disable=too-many-instance-attributes
-
-
 @dataclass
 class Parameters:
     """System Parameters
@@ -88,7 +85,7 @@ class Parameters:
     traders: List[Dict[TraderType, Dict[str, Any]]] = default(
         [
             {
-                TraderType.ARBITRAGE_TRADER: dict(
+                TraderType.ARBITRAGE_TRADER: TraderConfig(
                     count=1,
                     balance=Balance(celo=500000, cusd=1000000)
                 )

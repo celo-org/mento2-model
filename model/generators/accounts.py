@@ -10,9 +10,9 @@ from functools import reduce
 from model.entities.account import Account
 from model.entities.trader import Trader
 from model.entities.balance import Balance
-from model.types import TraderType
+from model.types import TraderType, Traders
 from model.utils import update_from_signal
-from model.utils.generator import Generator
+from model.utils.generator import Generator, state_update_blocks
 
 ACCOUNTS_NS = uuid4()
 
@@ -22,38 +22,38 @@ class AccountGenerator(Generator):
     """
     accounts_by_id: Dict[UUID, Account] = {}
     reserve: Account
-    epoch_rewards: Account
+    # Holds the amount of floating supply in circulation
+    # with entities that aren't tracked as part of the
+    # generator.
+    untracked_floating_supply: Balance
 
-    def __init__(self, reserve_inventory):
-        # TODO number of accounts with different types
-        self.total_number_of_accounts: Dict[TraderType, int] = {
-            account_type: 0 for account_type in TraderType
-        }
+    def __init__(self,
+                reserve_inventory: Balance,
+                initial_floating_supply: Balance,
+                traders: Traders):
         # reserve account with account_id=0
         self.reserve = self.create_reserve_account(
-            initial_balance=Balance(**reserve_inventory)
+            initial_balance=reserve_inventory
         )
-        # epoch rewards account with account_id=1
-        self.epoch_rewards = self.create_new_account(
-            account_name="epoch_rewards"
-        )
-        # TODO create fast calibration to have one trader for all floating supply
-        # these variables get initialized and updated by their @property function
-        self._total_supply_celo = self.total_supply_celo
-        self._floating_supply_celo = self.floating_supply_celo
-        self._floating_supply_cusd = self.floating_supply_cusd
 
-    @classmethod
-    def from_parameters(cls, params):
-        accounts = cls(params["reserve_inventory"])
-
-        for (trader_type, trader_params) in params["traders"].items():
-            for index in range(trader_params["count"]):
-                accounts.create_trader(
+        for (trader_type, trader_params) in traders.items():
+            for index in range(trader_params.count):
+                self.create_trader(
                     account_name=f"{trader_type}_{index}",
-                    initial_balance=trader_params["balance"],
+                    initial_balance=trader_params.balance,
                     trader_type=trader_type
                 )
+
+        self.untracked_floating_supply = initial_floating_supply - self.tracked_floating_supply
+
+    @classmethod
+    def from_parameters(cls, params, initial_state):
+        accounts = cls(
+            Balance(**params["reserve_inventory"]),
+            Balance(**initial_state["floating_supply"]),
+            params["traders"],
+        )
+
         return accounts
 
     def create_reserve_account(self, initial_balance: Balance):
@@ -68,19 +68,6 @@ class AccountGenerator(Generator):
         )
         return reserve_account
 
-    def create_new_account(self, account_name):
-        """
-        Creates new account with zero balances
-        """
-        account = Account(
-            self,
-            account_id=uuid5(ACCOUNTS_NS, account_name),
-            account_name=account_name,
-            balance=Balance(celo=0, cusd=0),
-        )
-        self.accounts_by_id[account.account_id] = account
-        return account
-
     def create_trader(self, account_name: str, initial_balance: Balance, trader_type: TraderType):
         account = Trader(
             self,
@@ -92,30 +79,55 @@ class AccountGenerator(Generator):
         self.accounts_by_id[account.account_id] = account
         return account
 
-    def state_update_blocks(self):
+    @state_update_blocks("checkpoint")
+    def checkpoint_balances(self):
+        return [{
+            "description": """
+            Checkpoint accounts generator totals to simulation state
+            """,
+            'policies': {
+                'save_balances': self.get_save_balances_policy()
+            },
+            'variables': {
+                'reserve_balance': update_from_signal('reserve_balance'),
+                'floating_supply': update_from_signal('floating_supply')
+            }
+        }]
+
+    def get_save_balances_policy(self):
+        def policy(_params, _substep, _state_history, _prev_state):
+            return dict(
+                reserve_balance=self.reserve.balance.__dict__,
+                floating_supply=self.floating_supply.__dict__,
+            )
+        return policy
+
+    @state_update_blocks("traders")
+    def traders_execute(self):
         return [
             {
                 "description": f"""
                     Trader update blocks for {trader.account_id}
                 """,
-                "policies": {"random_trade": self.trader_policy(trader.account_id)},
+                "policies": {
+                    "trader_policy": self.get_trader_policy(trader.account_id)
+                },
                 "variables": {
                     "mento_buckets": update_from_signal("mento_buckets"),
                     "reserve_balance": update_from_signal("reserve_balance"),
                     "floating_supply": update_from_signal("floating_supply"),
                 },
-
             } for trader in self.traders()
         ]
 
-    def traders(self) -> List[Trader]:
-        return filter(lambda account: isinstance(account, Trader), self.accounts_by_id.values())
-
-    def trader_policy(self, account_id):
+    def get_trader_policy(self, account_id):
         def policy(params, substep, state_history, prev_state):
-            trader = self.accounts_by_id[account_id]
+            trader = self.get(account_id)
             return trader.execute(params, substep, state_history, prev_state)
         return policy
+
+    def traders(self) -> List[Trader]:
+        return filter(lambda account: isinstance(account, Trader), self.accounts_by_id.values())
 
     def get(self, account_id) -> Account:
         account = self.accounts_by_id.get(account_id)
@@ -123,22 +135,41 @@ class AccountGenerator(Generator):
         return account
 
     @property
-    def total_supply_celo(self):
+    def total_supply_celo(self) -> float:
         """
         sums up celo balances over all accounts
         """
-        return self.floating_supply_celo + self.reserve.balance.celo
+        return self.floating_supply.celo + self.reserve.balance.celo
 
     @property
-    def floating_supply_celo(self):
+    def tracked_floating_supply_celo(self) -> float:
         """
         sums up celo balances over all accounts except reserve
         """
         return reduce(lambda s, account: s + account.balance.celo, self.accounts_by_id.values(), 0)
 
     @property
-    def floating_supply_cusd(self) -> int:
+    def tracked_floating_supply_cusd(self) -> float:
         """
         sums up cusd balances over all accounts except reserve
         """
         return reduce(lambda s, account: s + account.balance.cusd, self.accounts_by_id.values(), 0)
+
+    @property
+    def tracked_floating_supply(self) -> Balance:
+        """
+        Tracked floating supply which originates from
+        """
+        return Balance(
+            celo=self.tracked_floating_supply_celo,
+            cusd=self.tracked_floating_supply_cusd
+        )
+
+    @property
+    def floating_supply(self) -> Balance:
+        """
+        Return the celo and cusd floating supply taking into account
+        what's granularly tracked in the generator and what lives as
+        untracked supply.
+        """
+        return self.tracked_floating_supply + self.untracked_floating_supply
