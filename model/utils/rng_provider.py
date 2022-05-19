@@ -25,7 +25,7 @@ class RNGProvider():
     def __seed__(self, context: List[Union[str, int]]) -> np.random.SeedSequence:
         return np.random.SeedSequence(
             self.entropy,
-            spawn_key=map(hash, context)
+            spawn_key=map(abs, map(hash, context))
         )
 
 rngp = RNGProvider(global_rng_entropy)
