@@ -8,8 +8,8 @@ from IPython.display import Code
 from pygments.formatters import HtmlFormatter
 from IPython.core.display import HTML
 
-
-def rng_generator(master_seed=1):
+MASTER_SEED=1
+def rng_generator():
     """Generate a sequence of Numpy RNG seeds
 
     This method can be initialized using a master seed with `rng_generator(123)`.
@@ -23,7 +23,7 @@ def rng_generator(master_seed=1):
     """
     global seed_sequence
     if 'seed_sequence' not in globals():
-        rng = np.random.default_rng(master_seed)
+        rng = np.random.default_rng(MASTER_SEED)
         seed_sequence = rng.bit_generator._seed_seq
         return np.random.default_rng(seed_sequence.spawn(1)[0])
     else:

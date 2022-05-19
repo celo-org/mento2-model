@@ -5,6 +5,7 @@ from cvxpy import Variable
 import numpy as np
 
 from experiments import simulation_configuration
+from experiments.utils import rng_generator
 
 from .trader_strategy import TraderStrategy
 
@@ -20,6 +21,7 @@ class RandomTrading(TraderStrategy):
         super().__init__(parent, acting_frequency)
         self.generate_sell_amounts()
         self.sell_amount = None
+        self.rng = rng_generator()
 
     def sell_gold(self, params, prev_state):
         # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
@@ -75,9 +77,9 @@ class RandomTrading(TraderStrategy):
         # timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
         sample_size = timesteps * blocks_per_timestep + 1
         # TODO parametrise random params incl. seed
-        sell_gold = np.random.binomial(1, 0.5, sample_size)
+        sell_gold = self.rng.binomial(1, 0.5, sample_size)
         orders = np.vstack(
-            [sell_gold, np.abs(np.random.normal(100, 5, size=sample_size))]
+            [sell_gold, np.abs(self.rng.normal(100, 5, size=sample_size))]
         )
         self.orders = np.core.records.fromarrays(
             orders, names=["sell_gold", "sell_amount"]

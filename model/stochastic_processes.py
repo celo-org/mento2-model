@@ -15,7 +15,7 @@ def create_cusd_demand_process(
     dt=simulation_configuration.BLOCKS_PER_TIMESTEP,
     initial_cusd_demand=historical_values.cusd_supply_mean,
     cusd_demand_returns_vola_annually=historical_values.cusd_supply_returns_vola_annually,
-    rng=np.random.default_rng(1)
+    rng=rng_generator()
 ):
     """Configure environmental cUSD demand process
 
