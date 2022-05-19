@@ -3,6 +3,7 @@ Agents extends accounts to implement behavior via strategies.
 Agents implement the Actor type.
 """
 # pylint: disable=too-few-public-methods
+import logging
 from typing import Type, TYPE_CHECKING
 from uuid import UUID
 from model.parts.buy_and_sell import exchange
@@ -11,6 +12,7 @@ from model.entities.account import Account, Balance
 
 if TYPE_CHECKING:
     from model.generators.accounts import AccountGenerator
+
 
 class Trader(Account):
     """
@@ -39,6 +41,7 @@ class Trader(Account):
         """
         Execute the agent's state change
         """
+        logging.info(self.balance)
         order = self.strategy.return_optimal_trade(params, prev_state)
         if order is None:
             return dict(
@@ -57,7 +60,6 @@ class Trader(Account):
 
         self.balance += Balance(**deltas)
         self.parent.reserve.balance += Balance(celo=-deltas["celo"], cusd=0)
-
 
         return dict(
             mento_buckets=mento_buckets,

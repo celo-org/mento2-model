@@ -16,7 +16,7 @@ samples = np.random.multivariate_normal(
     24 * 60 * 12 + 1
 )
 # mock data single depeg event
-#samples = np.array([[0.05, 0] if x == 0 else [0, 0] for x in range(0, 125)])
+samples = np.array([[0.05, 0] if x == 0 else [0, 0] for x in range(0, 125)])
 
 temp = pd.DataFrame(samples, columns=('cusd_usd', 'celo_usd'))
 temp.index += 1

@@ -44,10 +44,10 @@ class Parameters:
     max_sell_fraction_of_float: List[float] = default(
         [0.0001]
     )  # Max 0.01% of CELO or cUSD float sold in every block
-    bucket_update_frequency_seconds: List[int] = default([5 * 60])
+    bucket_update_frequency_seconds: List[int] = default([1])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.QUANTLIB])
+    model: List[MarketPriceModel] = default([MarketPriceModel.SCENARIO])
 
     # check order of parameters for each model, e.g. for GBM param_1 is drift and
     # param_2 is volatility
