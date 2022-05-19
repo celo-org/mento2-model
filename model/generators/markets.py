@@ -6,10 +6,10 @@ import logging
 import numpy as np
 
 from experiments import simulation_configuration
-from experiments.utils import rng_generator
 from model import constants
 from model.utils.data_feed import data_feed
 from model.utils.generator import Generator
+from model.utils.rng_provider import rngp
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
@@ -73,7 +73,7 @@ class MarketPriceGenerator(Generator):
         }
         self.data_folder = "../../data/"
         self.custom_impact_function = custom_impact_function
-        self.rng = rng_generator()
+        self.rng = rngp.get_rng("MarketPriceGenerator")
 
     @classmethod
     def from_parameters(cls, params, _initial_state):

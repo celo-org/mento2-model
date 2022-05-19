@@ -35,7 +35,7 @@ import numpy as np
 from stochastic import processes
 
 import experiments.simulation_configuration as simulation
-from experiments.utils import rng_generator
+from model.system_parameters import rngp
 
 
 def create_eth_price_process(
@@ -95,15 +95,15 @@ def create_stochastic_process_realizations(
 
     switcher = {
         &#34;eth_price_samples&#34;: [
-            create_eth_price_process(timesteps=timesteps, dt=dt, rng=rng_generator())
+            create_eth_price_process(timesteps=timesteps, dt=dt, rng=rngp.get_rng("eth_price_process"))
             for _ in range(runs)
         ],
         &#34;validator_samples&#34;: [
-            create_validator_process(timesteps=timesteps, dt=dt, rng=rng_generator())
+            create_validator_process(timesteps=timesteps, dt=dt, rng=rngp.get_rng("validator_process"))
             for _ in range(runs)
         ],
         &#34;validator_uptime_samples&#34;: [
-            rng_generator().uniform(0.96, 0.99, timesteps * dt + 1) for _ in range(runs)
+            rngp.get_rng("validator_uptime").uniform(0.96, 0.99, timesteps * dt + 1) for _ in range(runs)
         ],
     }
 
@@ -177,15 +177,15 @@ and use RNG to pre-generate samples for number of simulation timesteps.</p></div
 
     switcher = {
         &#34;eth_price_samples&#34;: [
-            create_eth_price_process(timesteps=timesteps, dt=dt, rng=rng_generator())
+            create_eth_price_process(timesteps=timesteps, dt=dt, rng=rngp.get_rng("eth_price_samples"))
             for _ in range(runs)
         ],
         &#34;validator_samples&#34;: [
-            create_validator_process(timesteps=timesteps, dt=dt, rng=rng_generator())
+            create_validator_process(timesteps=timesteps, dt=dt, rng=rngp.get_rng("validator_samples"))
             for _ in range(runs)
         ],
         &#34;validator_uptime_samples&#34;: [
-            rng_generator().uniform(0.96, 0.99, timesteps * dt + 1) for _ in range(runs)
+            rngp.get_rng("validator_uptime").uniform(0.96, 0.99, timesteps * dt + 1) for _ in range(runs)
         ],
     }
 
