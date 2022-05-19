@@ -12,11 +12,11 @@ from model.utils.rng_provider import rngp
 
 
 def create_cusd_demand_process(
-    timesteps=simulation_configuration.TIMESTEPS,
-    dt=simulation_configuration.BLOCKS_PER_TIMESTEP,
-    initial_cusd_demand=historical_values.cusd_supply_mean,
-    cusd_demand_returns_vola_annually=historical_values.cusd_supply_returns_vola_annually,
-    rng=np.random.default_rng()
+    timesteps,
+    dt,
+    initial_cusd_demand,
+    cusd_demand_returns_vola_annually,
+    rng
 ):
     """Configure environmental cUSD demand process
 
@@ -56,6 +56,9 @@ def create_stochastic_process_realizations(
             create_cusd_demand_process(
                 timesteps=timesteps,
                 dt=dt,
+                initial_cusd_demand=historical_values.cusd_supply_mean,
+                cusd_demand_returns_vola_annually=
+                    historical_values.cusd_supply_returns_vola_annually,
                 rng=rngp.get_rng("cusd_demand_process", i)
             ) for i in range(runs)
         ]

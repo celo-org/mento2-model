@@ -26,6 +26,6 @@ class RNGProvider():
         return np.random.SeedSequence(
             self.entropy,
             spawn_key=map(hash, context)
-        ).spawn(1)[0]
+        )
 
 rngp = RNGProvider(global_rng_entropy)
