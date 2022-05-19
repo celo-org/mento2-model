@@ -21,7 +21,6 @@ from model.types import (
 
 from data.historical_values import  celo_supply_mean, cusd_supply_mean
 
-
 @dataclass
 class StateVariables:
     """State Variables
@@ -37,6 +36,12 @@ class StateVariables:
     from `date_start` Parameter.
     """
 
+
+    # The initial floating supply of the simulation
+    floating_supply: Dict[str, TokenBalance] = default(
+        {"celo": celo_supply_mean, "cusd": cusd_supply_mean}
+    )
+
     # Celo state variables
     oracle_rate: TokenPerToken = 3
     """The Mento CELO/cUSD rate """
@@ -50,15 +55,11 @@ class StateVariables:
     # TODO initial calibration of buckets
     mento_buckets: Dict[str, TokenBalance] = default(
         {
-            "celo": 0.025 * 1200000000,
-            "cusd": 0.025 * 1200000000 * oracle_rate,
+            "celo": 0,
+            "cusd": 0,
         }
     )
 
-    # Mento state variables
-    floating_supply: TokenBalance = default(
-        {"celo": celo_supply_mean, "cusd": cusd_supply_mean}
-    )
 
     # Virtual Market Fiat Bucket
     market_buckets: MarketBuckets = default({"usd": cusd_supply_mean})

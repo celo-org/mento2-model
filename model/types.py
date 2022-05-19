@@ -3,9 +3,11 @@ Various Python types used in the model
 """
 
 # See https://docs.python.org/3/library/dataclasses.html
-from typing import TypedDict
+from dataclasses import dataclass
+from typing import Dict, TypedDict
 
 from enum import Enum
+from model.entities.balance import Balance
 
 from model.generators.markets import MarketPriceGenerator
 from model.entities.strategies import RandomTrading, SellMax, ArbitrageTrading
@@ -44,6 +46,13 @@ class TraderType(Enum):
     ARBITRAGE_TRADER = ArbitrageTrading
     RANDOM_TRADER = RandomTrading
     MAX_TRADER = SellMax
+
+@dataclass
+class TraderConfig:
+    count: int
+    balance: Balance
+
+Traders = Dict[TraderType, TraderConfig]
 
 class MarketPrice(TypedDict):
     cusd_usd: float

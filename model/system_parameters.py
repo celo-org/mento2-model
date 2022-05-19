@@ -7,19 +7,17 @@ By using a dataclass to represent the System Parameters:
 """
 
 from dataclasses import dataclass
-from typing import Any, List, Dict
+from typing import List, Dict
+
 import experiments.simulation_configuration as simulation
+
 from model.entities.balance import Balance
-from model.types import TraderType
 from model.generators.markets import MarketPriceModel
-
-from model.types import Blocknumber
-
+from model.types import Blocknumber, TraderConfig, TraderType, Traders
 from model.utils import default
 
+
 # pylint: disable=too-many-instance-attributes
-
-
 @dataclass
 class Parameters:
     """System Parameters
@@ -49,7 +47,7 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.SCENARIO])
+    model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
     covariance_market_price: List[float] = default([[[0.01, 0], [0, 1]]])
     drift_market_price: List[float] = default([[-5*5, 0]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
@@ -60,12 +58,12 @@ class Parameters:
         [{"celo_usd": 1000000, "cusd_usd": 1000000}]
     )
 
-    traders: List[Dict[TraderType, Dict[str, Any]]] = default(
+    traders: List[Traders] = default(
         [
             {
-                TraderType.ARBITRAGE_TRADER: dict(
+                TraderType.ARBITRAGE_TRADER: TraderConfig(
                     count=1,
-                    balance=Balance(celo= 500000, cusd=1000000)
+                    balance=Balance(celo=500000, cusd=1000000)
                 )
             }
         ]
