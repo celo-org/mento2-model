@@ -1,70 +1,23 @@
 """
 visualization functions
 """
-# pylint: disable=invalid-name
-import pandas as pd
-import plotly.express as px
-
-# Set plotly as the default plotting backend for pandas
-pd.options.plotting.backend = "plotly"
+import matplotlib.pyplot as plt
 
 
-def plot_celo_market_price(df):
+def plot_helper(df, column_label, y_label='USD'):
     """
-    Plot the CELO market price for each subset (each parameter grid combination)
-    :param df: simulation output dataframe after postprocessing
-    :return: plotly express fig
+    plots a nice plot out of the simulation output dataframe
     """
-    fig = px.line(df, x='timestep', y='market_price_celo_usd', color='run', facet_col='subset',
-                  title='CELO price')
-    return fig
+    for subset in df.subset.unique():
+        fig, ax = plt.subplots(figsize=(15,5))
+        subset_df = df[df['subset']==subset]
+        subset_df.groupby(by=['run'])[column_label].plot(ax=ax)
+        ax.set_title(f"{column_label}, subset {subset}")
+        ax.grid(axis='both', alpha=.2)
+        ax.set_ylabel(y_label)
+        ax.legend([f"run {run}" for run in df.run.unique()])
 
-def plot_cusd_market_price(df):
-    """
-    Plot the cUSD market price for each subset (each parameter grid combination)
-    :param df: simulation output dataframe after postprocessing
-    :return: plotly express fig
-    """
-    fig = px.line(df, x='timestep', y='market_price_cusd_usd', color='run', facet_col='subset',
-                  title='cUSD price')
-    return fig
-
-def plot_celo_floating_supply(df):
-    """
-    Plot the celo floating supply for each subset (each parameter grid combination)
-    :param df: simulation output dataframe after postprocessing
-    :return: plotly express fig
-    """
-    fig = px.line(df, x='timestep', y='floating_supply_celo', color='run', facet_col='subset',
-                  title='Floating supply CELO')
-    return fig
-
-def plot_cusd_floating_supply(df):
-    """
-    Plot the celo floating supply for each subset (each parameter grid combination)
-    :param df: simulation output dataframe after postprocessing
-    :return: plotly express fig
-    """
-    fig = px.line(df, x='timestep', y='floating_supply_cusd', color='run', facet_col='subset',
-                  title='Floating supply cUSD')
-    return fig
-
-def plot_reserve_balance(df):
-    """
-    Plot the celo reserve balance for each subset (each parameter grid combination)
-    :param df: simulation output dataframe after postprocessing
-    :return: plotly express fig
-    """
-    fig = px.line(df, x='timestep', y='reserve_balance_celo', color='run', facet_col='subset',
-                  title='reserve balance CELO')
-    return fig
-
-def plot_oracle_rate(df):
-    """
-    Plot the oracle rate for each subset (each parameter grid combination)
-    :param df: simulation output dataframe after postprocessing
-    :return: plotly express fig
-    """
-    fig = px.line(df, x='timestep', y='oracle_rate', color='run', facet_col='subset',
-                  title='Oracle rate')
-    return fig
+        ax.spines["top"].set_alpha(0.0)
+        ax.spines["bottom"].set_alpha(0.3)
+        ax.spines["right"].set_alpha(0.0)
+        ax.spines["left"].set_alpha(0.3)
