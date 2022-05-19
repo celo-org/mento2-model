@@ -3,19 +3,20 @@ Helper functions to generate stochastic environmental processes
 """
 
 import numpy as np
-import experiments.simulation_configuration as simulation_configuration
-from model.constants import blocktime_seconds
 from stochastic import processes
+
+from experiments import simulation_configuration
 from data import historical_values
-from experiments.utils import rng_generator
+from model.constants import blocktime_seconds
+from model.utils.rng_provider import rngp
 
 
 def create_cusd_demand_process(
-    timesteps=simulation_configuration.TIMESTEPS,
-    dt=simulation_configuration.BLOCKS_PER_TIMESTEP,
-    initial_cusd_demand=historical_values.cusd_supply_mean,
-    cusd_demand_returns_vola_annually=historical_values.cusd_supply_returns_vola_annually,
-    rng=np.random.default_rng(1)
+    timesteps,
+    dt,
+    initial_cusd_demand,
+    cusd_demand_returns_vola_annually,
+    rng
 ):
     """Configure environmental cUSD demand process
 
@@ -45,14 +46,21 @@ def create_stochastic_process_realizations(
 ):
     """Create stochastic process realizations
 
-    Using the stochastic processes defined in `processes` module, create random number generator (RNG) seeds,
-    and use RNG to pre-generate samples for number of simulation_configuration timesteps.
+    Using the stochastic processes defined in `processes` module,
+    create random number generator (RNG) seeds, and use RNG
+    to pre-generate samples for number of simulation_configuration timesteps.
     """
 
     switcher = {
         "cusd_demand_process": [
-            create_cusd_demand_process(timesteps=timesteps, dt=dt, rng=rng_generator())
-            for _ in range(runs)
+            create_cusd_demand_process(
+                timesteps=timesteps,
+                dt=dt,
+                initial_cusd_demand=historical_values.cusd_supply_mean,
+                cusd_demand_returns_vola_annually=
+                    historical_values.cusd_supply_returns_vola_annually,
+                rng=rngp.get_rng("cusd_demand_process", i)
+            ) for i in range(runs)
         ]
     }
 
