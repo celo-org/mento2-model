@@ -62,11 +62,14 @@ class Parameters:
                              'param_2': 1},
                 'cusd_usd': {'process': GeometricBrownianMotionProcess,
                              'param_1': 0,
-                             'param_2': 0.01}
+                             'param_2': 0.01},
+                'btc_usd': {'process': GeometricBrownianMotionProcess,
+                            'param_1': 0,
+                            'param_2': 0.01}
             }
         ]
     )
-    correlation: List[float] = default([[[1, 0], [0, 1]]])
+    correlation: List[float] = default([[[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
     drift_market_price: List[float] = default([[-5*5, 0]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
     # custom_impact: List[FunctionType] = default(

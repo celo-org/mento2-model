@@ -318,11 +318,20 @@ class MarketPriceGenerator(Generator):
         log_returns = np.diff(np.log(paths[0]))
         # the current setup does only support simulation of processes with independent increments
         # or processes without if the value is not changed in other sub-steps
+        increments = {}
+        for asset, path in list(zip(params['processes'], log_returns)):
+            increments[asset] = path
 
-        return {
-            "cusd_usd": log_returns[0],
-            "celo_usd": log_returns[1],
-        }
+        return increments
+
+    def switcher(self, params):
+        if (np.array(params['correlation']) -
+            np.diag(np.ones(len(params['correlation'])))
+                == np.zeros(np.array(params['correlation']).shape)).all():
+            process = self.process_container(params=params)
+        else:
+            process = None
+        return process
 
     def impact_delay(
         self, block_supply_change, current_step, impact_delay=ImpactDelay.INSTANT
