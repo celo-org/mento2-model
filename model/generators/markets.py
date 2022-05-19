@@ -7,7 +7,7 @@ import numpy as np
 
 from experiments import simulation_configuration
 from model import constants
-from model.utils.data_feed import DataFeed, data_folder, data_file
+from model.utils.data_feed import DataFeed, DATA_FOLDER, DATA_FILE_NAME
 from model.utils.generator import Generator
 
 # raise numpy warnings as errors
@@ -250,13 +250,12 @@ class MarketPriceGenerator(Generator):
         historical log-returns"""
         # TODO Consider different sampling options
         # TODO Random Seed
-        data_feed = DataFeed(data_folder=data_folder)
-        data_feed.load_historical_data(data_file=data_file)
-        data = data_feed.data
+        data_feed = DataFeed(data_folder=DATA_FOLDER, data_file_name=DATA_FILE_NAME)
+        data = data_feed.historical_data
         if self.model == MarketPriceModel.HIST_SIM:
             random_index_array = np.random.randint(low=0,
                                               high=data_feed.length - 1,
                                               size=sample_size)
-            data = data_feed.data[random_index_array, :]
+            data = data_feed.historical_data[random_index_array, :]
         self.increments = {"cusd_usd": data[:, 0], "celo_usd": data[:, 1]}
         logging.info("Historic increments created")
