@@ -79,21 +79,6 @@ class AccountGenerator(Generator):
         self.accounts_by_id[account.account_id] = account
         return account
 
-    @state_update_blocks("checkpoint")
-    def checkpoint_balances(self):
-        return [{
-            "description": """
-            Checkpoint accounts generator totals to simulation state
-            """,
-            'policies': {
-                'save_balances': self.get_save_balances_policy()
-            },
-            'variables': {
-                'reserve_balance': update_from_signal('reserve_balance'),
-                'floating_supply': update_from_signal('floating_supply')
-            }
-        }]
-
     def get_save_balances_policy(self):
         def policy(_params, _substep, _state_history, _prev_state):
             return dict(
