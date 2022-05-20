@@ -20,13 +20,14 @@ class GeneratorContainer():
     '''
 
     # Keeps a map of subset -> generator_class_name -> generator_instance
-    generators: Dict[str, Generator] = {}
+    generators: Dict[str, Generator]
     params: Any
     initial_state: Any
 
     def __init__(self, params: Any, initial_state: Any):
         self.params = params
         self.initial_state = initial_state
+        self.generators = {}
 
     def get(self, generator_class):
         '''
