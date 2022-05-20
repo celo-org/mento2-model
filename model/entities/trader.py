@@ -41,11 +41,11 @@ class Trader(Account):
         """
         order = self.strategy.return_optimal_trade(params, prev_state)
         if order is None:
-            return dict(
-                mento_buckets=prev_state["mento_buckets"],
-                floating_supply=prev_state["floating_supply"],
-                reserve_balance=prev_state["reserve_balance"],
-            )
+            return {
+                "mento_buckets": prev_state["mento_buckets"],
+                "floating_supply": prev_state["floating_supply"],
+                "reserve_balance": prev_state["reserve_balance"],
+            }
 
         sell_amount = order["sell_amount"]
         sell_gold = order["sell_gold"]
@@ -59,10 +59,11 @@ class Trader(Account):
         self.parent.reserve.balance += Balance(celo=-deltas["celo"], cusd=0)
 
 
-        return dict(
-            mento_buckets=mento_buckets,
-            floating_supply=self.parent.floating_supply.__dict__,
-            reserve_balance=self.parent.reserve.balance.__dict__)
+        return {
+            "mento_buckets": mento_buckets,
+            "floating_supply": self.parent.floating_supply.__dict__,
+            "reserve_balance": self.parent.reserve.balance.__dict__
+        }
 
     def rebalance_portfolio(self, target_amount, target_is_celo, prev_state):
         """
