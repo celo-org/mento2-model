@@ -11,7 +11,7 @@ from experiments import simulation_configuration
 from model.utils.data_feed import DATA_FILE_NAME, DATA_FOLDER, DataFeed
 from model.utils.generator import Generator
 from model.utils.quantlib_wrapper import QuantLibWrapper
-from model.utils.rng_provider import RNGProvider
+from model.utils.rng_provider import rngp
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
@@ -65,7 +65,7 @@ class MarketPriceGenerator(Generator):
             + 1) for asset in impacted_assets}
         self.data_folder = "../../data/"
         self.custom_impact_function = custom_impact_function
-        self.rng = RNGProvider.get_rng("MarketPriceGenerator")
+        self.rng = rngp.get_rng("MarketPriceGenerator")
 
     @classmethod
     def from_parameters(cls, params, _initial_state):
