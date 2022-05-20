@@ -7,7 +7,7 @@ import numpy as np
 
 from experiments import simulation_configuration
 from model import constants
-from model.utils.data_feed import data_feed
+from model.utils.data_feed import DataFeed, DATA_FOLDER, DATA_FILE_NAME
 from model.utils.generator import Generator
 from model.utils.rng_provider import rngp
 
@@ -256,10 +256,13 @@ class MarketPriceGenerator(Generator):
         """Passes a historic scenario or creates a random sample from a set of
         historical log-returns"""
         # TODO Consider different sampling options
-        data, length = (data_feed.data, data_feed.length)
+        # TODO Random Seed
+        data_feed = DataFeed(data_folder=DATA_FOLDER, data_file_name=DATA_FILE_NAME)
+        data = data_feed.historical_data
         if self.model == MarketPriceModel.HIST_SIM:
-            data = data[self.rng.randint(low=0, high=length - 1, size=sample_size), :]
-
+            random_index_array = np.random.randint(low=0,
+                                              high=data_feed.length - 1,
+                                              size=sample_size)
+            data = data_feed.historical_data[random_index_array, :]
         self.increments = {"cusd_usd": data[:, 0], "celo_usd": data[:, 1]}
-
         logging.info("Historic increments created")
