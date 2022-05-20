@@ -20,10 +20,10 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
 
     is_not_epoch_block = ((prev_state['timestep'] * blocktime_seconds) % seconds_per_epoch) != 0
     if is_not_epoch_block or prev_state['timestep'] == 0:
-        return dict(
-            floating_supply=prev_state["floating_supply"],
-            reserve_balance=prev_state["reserve_balance"],
-        )
+        return {
+            "floating_supply": prev_state["floating_supply"],
+            "reserve_balance": prev_state["reserve_balance"],
+        }
 
     validator_rewards = 0.07 * target_epoch_rewards_downscaled
     celo_rewards = target_epoch_rewards_downscaled - validator_rewards
@@ -38,6 +38,7 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
         cusd=validator_rewards_in_cusd
     )
 
-    return dict(
-        floating_supply=account_generator.floating_supply.__dict__,
-        reserve_balance=account_generator.reserve.balance.__dict__)
+    return {
+        "floating_supply": account_generator.floating_supply.__dict__,
+        "reserve_balance": account_generator.reserve.balance.__dict__
+    }
