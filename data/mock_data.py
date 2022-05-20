@@ -22,4 +22,3 @@ temp = pd.DataFrame(samples, columns=('cusd_usd', 'celo_usd'))
 temp.index += 1
 data_path = Path(__file__, "../mock_logreturns.prq")
 temp = temp.to_parquet(data_path.resolve())
-#temp = temp.to_parquet('../../data/mock_logreturns.prq')

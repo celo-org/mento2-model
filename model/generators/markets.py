@@ -8,9 +8,10 @@ import numpy as np
 
 
 from experiments import simulation_configuration
-from model.utils.data_feed import data_feed
+from model.utils.data_feed import DATA_FILE_NAME, DATA_FOLDER, DataFeed
 from model.utils.generator import Generator
 from model.utils.quantlib_wrapper import QuantLibWrapper
+from model.utils.rng_provider import RNGProvider
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
@@ -64,6 +65,7 @@ class MarketPriceGenerator(Generator):
             + 1) for asset in impacted_assets}
         self.data_folder = "../../data/"
         self.custom_impact_function = custom_impact_function
+        self.rng = RNGProvider.get_rng("MarketPriceGenerator")
 
     @classmethod
     def from_parameters(cls, params, _initial_state):
@@ -84,7 +86,6 @@ class MarketPriceGenerator(Generator):
             market_price_generator = cls(params["model"], params['impacted_assets'])
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
                 market_price_generator.custom_impact_function = params["custom_impact"]
-            # market_price_generator.load_historical_data(params["data_file"])
             sample_size = (
                 simulation_configuration.BLOCKS_PER_TIMESTEP
                 * simulation_configuration.TIMESTEPS
@@ -96,7 +97,6 @@ class MarketPriceGenerator(Generator):
             market_price_generator = cls(params["model"], params['impacted_assets'])
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
                 market_price_generator.custom_impact_function = params["custom_impact"]
-            # market_price_generator.load_historical_data(params["data_file"])
             sample_size = (
                 simulation_configuration.BLOCKS_PER_TIMESTEP
                 * simulation_configuration.TIMESTEPS
@@ -133,11 +133,6 @@ class MarketPriceGenerator(Generator):
                 market_prices[asset] = (state["market_price"][asset]
                                         * np.exp(self.increments[asset][step]))
 
-        # elif self.model == MarketPriceModel.PRICE_IMPACT:
-        #     # TODO  demand increment missing -> DemandGenerator
-        #     market_prices = None
-        #     # self.valuate_price_impact(state['supply'],
-        #     #  #state['market_buckets'], #step-1)
         return market_prices
 
     # pylint: disable=no-self-use
@@ -152,9 +147,7 @@ class MarketPriceGenerator(Generator):
                 )
                 * np.sqrt(variance_daily * abs(asset_quantity) / average_daily_volume)
             )
-        # elif mode == PriceImpact.CUSTOM:
-        #    impact_function = self.custom_impact_function
-        # elif mode == PriceImpact.CONSTANT_FIAT
+
         return impact_function
 
     def valuate_price_impact(
@@ -204,12 +197,15 @@ class MarketPriceGenerator(Generator):
         historical log-returns"""
         # TODO Consider different sampling options
         # TODO Random Seed
-        data, assets, length = (data_feed.data, data_feed.assets, data_feed.length)
-
+        data_feed = DataFeed(data_folder=DATA_FOLDER, data_file_name=DATA_FILE_NAME)
+        data = data_feed.historical_data
         if self.model == MarketPriceModel.HIST_SIM:
-            data = data[np.random.randint(low=0, high=length - 1, size=sample_size), :]
+            random_index_array = np.random.randint(low=0,
+                                                   high=data_feed.length - 1,
+                                                   size=sample_size)
+            data = data_feed.historical_data[random_index_array, :]
         increments = {}
-        for index, asset in enumerate(assets):
+        for index, asset in enumerate(data_feed.assets):
             increments[asset] = data[:, index]
         self.increments = increments
 

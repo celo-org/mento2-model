@@ -69,7 +69,6 @@ _state_update_blocks = [
     state_update_block_periodic_mento_bucket_update,
     generator_state_update_block(AccountGenerator, "traders"),
     state_update_block_epoch_rewards,
-    # generator_state_update_block(AccountGenerator, "checkpoint"),
     state_update_block_price_impact,
 ]
 
