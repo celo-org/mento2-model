@@ -7,13 +7,13 @@ By using a dataclass to represent the System Parameters:
 """
 
 from dataclasses import dataclass
-from typing import List, Dict
-
+from typing import Any, List, Dict
+from QuantLib import GeometricBrownianMotionProcess
 import experiments.simulation_configuration as simulation
 
 from model.entities.balance import Balance
 from model.generators.markets import MarketPriceModel
-from model.types import Blocknumber, TraderConfig, TraderType, Traders
+from model.types import Blocknumber, TraderConfig, TraderType
 from model.utils import default
 
 
@@ -47,18 +47,42 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
-    covariance_market_price: List[float] = default([[[0.01, 0], [0, 1]]])
+    model: List[MarketPriceModel] = default([MarketPriceModel.QUANTLIB])
+
+    # check order of parameters for each model, e.g. for GBM param_1 is drift and
+    # param_2 is volatility
+    processes: List[Dict] = default(
+        [
+            {
+                'celo_usd': {'process': GeometricBrownianMotionProcess,
+                             'param_1': 0,
+                             'param_2': 1},
+                'cusd_usd': {'process': GeometricBrownianMotionProcess,
+                             'param_1': 0,
+                             'param_2': 0.01},
+                'btc_usd': {'process': GeometricBrownianMotionProcess,
+                            'param_1': 0,
+                            'param_2': 0.01}
+
+            }
+        ]
+    )
+    correlation: List[float] = default([[[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
     drift_market_price: List[float] = default([[-5*5, 0]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
     # custom_impact: List[FunctionType] = default(
     #    [lambda asset_1, asset_2: asset_1**2 / asset_2]
     # )
+
+    # Impact Parameters
+    impacted_assets: List[List] = default([['celo_usd', 'cusd_usd']])
     average_daily_volume: List[Dict] = default(
         [{"celo_usd": 1000000, "cusd_usd": 1000000}]
     )
+    variance_market_price: List[Dict] = default([{"celo_usd": 1, "cusd_usd": 0.01}])
 
-    traders: List[Traders] = default(
+    # Trader Balances
+    traders: List[Dict[TraderType, Dict[str, Any]]] = default(
         [
             {
                 TraderType.ARBITRAGE_TRADER: TraderConfig(

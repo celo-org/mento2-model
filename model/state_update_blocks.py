@@ -21,7 +21,6 @@ state_update_block_price_impact = {
     "policies": {"market_price": market_price.p_price_impact},
     "variables": {
         "market_price": update_from_signal("market_price"),
-        # 'market_buckets': update_from_signal('market_buckets')
     },
 }
 
@@ -34,7 +33,6 @@ state_update_block_market_price_change = {
     "policies": {"market_price": market_price.p_market_price},
     "variables": {
         "market_price": update_from_signal("market_price"),
-        "market_buckets": update_from_signal("market_buckets"),
         "oracle_rate": update_from_signal("oracle_rate")
     },
 }
