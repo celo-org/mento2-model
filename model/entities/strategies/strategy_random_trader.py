@@ -5,6 +5,8 @@ from cvxpy import Variable
 import numpy as np
 
 from experiments import simulation_configuration
+from model.entities.trader import Trader
+from model.utils.rng_provider import rngp
 
 from .trader_strategy import TraderStrategy
 
@@ -15,13 +17,14 @@ class RandomTrading(TraderStrategy):
     Random Trading
     """
 
-    def __init__(self, parent, acting_frequency=1):
+    def __init__(self, parent: Trader, acting_frequency=1):
         # The following is used to define the strategy and needs to be provided in subclass
         super().__init__(parent, acting_frequency)
         self.generate_sell_amounts()
         self.sell_amount = None
+        self.rng = rngp.get_rng("RandomTrader", self.parent.account_id)
 
-    def sell_gold(self, prev_state):
+    def sell_gold(self, params, prev_state):
         # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
         return self.orders[prev_state["timestep"]]["sell_gold"]
 
@@ -34,7 +37,7 @@ class RandomTrading(TraderStrategy):
         that are used in the optimization
         """
 
-    def define_objective_function(self, params, prev_state):
+    def define_objective_function(self, _params, _prev_state):
         """
         Defines and returns the cvxpy objective_function
         """
@@ -49,7 +52,7 @@ class RandomTrading(TraderStrategy):
         # TODO: Get budget based on account
         max_budget_cusd = self.parent.balance["cusd"]
         max_budget_celo = self.parent.balance["celo"]
-        if self.sell_gold(prev_state):
+        if self.sell_gold(params, prev_state):
             self.constraints.append(
                 self.variables["sell_amount"]
                 <= min(
@@ -75,9 +78,9 @@ class RandomTrading(TraderStrategy):
         # timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
         sample_size = timesteps * blocks_per_timestep + 1
         # TODO parametrise random params incl. seed
-        sell_gold = np.random.binomial(1, 0.5, sample_size)
+        sell_gold = self.rng.binomial(1, 0.5, sample_size)
         orders = np.vstack(
-            [sell_gold, np.abs(np.random.normal(100, 5, size=sample_size))]
+            [sell_gold, np.abs(self.rng.normal(100, 5, size=sample_size))]
         )
         self.orders = np.core.records.fromarrays(
             orders, names=["sell_gold", "sell_amount"]

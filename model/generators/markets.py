@@ -9,6 +9,7 @@ from experiments import simulation_configuration
 from model import constants
 from model.utils.data_feed import DataFeed, DATA_FOLDER, DATA_FILE_NAME
 from model.utils.generator import Generator
+from model.utils.rng_provider import rngp
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
@@ -72,9 +73,10 @@ class MarketPriceGenerator(Generator):
         }
         self.data_folder = "../../data/"
         self.custom_impact_function = custom_impact_function
+        self.rng = rngp.get_rng("MarketPriceGenerator")
 
     @classmethod
-    def from_parameters(cls, params):
+    def from_parameters(cls, params, _initial_state):
         if params["model"] == MarketPriceModel.GBM:
             market_price_generator = cls(
                 params["model"],
@@ -111,6 +113,11 @@ class MarketPriceGenerator(Generator):
                 + 1
             )
             market_price_generator.historical_returns(sample_size)
+            if sample_size > (market_price_generator.increments["cusd_usd"].shape[0]+1):
+                raise RuntimeError(
+                    "Simulation time longer than historical return time series, "
+                    "`SCENARIO`based market price generation not possible"
+                )
             logging.info("increments updated")
         return market_price_generator
 
@@ -232,7 +239,7 @@ class MarketPriceGenerator(Generator):
         sample_size = timesteps * blocks_per_timestep + 1
         drift = np.array(self.mc_parameter["drift"]) / (timesteps_per_year)
         cov = np.array(self.mc_parameter["covariance"]) / (timesteps_per_year)
-        increments = np.exp(np.random.multivariate_normal(drift, cov, sample_size))
+        increments = np.exp(self.rng.multivariate_normal(drift, cov, sample_size))
         self.increments = {
             "cusd_usd": increments[:, 0],
             "celo_usd": increments[:, 1],

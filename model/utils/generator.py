@@ -30,7 +30,7 @@ class Generator(ABC):
 
     @classmethod
     @abstractmethod
-    def from_parameters(cls, params) -> "Generator":
+    def from_parameters(cls, params, initial_state) -> "Generator":
         pass
 
     def state_update_blocks(self, selectors: List[str]):

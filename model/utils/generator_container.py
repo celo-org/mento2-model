@@ -20,11 +20,14 @@ class GeneratorContainer():
     '''
 
     # Keeps a map of subset -> generator_class_name -> generator_instance
-    generators: Dict[str, Generator] = {}
+    generators: Dict[str, Generator]
     params: Any
+    initial_state: Any
 
-    def __init__(self, params: Any):
+    def __init__(self, params: Any, initial_state: Any):
         self.params = params
+        self.initial_state = initial_state
+        self.generators = {}
 
     def get(self, generator_class):
         '''
@@ -33,7 +36,7 @@ class GeneratorContainer():
         assert generator_class is not None, "generator_class is None"
         if self.generators.get(generator_class.__name__) is None:
             self.generators[generator_class.__name__] = \
-                generator_class.from_parameters(self.params)
+                generator_class.from_parameters(self.params, self.initial_state)
 
         return self.generators[generator_class.__name__]
 

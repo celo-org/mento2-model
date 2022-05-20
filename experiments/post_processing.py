@@ -35,8 +35,12 @@ def post_process(df: pd.DataFrame, drop_timestep_zero=True, parameters=parameter
 
     assign_parameters(df, parameters, grid_keys)
 
-    # Expand dictionaries to columns
     df = dict_to_columns(df)
+    df = df.set_index('timestep')
+    df = df.drop(columns=['timestamp'])
+
+    # Calculate mento rate
+    df['mento_rate'] = df['mento_buckets_cusd'] / df['mento_buckets_celo']
 
     # Drop the initial state for plotting
     if drop_timestep_zero:

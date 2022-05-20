@@ -8,7 +8,7 @@ from experiments.post_processing import post_process
 
 # Configure logging framework
 # e.g. Use logging.debug(...) to log to log file
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 # handler = logging.FileHandler(filename=f'logs/experiment-{datetime.now()}.log')
 handler = logging.StreamHandler(sys.stdout)
