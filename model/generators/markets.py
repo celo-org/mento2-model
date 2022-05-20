@@ -115,7 +115,6 @@ class MarketPriceGenerator(Generator):
         """
         This method returns a market price
         """
-        # TODO check that slicing with step is correct
         step = state["timestep"]
         market_prices = {}
         if self.model == MarketPriceModel.QUANTLIB:
