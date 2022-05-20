@@ -32,7 +32,8 @@ state_update_block_market_price_change = {
     """,
     "policies": {"market_price": market_price.p_market_price},
     "variables": {
-        "market_price": update_from_signal("market_price")
+        "market_price": update_from_signal("market_price"),
+        "oracle_rate": update_from_signal("oracle_rate")
     },
 }
 

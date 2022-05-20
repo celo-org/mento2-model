@@ -203,7 +203,11 @@ class MarketPriceGenerator(Generator):
             random_index_array = np.random.randint(low=0,
                                                    high=data_feed.length - 1,
                                                    size=sample_size)
+<<<<<<< HEAD
             data = data[random_index_array, :]
+=======
+            data = data_feed.historical_data[random_index_array, :]
+>>>>>>> 94cfec5 (Multi Market Assets and QuantLib Integration (#128))
         increments = {}
         for index, asset in enumerate(data_feed.assets):
             increments[asset] = data[:, index]
