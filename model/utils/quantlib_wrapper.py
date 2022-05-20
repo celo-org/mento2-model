@@ -89,35 +89,3 @@ class QuantLibWrapper():
         log_returns = np.diff(np.log(paths[0]))
 
         return log_returns
-
-    # def generate_uncorrelated_paths(self):
-    #         sequence_generator = UniformRandomSequenceGenerator(
-    #             len(time_grid), UniformRandomGenerator())
-    #         gaussian_sequence_generator = GaussianRandomSequenceGenerator(
-    #             sequence_generator)
-    #         maturity = time_grid[len(time_grid) - 1]
-    #         path_generator = GaussianPathGenerator(
-    #             process, maturity, len(time_grid), gaussian_sequence_generator, False)
-    #         paths = np.zeros(shape=(number_of_paths, len(time_grid)))
-    #         for path_index in range(number_of_paths):
-    #             path = path_generator.next().value()
-    #             paths[path_index, :] = np.array(
-    #                 [path[j] for j in range(len(time_grid))])
-
-    #     log_returns = np.diff(np.log(paths[0]))
-    #     # the current setup does only support simulation of processes with independent
-    #     # increments or processes without if the value is not changed in other sub-steps
-    #     increments = {}
-    #     for asset, path in list(zip(self.processes, log_returns)):
-    #         increments[asset] = path
-
-    #     return increments
-
-    # def switcher(self, params):
-    #     if (np.array(params['correlation']) -
-    #         np.diag(np.ones(len(params['correlation'])))
-    #             == np.zeros(np.array(params['correlation']).shape)).all():
-    #         process = self.process_container(params=params)
-    #     else:
-    #         process = None
-    #     return process
