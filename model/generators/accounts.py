@@ -79,14 +79,6 @@ class AccountGenerator(Generator):
         self.accounts_by_id[account.account_id] = account
         return account
 
-    def get_save_balances_policy(self):
-        def policy(_params, _substep, _state_history, _prev_state):
-            return dict(
-                reserve_balance=self.reserve.balance.__dict__,
-                floating_supply=self.floating_supply.__dict__,
-            )
-        return policy
-
     @state_update_blocks("traders")
     def traders_execute(self):
         return [
