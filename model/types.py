@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Dict, TypedDict
 
 from enum import Enum
+
 from model.entities.balance import Balance
 
 from model.generators.markets import MarketPriceGenerator
@@ -38,6 +39,7 @@ Timestep = int
 Blocknumber = int
 Day = int
 
+
 class TraderType(Enum):
     """
     different account holders
@@ -47,12 +49,34 @@ class TraderType(Enum):
     RANDOM_TRADER = RandomTrading
     MAX_TRADER = SellMax
 
+
 @dataclass
 class TraderConfig:
     count: int
     balance: Balance
 
+
 Traders = Dict[TraderType, TraderConfig]
+
+
+# Oracles
+
+class OracleType(Enum):
+    SINGLE_SOURCE = 'single_source'
+
+
+class AggregationMethod(Enum):
+    IDENTITY = 'indentity'
+
+
+@dataclass
+class OracleConfig:
+    count: int
+    aggregation: AggregationMethod
+
+
+Oracles = Dict[OracleType, OracleConfig]
+
 
 class MarketPrice(TypedDict):
     cusd_usd: float

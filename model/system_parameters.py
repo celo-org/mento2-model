@@ -13,7 +13,7 @@ import experiments.simulation_configuration as simulation
 
 from model.entities.balance import Balance
 from model.generators.markets import MarketPriceModel
-from model.types import Blocknumber, TraderConfig, TraderType
+from model.types import Blocknumber, OracleConfig, TraderConfig, TraderType, OracleType
 from model.utils import default
 
 
@@ -93,6 +93,17 @@ class Parameters:
         ]
     )
     reserve_inventory: List[Dict] = default([{"celo": 120000000, "cusd": 0}])
+
+    # Oracles
+    oracles: List[Dict[OracleType, Dict[str, Any]]] = default(
+        [
+            {
+                OracleType.SINGLE_SOURCE:
+                    OracleConfig(count=1,
+                                 aggregation=None)
+            }
+        ]
+    )
 
 
 # Initialize Parameters instance with default values
