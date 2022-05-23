@@ -10,9 +10,10 @@ from functools import reduce
 from model.entities.account import Account
 from model.entities.trader import Trader
 from model.entities.balance import Balance
-from model.types import TraderType, Traders
+from model.types import TraderConfig
 from model.utils import update_from_signal
 from model.utils.generator import Generator, state_update_blocks
+from model.utils.generator_container import GENERATOR_CONTAINER_PARAM_KEY, GeneratorContainer
 
 ACCOUNTS_NS = uuid4()
 
@@ -26,25 +27,27 @@ class AccountGenerator(Generator):
     # with entities that aren't tracked as part of the
     # generator.
     untracked_floating_supply: Balance
+    container: GeneratorContainer
 
     def __init__(self,
                 reserve_inventory: Balance,
                 initial_floating_supply: Balance,
-                traders: Traders):
+                traders: List[TraderConfig],
+                container: GeneratorContainer):
         # reserve account with account_id=0
         self.reserve = self.create_reserve_account(
             initial_balance=reserve_inventory
         )
 
-        for (trader_type, trader_params) in traders.items():
-            for index in range(trader_params.count):
+        for trader in traders:
+            for index in range(trader.count):
                 self.create_trader(
-                    account_name=f"{trader_type}_{index}",
-                    initial_balance=trader_params.balance,
-                    trader_type=trader_type
+                    account_name=f"{trader.trader_type}_{index}",
+                    config=trader
                 )
 
         self.untracked_floating_supply = initial_floating_supply - self.tracked_floating_supply
+        self.container = container
 
     @classmethod
     def from_parameters(cls, params, initial_state):
@@ -52,6 +55,7 @@ class AccountGenerator(Generator):
             Balance(**params["reserve_inventory"]),
             Balance(**initial_state["floating_supply"]),
             params["traders"],
+            params[GENERATOR_CONTAINER_PARAM_KEY],
         )
 
         return accounts
@@ -68,13 +72,12 @@ class AccountGenerator(Generator):
         )
         return reserve_account
 
-    def create_trader(self, account_name: str, initial_balance: Balance, trader_type: TraderType):
+    def create_trader(self, account_name: str, config: TraderConfig):
         account = Trader(
             self,
             account_id=uuid5(ACCOUNTS_NS, account_name),
             account_name=account_name,
-            balance=initial_balance,
-            strategy=trader_type.value,
+            config=config
         )
         self.accounts_by_id[account.account_id] = account
         return account
@@ -98,9 +101,9 @@ class AccountGenerator(Generator):
         ]
 
     def get_trader_policy(self, account_id):
-        def policy(params, substep, state_history, prev_state):
+        def policy(params, _substep, _state_history, prev_state):
             trader = self.get(account_id)
-            return trader.execute(params, substep, state_history, prev_state)
+            return trader.execute(params, prev_state)
         return policy
 
     def traders(self) -> List[Trader]:

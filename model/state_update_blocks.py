@@ -5,7 +5,7 @@ import logging
 
 # from model.system_parameters import parameters
 from model.generators.accounts import AccountGenerator
-from model.parts import buy_and_sell
+from model.generators.mento import MentoExchangeGenerator
 from model.parts import celo_system
 import model.parts.market_prices as market_price
 from model.utils import update_from_signal
@@ -39,18 +39,6 @@ state_update_block_market_price_change = {
     },
 }
 
-state_update_block_periodic_mento_bucket_update = {
-    "description": """
-        Updates blocks only when update bucket_update_frequency_seconds has passed since last update:
-    """,
-    'policies': {
-        'bucket_update': buy_and_sell.p_bucket_update
-    },
-    'variables': {
-        'mento_buckets': update_from_signal('mento_buckets')
-    }
-}
-
 state_update_block_epoch_rewards = {
     "description": """
         epoch rewards propagation:
@@ -68,7 +56,7 @@ state_update_block_epoch_rewards = {
 # Create state_update blocks list
 _state_update_blocks = [
     state_update_block_market_price_change,
-    state_update_block_periodic_mento_bucket_update,
+    generator_state_update_block(MentoExchangeGenerator, "bucket_update"),
     generator_state_update_block(AccountGenerator, "traders"),
     state_update_block_epoch_rewards,
     state_update_block_price_impact,

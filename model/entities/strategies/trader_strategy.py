@@ -10,15 +10,30 @@
 """
 from cvxpy import Maximize, Minimize, Problem, Variable
 import cvxpy
-from model.entities.balance import Balance
-from model.parts import buy_and_sell
 
-# pylint: disable= missing-class-docstring
+from model.entities.trader import Trader
+from model.generators.mento import MentoExchangeGenerator
+from model.types import Crypto, Fiat, MentoBuckets, MentoExchangeConfig, Stable
+
+# pylint: disable=missing-class-docstring
 # pylint: disable=broad-except
+# pylint: disable=too-many-instance-attributes
 class TraderStrategy:
-    def __init__(self, parent, acting_frequency):
+    parent: Trader
+    stable: Stable
+    stable_fiat: Fiat
+    reserve_currency: Crypto
+    mento: MentoExchangeGenerator
+    exchange_config: MentoExchangeConfig
+
+    def __init__(self, parent: Trader, acting_frequency):
         self.parent = parent
         self.acting_frequency = acting_frequency
+        self.stable = self.parent.exchange_config.stable
+        self.stable_fiat = self.parent.exchange_config.stable_fiat
+        self.reserve_currency = self.parent.exchange_config.reserve_currency
+        self.mento = self.parent.mento
+        self.exchange_config = self.mento.configs.get(self.parent.config.exchange)
 
         # The following is used to define the strategy and needs to be
         #  provided in subclass
@@ -32,11 +47,14 @@ class TraderStrategy:
         self.sell_amount = None
         self.order = None
 
-    def sell_gold(self, params, prev_state):
+
+    def sell_reserve_currency(self, params, prev_state):
         """
-        Provides a function indicating the direction of the celo cashflow
+        Provides a function indicating the direction of the mento cashflow
+        wether we sell or buy the reserve currency, which is CELO in
+        the v1 AMM, but could be wBTC or ETH.
         """
-        raise NotImplementedError("Subclasses must implement sell_gold()")
+        raise NotImplementedError("Subclasses must implement sell_reserve_currency()")
 
     def define_variables(self):
         self.variables["sell_amount"] = Variable(pos=True)
@@ -54,13 +72,12 @@ class TraderStrategy:
         """
         self.constraints = []
         # TODO: Get budget based on account
-        max_budget_cusd = self.parent.balance["cusd"]
-        max_budget_celo = self.parent.balance["celo"]
-        if self.sell_gold(params, prev_state):
-            self.constraints.append(self.variables["sell_amount"] <= max_budget_celo)
-
+        max_budget_stable = self.parent.balance.get(self.stable)
+        max_budget_reserve_currency = self.parent.balance.get(self.reserve_currency)
+        if self.sell_reserve_currency(params, prev_state):
+            self.constraints.append(self.variables["sell_amount"] <= max_budget_reserve_currency)
         else:
-            self.constraints.append(self.variables["sell_amount"] <= max_budget_cusd)
+            self.constraints.append(self.variables["sell_amount"] <= max_budget_stable)
 
     def define_objective_function(self, _params, _prev_state):
         """
@@ -119,29 +136,21 @@ class TraderStrategy:
 
     # pylint: disable=duplicate-code
 
-    # def create_meta_order(self, trade, params):
-    #     if trade['sell_gold'] == True:
-    #         buy_amount = min(1/10 * params['average_daily_volume']['cusd_usd'],
-    #  trade['buy_amount'])
-    #     elif trade['sell_gold'] == False:
-    #         buy_amount = min(1/10 * params['average_daily_volume']['celo_usd'],
-    #  trade['buy_amount'])
-    #     return
-
     # pylint: disable=no-self-use
-    def minimise_price_impact(self, sell_amount, sell_gold, params):
+    def minimise_price_impact(self, sell_amount, sell_reserve_currency, params):
         """
         trader reduces sell amount to reduce market impact
         """
         # Todo logic is probably wrong, fix!
-        if sell_gold:
-
+        if sell_reserve_currency:
             sell_amount_adjusted = min(
-                params["average_daily_volume"]["cusd_usd"], sell_amount
+                params["average_daily_volume"].get(self.stable).get(Fiat.USD),
+                sell_amount
             )
-        elif not sell_gold:
+        elif not sell_reserve_currency:
             sell_amount_adjusted = min(
-                params["average_daily_volume"]["celo_usd"], sell_amount
+                params["average_daily_volume"].get(self.reserve_currency).get(Fiat.USD),
+                sell_amount
             )
         return sell_amount_adjusted
 
@@ -165,42 +174,28 @@ class TraderStrategy:
             if sell_amount is None:
                 trade = None
             else:
-                sell_gold = self.sell_gold(params, prev_state)
-                sell_amount = self.minimise_price_impact(sell_amount, sell_gold, params)
-                buy_amount = buy_and_sell.get_buy_amount(
-                    params=params,
-                    prev_state=prev_state,
+                sell_reserve_currency = self.sell_reserve_currency(params, prev_state)
+                sell_amount = self.minimise_price_impact(sell_amount, sell_reserve_currency, params)
+                buy_amount = self.mento.get_buy_amount(
+                    exchange=self.parent.config.exchange,
                     sell_amount=sell_amount,
-                    sell_gold=sell_gold,
+                    sell_reserve_currency=sell_reserve_currency,
+                    prev_state=prev_state,
                 )
 
                 trade = {
-                    "sell_gold": sell_gold,
+                    "sell_reserve_currency": sell_reserve_currency,
                     "sell_amount": sell_amount,
                     "buy_amount": buy_amount,
                 }
-
         return trade
 
-    @staticmethod
-    def portfolio_balancing(account, sell_amount, sell_gold, prev_state):
-        """
-        trader strategy to balance portfolio for maximum arbitrage profit
-        """
-        if sell_gold and account.balance["celo"] < sell_amount:
-            price_celo_cusd = (
-                prev_state["market_price"]["celo_usd"]
-                / prev_state["market_price"]["cusd_usd"]
-            )
-            # delta_celo = sell_amount - self.balance["celo"]
-            delta_cusd = -account.balance["cusd"]
-            delta_celo = -delta_cusd / price_celo_cusd
-            account.balance += Balance(cusd=delta_cusd, celo=delta_celo)
-        elif (not sell_gold) and (account.balance["cusd"] < sell_amount):
-            price_celo_cusd = (
-                prev_state["market_price"]["celo_usd"]
-                / prev_state["market_price"]["cusd_usd"]
-            )
-            delta_celo = -account.balance["celo"]
-            delta_cusd = -delta_celo * price_celo_cusd
-            account.balance += Balance(cusd=delta_cusd, celo=delta_celo)
+    def market_price(self, prev_state) -> float:
+        # TODO: Do we need to quote in equivalent Fiat for Stable?
+        return (
+            prev_state["market_price"].get(self.reserve_currency).get(self.stable_fiat)
+            / prev_state["market_price"].get(self.stable).get(self.stable_fiat)
+        )
+
+    def mento_buckets(self, prev_state) -> MentoBuckets:
+        return prev_state["mento_buckets"].get(self.parent.config.exchange)

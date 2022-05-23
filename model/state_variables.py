@@ -5,21 +5,23 @@ By using a dataclass to represent the State Variables:
 * Set default values
 * Ensure that all State Variables are initialized
 """
-
+# pylint: disable=too-many-instance-attributes
 
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Dict
+from typing import Dict, Union
 from model.utils import default
 
 from model.types import (
-    TokenPerToken,
-    TokenBalance,
-    MarketPrice,
+    Crypto,
+    CurrencyRate,
+    Fiat,
+    MentoBuckets,
+    Stable,
     MarketBuckets,
 )
 
 from data.historical_values import  celo_supply_mean, cusd_supply_mean
+
 
 @dataclass
 class StateVariables:
@@ -28,46 +30,54 @@ class StateVariables:
     state variable key: state variable type = default state variable value
     """
 
-    # pylint: disable=too-many-instance-attributes
-    # Time state variables
-    timestamp: datetime = None
-    """
-    The timestamp for each timestep as a Python `datetime` object, starting
-    from `date_start` Parameter.
-    """
-
-
     # The initial floating supply of the simulation
-    floating_supply: Dict[str, TokenBalance] = default(
-        {"celo": celo_supply_mean, "cusd": cusd_supply_mean}
-    )
+    floating_supply: Dict[Union[Crypto, Stable], float] = default({
+        Stable.CUSD: cusd_supply_mean,
+        Crypto.CELO: celo_supply_mean
+    })
 
-    # Celo state variables
-    oracle_rate: TokenPerToken = 3
-    """The Mento CELO/cUSD rate """
+    oracle_rate: CurrencyRate = default({
+        Crypto.CELO: {
+            Stable.CUSD: 3,
+            Stable.CEUR: 3,
+            Stable.CREAL: 3,
+        }
+    })
 
     # Reserve state variable
-    reserve_balance: Dict[str, TokenBalance] = default(
-        {"celo": 120000000.0, "cusd": 0.0}
-    )
-
+    reserve_balance: Dict[Crypto, float] = default({
+        Crypto.CELO: 120000000.0
+    })
     # Mento state variables
     # TODO initial calibration of buckets
-    mento_buckets: Dict[str, TokenBalance] = default(
-        {
-            "celo": 0,
-            "cusd": 0,
-        }
-    )
+    mento_buckets: Dict[Stable, MentoBuckets] = default({
+        Stable.CUSD: MentoBuckets(0, 0),
+        Stable.CEUR: MentoBuckets(0, 0),
+        Stable.CREAL: MentoBuckets(0, 0)
+    })
 
 
     # Virtual Market Fiat Bucket
-    market_buckets: MarketBuckets = default({"usd": cusd_supply_mean})
+    market_buckets: MarketBuckets = default({
+        Fiat.USD: cusd_supply_mean
+    })
 
-    market_price: MarketPrice = default({"cusd_usd": 1, "celo_usd": 3})
-
-    number_of_accounts: int = default(1)
-
+    market_price: CurrencyRate = default({
+        Crypto.CELO: {
+            Fiat.USD: 3,
+            Fiat.EUR: 3,
+            Fiat.BRL: 3,
+        },
+        Stable.CUSD: {
+            Fiat.USD: 1
+        },
+        Stable.CEUR: {
+            Fiat.EUR: 1
+        },
+        Stable.CREAL: {
+            Fiat.BRL: 1
+        },
+    })
 
 # Initialize State Variables instance with default values
 initial_state = StateVariables().__dict__

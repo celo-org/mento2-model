@@ -2,9 +2,7 @@
 Sell Max Strategy
 """
 from cvxpy import Variable
-
 from .trader_strategy import TraderStrategy
-
 
 class SellMax(TraderStrategy):
     """
@@ -16,13 +14,14 @@ class SellMax(TraderStrategy):
         self.sell_amount = None
 
     # @staticmethod
-    def sell_gold(self, params, prev_state):
-        # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
+    def sell_reserve_currency(self, _params, prev_state):
+        # Arb trade will sell reserve_currency if market price > mento price
+        mento_buckets = self.mento_buckets(prev_state)
         return (
-            prev_state["market_price"]["celo_usd"]
-            < (1 - params["spread"])
-            * prev_state["mento_buckets"]["cusd"]
-            / prev_state["mento_buckets"]["celo"]
+            prev_state["market_price"].get(self.reserve_currency).get(self.stable_fiat)
+            < (1 - self.exchange_config.spread)
+            * mento_buckets.stable
+            / mento_buckets.reserve_currency
         )
 
     def define_variables(self):
@@ -32,27 +31,28 @@ class SellMax(TraderStrategy):
         """
         Can be used as part of the objective and/or as constraints
         """
-        if self.sell_gold(params, prev_state):
+        mento_buckets = self.mento_buckets(prev_state)
+        spread = self.exchange_config.spread
+
+        if self.sell_reserve_currency(params, prev_state):
             nominator = (
-                prev_state["mento_buckets"]["celo"]
-                * prev_state["mento_buckets"]["cusd"]
+                mento_buckets.reserve_currency
+                * mento_buckets.stable
             )
             denominator = (
-                prev_state["mento_buckets"]["celo"] + self.variables["sell_amount"]
+                mento_buckets.reserve_currency + self.variables["sell_amount"]
             ) * (
-                prev_state["mento_buckets"]["celo"]
-                - self.variables["sell_amount"] * (params["spread"] - 1)
+                mento_buckets.reserve_currency - self.variables["sell_amount"] * (spread - 1)
             )
         else:
             nominator = (
-                prev_state["mento_buckets"]["cusd"] + self.variables["sell_amount"]
+                mento_buckets.stable + self.variables["sell_amount"]
             ) * (
-                prev_state["mento_buckets"]["cusd"]
-                - self.variables["sell_amount"] * (params["spread"] - 1)
+                mento_buckets.stable
+                - self.variables["sell_amount"] * (spread - 1)
             )
             denominator = (
-                prev_state["mento_buckets"]["celo"]
-                * prev_state["mento_buckets"]["cusd"]
+                mento_buckets.reserve_currency * mento_buckets.stable
             )
 
         oracle_rate_after_trade = nominator / denominator
@@ -72,9 +72,9 @@ class SellMax(TraderStrategy):
     def define_constraints(self, params, prev_state):
         self.constraints = []
         # TODO: Get budget based on account
-        max_budget_cusd = 10000
-        max_budget_celo = 10000
-        if self.sell_gold(params, prev_state):
-            self.constraints.append(self.variables["sell_amount"] <= max_budget_celo)
+        max_budget_stable = 10000
+        max_budget_reserve_currency = 10000
+        if self.sell_reserve_currency(params, prev_state):
+            self.constraints.append(self.variables["sell_amount"] <= max_budget_reserve_currency)
         else:
-            self.constraints.append(self.variables["sell_amount"] <= max_budget_cusd)
+            self.constraints.append(self.variables["sell_amount"] <= max_budget_stable)

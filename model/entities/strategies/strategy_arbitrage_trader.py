@@ -4,11 +4,12 @@ Strategy: Arbitrage Trader
 from enum import Enum
 import numpy as np
 
+from model.types import MentoBuckets
 from .trader_strategy import TraderStrategy
 
 class TradingRegime(Enum):
-    SELL_CUSD = "SELL_CUSD"
-    SELL_CELO = "SELL_CELO"
+    SELL_STABLE = "SELL_STABLE"
+    SELL_RESERVE_CURRENCY = "SELL_RESERVE_CURRENCY"
     PASS = "PASS"
 
 
@@ -24,34 +25,31 @@ class ArbitrageTrading(TraderStrategy):
         super().__init__(parent, acting_frequency)
         self.sell_amount = None
 
-    def sell_gold(self, params, prev_state):
+    def sell_reserve_currency(self, params, prev_state):
         # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
-        return self.trading_regime(params, prev_state) == TradingRegime.SELL_CELO
+        return self.trading_regime(prev_state) == TradingRegime.SELL_RESERVE_CURRENCY
 
-    @staticmethod
-    def trading_regime(params, prev_state) -> TradingRegime:
+    def trading_regime(self, prev_state) -> TradingRegime:
         """
         Indicates how the trader will act depending on the relation of mento price
         and market price
         """
-        price_celo_cusd = (
-            prev_state["market_price"]["celo_usd"]
-            / prev_state["market_price"]["cusd_usd"]
-        )
-        price_up_profit = (
-            price_celo_cusd * (1 - params["spread"])
-            > prev_state["mento_buckets"]["cusd"] / prev_state["mento_buckets"]["celo"]
-        )
+        mento_buckets = self.mento_buckets(prev_state)
+        market_price = self.market_price(prev_state)
 
+        price_up_profit = (
+            market_price * (1 - self.exchange_config.spread)
+            > mento_buckets.stable / mento_buckets.reserve_currency
+        )
         price_down_profit = (
-            price_celo_cusd / (1 - params["spread"])
-            < prev_state["mento_buckets"]["cusd"] / prev_state["mento_buckets"]["celo"]
+            market_price / (1 - self.exchange_config.spread)
+            < mento_buckets.stable / mento_buckets.reserve_currency
         )
 
         if price_up_profit:
-            return TradingRegime.SELL_CUSD
+            return TradingRegime.SELL_STABLE
         if price_down_profit:
-            return TradingRegime.SELL_CELO
+            return TradingRegime.SELL_RESERVE_CURRENCY
         return TradingRegime.PASS
 
     def define_expressions(self, params, prev_state):
@@ -59,110 +57,99 @@ class ArbitrageTrading(TraderStrategy):
         Defines and returns the expressions (made of variables and parameters)
         that are used in the optimization (random trader)
         """
-        price_celo_cusd = (
-            prev_state["market_price"]["celo_usd"]
-            / prev_state["market_price"]["cusd_usd"]
-        )
+        market_price = self.market_price(prev_state)
+        mento_buckets = self.mento_buckets(prev_state)
+        spread = self.exchange_config.spread
 
-        if self.trading_regime(params, prev_state) == "SELL_CUSD":
+        if self.trading_regime(prev_state) == TradingRegime.SELL_STABLE:
+            self.expressions["profit"] = (
+                -1 * self.variables["sell_amount"]
+                * mento_buckets.reserve_currency
+                * (1 - spread)
+                / mento_buckets.stable
+                + (1 - spread) * self.variables["sell_amount"]
+                + market_price * self.variables["sell_amount"]
+            )
+        elif self.trading_regime(prev_state) == TradingRegime.SELL_RESERVE_CURRENCY:
             self.expressions["profit"] = (
                 -self.variables["sell_amount"]
-                * prev_state["mento_buckets"]["celo"]
-                * (1 - params["spread"])
-                / prev_state["mento_buckets"]["cusd"]
-                + (1 - params["spread"]) * self.variables["sell_amount"]
-                + price_celo_cusd * self.variables["sell_amount"]
+                * mento_buckets.stable
+                * (1 - spread)
+                / mento_buckets.reserve_currency
+                + (1 - spread) * self.variables["sell_amount"]
+                + 1 / market_price * self.variables["sell_amount"]
             )
-            # self.profit(
-            #     prev_state["mento_buckets"]["cusd"],
-            #     prev_state["mento_buckets"]["celo"],
-            #     price_celo_cusd,
-            #     params["spread"],
-            # )
-        elif self.trading_regime(params, prev_state) == "SELL_CELO":
-            self.expressions["profit"] = (
-                -self.variables["sell_amount"]
-                * prev_state["mento_buckets"]["cusd"]
-                * (1 - params["spread"])
-                / prev_state["mento_buckets"]["celo"]
-                + (1 - params["spread"]) * self.variables["sell_amount"]
-                + 1 / price_celo_cusd * self.variables["sell_amount"]
-            )
-            # self.expressions["profit"] = self.profit(
-            #     prev_state["mento_buckets"]["celo"],
-            #     prev_state["mento_buckets"]["cusd"],
-            #     1 / price_celo_cusd,
-            #     params["spread"],
-            # )
 
-    def profit(self, bucket_sell, bucket_buy, price, spread):
-        profit = (
-            -self.variables["sell_amount"]
-            * bucket_buy
-            * (1 - spread)
-            / (bucket_sell + (1 - spread) * self.variables["sell_amount"])
-            + price * self.variables["sell_amount"]
-        )
-
-        return profit
-
-    def trader_passes_step(self, params, prev_state):
-        return (self.trading_regime(params, prev_state) == "PASS") | \
+    def trader_passes_step(self, _params, prev_state):
+        return (self.trading_regime(prev_state) == "PASS") or \
                (prev_state["timestep"] % self.acting_frequency != 0)
 
     # # pylint: disable=attribute-defined-outside-init
-    def calculate(self, params, prev_state):
+    def calculate(self, _params, prev_state):
         """
         Calculates optimal trade if analytical solution is available
         """
-        price_celo_cusd = (
-            prev_state["market_price"]["celo_usd"]
-            / prev_state["market_price"]["cusd_usd"]
-        )
-        if (price_celo_cusd) * (1 - params["spread"]) > prev_state["mento_buckets"][
-            "cusd"
-        ] / prev_state["mento_buckets"]["celo"]:
-            self.sell_order_cusd(
-                prev_state["mento_buckets"]["cusd"],
-                prev_state["mento_buckets"]["celo"],
-                price_celo_cusd,
-                params["spread"],
+        market_price = self.market_price(prev_state)
+        mento_buckets = self.mento_buckets(prev_state)
+        spread = self.exchange_config.spread
+        mento_price = mento_buckets.stable / mento_buckets.reserve_currency
+
+        if market_price * (1 - spread) > mento_price:
+            self.sell_order_stable(
+                mento_buckets,
+                market_price,
+                spread
             )
-        elif (
-            price_celo_cusd / (1 - params["spread"])
-            < prev_state["mento_buckets"]["cusd"] / prev_state["mento_buckets"]["celo"]
-        ):
-            self.sell_order_celo(
-                prev_state["mento_buckets"]["cusd"],
-                prev_state["mento_buckets"]["celo"],
-                price_celo_cusd,
-                params["spread"],
+        elif market_price / (1 - spread) < mento_buckets:
+            self.sell_order_reserve_currency(
+                mento_buckets,
+                market_price,
+                spread
             )
         else:
             self.order = {"sell_amount": None}
         self.sell_amount = self.order["sell_amount"]
 
-    def sell_order_cusd(self, bucket_cusd, bucket_celo, price_celo_cusd, spread):
-        balance_cusd = self.parent.balance.cusd
-        balance_celo = self.parent.balance.celo
-        max_budget_cusd = balance_cusd + price_celo_cusd * balance_celo
+    def sell_order_stable(self, buckets: MentoBuckets, market_price: float, spread: float):
+        """
+        Calculate order for selling the stable
+        """
+        balance_stable = self.parent.balance.get(self.stable)
+        balance_reserve_currency = self.parent.balance.get(self.reserve_currency)
+
+        max_budget_stable = balance_stable + market_price * balance_reserve_currency
         sell_amount = self.optimal_sell_amount(
-            bucket_cusd, bucket_celo, price_celo_cusd, spread
+            buckets.stable,
+            buckets.reserve_currency,
+            market_price,
+            spread
         )
+
         self.order = {
             "sell_amount": min(
                 sell_amount,
-                max_budget_cusd,
+                max_budget_stable,
             ),
-            "sell_gold": False,
+            "sell_reserve_currency": False,
         }
 
-    def sell_order_celo(self, bucket_cusd, bucket_celo, price_celo_cusd, spread):
-        balance_cusd = self.parent.balance.cusd
-        balance_celo = self.parent.balance.celo
-        max_budget_celo = balance_celo + balance_cusd / price_celo_cusd
+    def sell_order_reserve_currency(
+        self,
+        buckets: MentoBuckets,
+        market_price: float,
+        spread: float):
+        """
+        Calculate order for selling the reserve currency
+        """
+        balance_stable = self.parent.balance.get(self.stable)
+        balance_reserve_currency = self.parent.balance.get(self.reserve_currency)
+
+        max_budget_celo = balance_reserve_currency + balance_stable / market_price
         sell_amount = self.optimal_sell_amount(
-            bucket_celo, bucket_cusd, 1 / price_celo_cusd, spread
+            buckets.reserve_currency,
+            buckets.stable,
+            1 / market_price,
+            spread
         )
 
         self.order = {
@@ -170,7 +157,7 @@ class ArbitrageTrading(TraderStrategy):
                 sell_amount,
                 max_budget_celo,
             ),
-            "sell_gold": True,
+            "sell_reserve_currency": True,
         }
 
     # pylint: disable=no-self-use
