@@ -19,23 +19,21 @@ def p_market_price(
     Provides a market price environment
     """
     market_price = market_price_generator.market_price(prev_state)
-    market_buckets = {
-        "usd": prev_state["floating_supply"]["cusd"] * market_price["cusd_usd"]
-    }
     return {
         "market_price": market_price,
-        "market_buckets": market_buckets,
         "oracle_rate": market_price["celo_usd"],
     }
 
 
-@inject(MarketPriceGenerator)
+@ inject(MarketPriceGenerator)
 def p_price_impact(
     params,
     _substep,
     state_history,
     prev_state,
     market_price_generator: MarketPriceGenerator,
+
+
 ):
     """
     This function adds the delayed accumulated supply of the
@@ -49,7 +47,7 @@ def p_price_impact(
         pre_floating_supply=state_history[-1][-1]["floating_supply"],
         current_step=prev_state["timestep"],
         market_prices=prev_state["market_price"],
-        params=params,
+        params=params
     )
 
     return {"market_price": market_price}

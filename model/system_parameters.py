@@ -7,8 +7,8 @@ By using a dataclass to represent the System Parameters:
 """
 
 from dataclasses import dataclass
-from typing import List, Dict
-
+from typing import List, Dict, Tuple
+from QuantLib import GeometricBrownianMotionProcess
 import experiments.simulation_configuration as simulation
 
 from model.entities.balance import Balance
@@ -96,8 +96,27 @@ class Parameters:
 
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.GBM])
-    covariance_market_price: List[float] = default([[[0.01, 0], [0, 1]]])
+    model: List[MarketPriceModel] = default([MarketPriceModel.QUANTLIB])
+
+    # check order of parameters for each model, e.g. for GBM param_1 is drift and
+    # param_2 is volatility
+    processes: List[Dict] = default(
+        [
+            {
+                'celo_usd': {'process': GeometricBrownianMotionProcess,
+                             'param_1': 0,
+                             'param_2': 1},
+                'cusd_usd': {'process': GeometricBrownianMotionProcess,
+                             'param_1': 0,
+                             'param_2': 0.01},
+                'btc_usd': {'process': GeometricBrownianMotionProcess,
+                            'param_1': 0,
+                            'param_2': 0.01}
+
+            }
+        ]
+    )
+    correlation: List[float] = default([[[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
     drift_market_price: List[float] = default([[-5*5, 0]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
     # custom_impact: List[FunctionType] = default(
@@ -123,6 +142,21 @@ class Parameters:
         }
     ])
 
+    # Impact Parameters
+    impacted_assets: List[List[Tuple[Currency, Fiat]]] = default([[
+        (Crypto.CELO, Fiat.USD),
+        (Stable.CUSD, Fiat.USD)
+    ]])
+    variance_market_price: List[Dict[Currency, Dict[Fiat, float]]] = default([{
+        Crypto.CELO: {
+            Fiat.USD: 1
+        },
+        Stable.CUSD: {
+            Fiat.USD: 0.01
+        }
+    }])
+
+    # Trader Balances
     traders: List[List[TraderConfig]] = default(
         [
             TraderConfig(
