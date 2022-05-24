@@ -64,7 +64,10 @@ class StateVariables:
     # Virtual Market Fiat Bucket
     market_buckets: MarketBuckets = default({"usd": cusd_supply_mean})
 
-    market_price: MarketPrice = default({"cusd_usd": 1, "celo_usd": 3})
+    market_price: MarketPrice = default({"cusd_usd": 1,
+                                         "celo_usd": 3,
+                                         "btc_usd": 30000,
+                                         "eth_usd": 2000})
 
     number_of_accounts: int = default(1)
 
