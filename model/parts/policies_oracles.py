@@ -21,5 +21,5 @@ def p_oracle_report(
     if (prev_state['timestep'] > 1) and buckets_should_be_reset(params, prev_state):
         oracle_rates = oracle_rate_generator.exchange_rate(state_history, prev_state)
     else:
-        oracle_rates = prev_state['oracle_rate']
+        oracle_rates = {'celo_usd': prev_state['market_price']['celo_usd']}
     return {'oracle_rate': oracle_rates}

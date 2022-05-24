@@ -45,22 +45,21 @@ class OracleRateGenerator(Generator):
     def create_oracle(self, oracle_name: str, aggregation: AggregationMethod):
         oracle_provider = OracleProvider(oracle_name=oracle_name,
                                          oracle_id=uuid5(ACCOUNTS_NS, oracle_name),
-                                         aggregation=aggregation,
+                                         aggregation=aggregation, delay=10
                                          )
         self.oracles_by_id[oracle_provider.oracle_id] = oracle_provider
         return oracle_provider
 
+    def delay(self):
+        """
+        Delay function for advanced delaying or different delay types (e.r. random)
+        """
+
     def exchange_rate(self, state_history, prev_state):
-        oracle_reports = [oracle.report(10, state_history, prev_state)
+        exchange_rate = self.aggregation(state_history, prev_state)
+        return exchange_rate
+
+    def aggregation(self, state_history, prev_state):
+        oracle_reports = [oracle.report(state_history, prev_state)
                           for _oracle_id, oracle in self.oracles_by_id.items()]
         return oracle_reports[0]
-
-    # def oracle_report_reception_order():
-
-    #     oracle_reports = [oracle.report()
-    #                       for oracle_id, oracle in self.oracles_by_id.items()]
-
-    # def aggregation(self,):
-    #     oracle_reports = [oracle.report()  for oracle_id, oracle  in self.oracles_by_id.items()]
-    #     np.
-    #     return
