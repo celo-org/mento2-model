@@ -9,7 +9,6 @@ from typing import Dict, TypedDict
 from enum import Enum
 from model.entities.balance import Balance
 
-from model.generators.markets import MarketPriceGenerator
 from model.entities.strategies import RandomTrading, SellMax, ArbitrageTrading
 
 # Celo system types
@@ -38,6 +37,7 @@ Timestep = int
 Blocknumber = int
 Day = int
 
+
 class TraderType(Enum):
     """
     different account holders
@@ -47,21 +47,36 @@ class TraderType(Enum):
     RANDOM_TRADER = RandomTrading
     MAX_TRADER = SellMax
 
+
 @dataclass
 class TraderConfig:
     count: int
     balance: Balance
 
+
 Traders = Dict[TraderType, TraderConfig]
+
 
 class MarketPrice(TypedDict):
     cusd_usd: float
 
 
-# Todo Solve naming conflict
-class MarketPriceG(TypedDict):
-    cusd_usd: MarketPriceGenerator
-
-
 class MarketBuckets(TypedDict):
     usd: float
+
+
+class MarketPriceModel(Enum):
+    QUANTLIB = "quantlib"
+    PRICE_IMPACT = "price_impact"
+    HIST_SIM = "hist_sim"
+    SCENARIO = "scenario"
+
+
+class PriceImpact(Enum):
+    ROOT_QUANTITY = "root_quantity"
+    CUSTOM = "custom"
+
+
+class ImpactDelay(Enum):
+    INSTANT = "instant"
+    NBLOCKS = "nblocks"

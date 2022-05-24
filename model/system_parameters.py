@@ -13,7 +13,7 @@ import experiments.simulation_configuration as simulation
 
 from model.entities.balance import Balance
 from model.generators.markets import MarketPriceModel
-from model.types import Blocknumber, TraderConfig, TraderType
+from model.types import Blocknumber, ImpactDelay, TraderConfig, TraderType
 from model.utils import default
 
 
@@ -75,6 +75,7 @@ class Parameters:
     # )
 
     # Impact Parameters
+    impact_delay: List[Dict] = default([{'model': ImpactDelay.NBLOCKS, 'param_1': 10}])
     impacted_assets: List[List] = default([['celo_usd', 'cusd_usd']])
     average_daily_volume: List[Dict] = default(
         [{"celo_usd": 1000000, "cusd_usd": 1000000}]
