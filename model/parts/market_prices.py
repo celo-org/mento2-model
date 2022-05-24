@@ -24,15 +24,13 @@ def p_market_price(
     }
 
 
-@ inject(MarketPriceGenerator)
+@inject(MarketPriceGenerator)
 def p_price_impact(
     params,
     _substep,
     state_history,
     prev_state,
     market_price_generator: MarketPriceGenerator,
-
-
 ):
     """
     This function adds the delayed accumulated supply of the

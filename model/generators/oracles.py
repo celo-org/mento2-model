@@ -20,7 +20,8 @@ np.seterr(all='raise')
 
 class OracleRateGenerator(Generator):
     """
-    This class is providing a market environment
+    This class is providing oracle rates and is responsible generating oracle providers
+     and emulate the functionality of sorted_oracles.sol
     """
     oracles_by_id: Dict[UUID, OracleProvider] = {}
 
