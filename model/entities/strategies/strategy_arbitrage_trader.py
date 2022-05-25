@@ -65,18 +65,18 @@ class ArbitrageTrading(TraderStrategy):
         if self.trading_regime(prev_state) == TradingRegime.SELL_STABLE:
             self.expressions["profit"] = (
                 -1 * self.variables["sell_amount"]
-                * mento_buckets.reserve_asset
+                * mento_buckets['reserve_asset']
                 * (1 - spread)
-                / mento_buckets.stable
+                / mento_buckets['stable']
                 + (1 - spread) * self.variables["sell_amount"]
                 + market_price * self.variables["sell_amount"]
             )
         elif self.trading_regime(prev_state) == TradingRegime.SELL_RESERVE_ASSET:
             self.expressions["profit"] = (
                 -self.variables["sell_amount"]
-                * mento_buckets.stable
+                * mento_buckets['stable']
                 * (1 - spread)
-                / mento_buckets.reserve_asset
+                / mento_buckets['reserve_asset']
                 + (1 - spread) * self.variables["sell_amount"]
                 + 1 / market_price * self.variables["sell_amount"]
             )

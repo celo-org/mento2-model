@@ -20,8 +20,8 @@ class SellMax(TraderStrategy):
         return (
             prev_state["market_price"].get(self.reserve_asset).get(self.peg)
             < (1 - self.exchange_config.spread)
-            * mento_buckets.stable
-            / mento_buckets.reserve_asset
+            * mento_buckets['stable']
+            / mento_buckets['reserve_asset']
         )
 
     def define_variables(self):
