@@ -47,7 +47,7 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.QUANTLIB])
+    model: List[MarketPriceModel] = default([MarketPriceModel.SCENARIO])
 
     # check order of parameters for each model, e.g. for GBM param_1 is drift and
     # param_2 is volatility

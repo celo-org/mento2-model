@@ -1,13 +1,17 @@
-import pandas as pd
+"""
+Executes simulation experiments
+"""
+
 import logging
 import sys
 import time
+import pandas as pd
 
 from experiments.default_experiment import experiment
 from experiments.post_processing import post_process
 
 # Configure logging framework
-# e.g. Use logging.debug(...) to log to log file
+# e.g. Use logging.info(...) to log to log file
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 # handler = logging.FileHandler(filename=f'logs/experiment-{datetime.now()}.log')
@@ -18,6 +22,9 @@ logger.addHandler(handler)
 
 
 def run(executable=experiment):
+    """
+    executes experiment
+    """
     logging.info("Running experiment")
     start_time = time.time()
 
