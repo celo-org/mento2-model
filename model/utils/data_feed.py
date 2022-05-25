@@ -65,4 +65,4 @@ class DataFeed:
         """
         calculates log returns out of a data frame with price time series in its columns
         """
-        return data_frame.apply(lambda column: np.log(column/column.shift(1)).dropna())
+        return data_frame.apply(lambda column: np.log((column/column.shift(1)).dropna()))
