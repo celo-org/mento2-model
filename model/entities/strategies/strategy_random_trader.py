@@ -24,8 +24,8 @@ class RandomTrading(TraderStrategy):
         self.sell_amount = None
         self.rng = rngp.get_rng("RandomTrader", self.parent.account_id)
 
-    def sell_reserve_currency(self, params, prev_state):
-        return self.orders[prev_state["timestep"]]["sell_reserve_currency"]
+    def sell_reserve_asset(self, _params, prev_state):
+        return self.orders[prev_state["timestep"]]["sell_reserve_asset"]
 
     def define_variables(self):
         self.variables["sell_amount"] = Variable(pos=True)
@@ -50,12 +50,12 @@ class RandomTrading(TraderStrategy):
         self.constraints = []
         # TODO: Get budget based on account
         max_budget_stable = self.parent.balance.get(self.stable)
-        max_budget_reserve_currency = self.parent.balance.get(self.reserve_currency)
-        if self.sell_reserve_currency(params, prev_state):
+        max_budget_reserve_asset = self.parent.balance.get(self.reserve_asset)
+        if self.sell_reserve_asset(params, prev_state):
             self.constraints.append(
                 self.variables["sell_amount"]
                 <= min(
-                    max_budget_reserve_currency,
+                    max_budget_reserve_asset,
                     self.orders[prev_state["timestep"]]["sell_amount"]
                 )
             )
@@ -84,7 +84,7 @@ class RandomTrading(TraderStrategy):
             [sell_gold, np.abs(self.rng.normal(100, 5, size=sample_size))]
         )
         self.orders = np.core.records.fromarrays(
-            orders, names=["sell_reserve_currency", "sell_amount"]
+            orders, names=["sell_reserve_asset", "sell_amount"]
         )
 
     def calculate(self, _params, prev_state):

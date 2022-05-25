@@ -13,26 +13,18 @@ import cvxpy
 
 from model.entities.trader import Trader
 from model.generators.mento import MentoExchangeGenerator
-from model.types import Crypto, Fiat, MentoBuckets, MentoExchangeConfig, Stable
+from model.types import MentoBuckets, MentoExchangeConfig
 
 # pylint: disable=missing-class-docstring
 # pylint: disable=broad-except
-# pylint: disable=too-many-instance-attributes
 class TraderStrategy:
     parent: Trader
-    stable: Stable
-    stable_fiat: Fiat
-    reserve_currency: Crypto
     mento: MentoExchangeGenerator
     exchange_config: MentoExchangeConfig
 
     def __init__(self, parent: Trader, acting_frequency):
         self.parent = parent
         self.acting_frequency = acting_frequency
-        self.stable = self.parent.exchange_config.stable
-        self.stable_fiat = self.parent.exchange_config.stable_fiat
-        self.reserve_currency = self.parent.exchange_config.reserve_currency
-        self.mento = self.parent.mento
         self.exchange_config = self.mento.configs.get(self.parent.config.exchange)
 
         # The following is used to define the strategy and needs to be
@@ -42,24 +34,38 @@ class TraderStrategy:
         self.objective_function = None
         self.optimization_direction = None
         self.constraints = []
-        self.state_update_block = None
         # TODO order vs sell_amount ???
         self.sell_amount = None
         self.order = None
 
+    @property
+    def peg(self):
+        return self.exchange_config.peg.value
 
-    def sell_reserve_currency(self, params, prev_state):
+    @property
+    def stable(self):
+        return self.exchange_config.stable.value
+
+    @property
+    def reserve_asset(self):
+        return self.exchange_config.reserve_asset.value
+
+    @property
+    def mento(self):
+        return self.parent.mento
+
+    def sell_reserve_asset(self, _params, _prev_state):
         """
         Provides a function indicating the direction of the mento cashflow
         wether we sell or buy the reserve currency, which is CELO in
         the v1 AMM, but could be wBTC or ETH.
         """
-        raise NotImplementedError("Subclasses must implement sell_reserve_currency()")
+        raise NotImplementedError("Subclasses must implement sell_reserve_asset()")
 
     def define_variables(self):
         self.variables["sell_amount"] = Variable(pos=True)
 
-    def define_expressions(self, params, prev_state):
+    def define_expressions(self, _params, _prev_state):
         """
         Defines and returns the expressions (made of variables and parameters)
         that are used in the optimization
@@ -73,9 +79,9 @@ class TraderStrategy:
         self.constraints = []
         # TODO: Get budget based on account
         max_budget_stable = self.parent.balance.get(self.stable)
-        max_budget_reserve_currency = self.parent.balance.get(self.reserve_currency)
-        if self.sell_reserve_currency(params, prev_state):
-            self.constraints.append(self.variables["sell_amount"] <= max_budget_reserve_currency)
+        max_budget_reserve_asset = self.parent.balance.get(self.reserve_asset)
+        if self.sell_reserve_asset(params, prev_state):
+            self.constraints.append(self.variables["sell_amount"] <= max_budget_reserve_asset)
         else:
             self.constraints.append(self.variables["sell_amount"] <= max_budget_stable)
 
@@ -137,19 +143,19 @@ class TraderStrategy:
     # pylint: disable=duplicate-code
 
     # pylint: disable=no-self-use
-    def minimise_price_impact(self, sell_amount, sell_reserve_currency, params):
+    def minimise_price_impact(self, sell_amount, sell_reserve_asset, params):
         """
         trader reduces sell amount to reduce market impact
         """
         # Todo logic is probably wrong, fix!
-        if sell_reserve_currency:
+        if sell_reserve_asset:
             sell_amount_adjusted = min(
-                params["average_daily_volume"].get(self.stable).get(Fiat.USD),
+                params["average_daily_volume"].get(self.stable).get(self.peg),
                 sell_amount
             )
-        elif not sell_reserve_currency:
+        elif not sell_reserve_asset:
             sell_amount_adjusted = min(
-                params["average_daily_volume"].get(self.reserve_currency).get(Fiat.USD),
+                params["average_daily_volume"].get(self.reserve_asset).get(self.peg),
                 sell_amount
             )
         return sell_amount_adjusted
@@ -174,17 +180,17 @@ class TraderStrategy:
             if sell_amount is None:
                 trade = None
             else:
-                sell_reserve_currency = self.sell_reserve_currency(params, prev_state)
-                sell_amount = self.minimise_price_impact(sell_amount, sell_reserve_currency, params)
+                sell_reserve_asset = self.sell_reserve_asset(params, prev_state)
+                sell_amount = self.minimise_price_impact(sell_amount, sell_reserve_asset, params)
                 buy_amount = self.mento.get_buy_amount(
                     exchange=self.parent.config.exchange,
                     sell_amount=sell_amount,
-                    sell_reserve_currency=sell_reserve_currency,
+                    sell_reserve_asset=sell_reserve_asset,
                     prev_state=prev_state,
                 )
 
                 trade = {
-                    "sell_reserve_currency": sell_reserve_currency,
+                    "sell_reserve_asset": sell_reserve_asset,
                     "sell_amount": sell_amount,
                     "buy_amount": buy_amount,
                 }
@@ -193,8 +199,8 @@ class TraderStrategy:
     def market_price(self, prev_state) -> float:
         # TODO: Do we need to quote in equivalent Fiat for Stable?
         return (
-            prev_state["market_price"].get(self.reserve_currency).get(self.stable_fiat)
-            / prev_state["market_price"].get(self.stable).get(self.stable_fiat)
+            prev_state["market_price"].get(self.reserve_asset).get(self.peg)
+            / prev_state["market_price"].get(self.stable).get(self.peg)
         )
 
     def mento_buckets(self, prev_state) -> MentoBuckets:

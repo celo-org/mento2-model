@@ -9,7 +9,7 @@ from .trader_strategy import TraderStrategy
 
 class TradingRegime(Enum):
     SELL_STABLE = "SELL_STABLE"
-    SELL_RESERVE_CURRENCY = "SELL_RESERVE_CURRENCY"
+    SELL_RESERVE_ASSET = "SELL_RESERVE_ASSET"
     PASS = "PASS"
 
 
@@ -25,9 +25,9 @@ class ArbitrageTrading(TraderStrategy):
         super().__init__(parent, acting_frequency)
         self.sell_amount = None
 
-    def sell_reserve_currency(self, params, prev_state):
+    def sell_reserve_asset(self, _params, prev_state):
         # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
-        return self.trading_regime(prev_state) == TradingRegime.SELL_RESERVE_CURRENCY
+        return self.trading_regime(prev_state) == TradingRegime.SELL_RESERVE_ASSET
 
     def trading_regime(self, prev_state) -> TradingRegime:
         """
@@ -39,20 +39,20 @@ class ArbitrageTrading(TraderStrategy):
 
         price_up_profit = (
             market_price * (1 - self.exchange_config.spread)
-            > mento_buckets.stable / mento_buckets.reserve_currency
+            > mento_buckets.stable / mento_buckets.reserve_asset
         )
         price_down_profit = (
             market_price / (1 - self.exchange_config.spread)
-            < mento_buckets.stable / mento_buckets.reserve_currency
+            < mento_buckets.stable / mento_buckets.reserve_asset
         )
 
         if price_up_profit:
             return TradingRegime.SELL_STABLE
         if price_down_profit:
-            return TradingRegime.SELL_RESERVE_CURRENCY
+            return TradingRegime.SELL_RESERVE_ASSET
         return TradingRegime.PASS
 
-    def define_expressions(self, params, prev_state):
+    def define_expressions(self, _params, prev_state):
         """
         Defines and returns the expressions (made of variables and parameters)
         that are used in the optimization (random trader)
@@ -64,18 +64,18 @@ class ArbitrageTrading(TraderStrategy):
         if self.trading_regime(prev_state) == TradingRegime.SELL_STABLE:
             self.expressions["profit"] = (
                 -1 * self.variables["sell_amount"]
-                * mento_buckets.reserve_currency
+                * mento_buckets.reserve_asset
                 * (1 - spread)
                 / mento_buckets.stable
                 + (1 - spread) * self.variables["sell_amount"]
                 + market_price * self.variables["sell_amount"]
             )
-        elif self.trading_regime(prev_state) == TradingRegime.SELL_RESERVE_CURRENCY:
+        elif self.trading_regime(prev_state) == TradingRegime.SELL_RESERVE_ASSET:
             self.expressions["profit"] = (
                 -self.variables["sell_amount"]
                 * mento_buckets.stable
                 * (1 - spread)
-                / mento_buckets.reserve_currency
+                / mento_buckets.reserve_asset
                 + (1 - spread) * self.variables["sell_amount"]
                 + 1 / market_price * self.variables["sell_amount"]
             )
@@ -92,7 +92,7 @@ class ArbitrageTrading(TraderStrategy):
         market_price = self.market_price(prev_state)
         mento_buckets = self.mento_buckets(prev_state)
         spread = self.exchange_config.spread
-        mento_price = mento_buckets.stable / mento_buckets.reserve_currency
+        mento_price = mento_buckets.stable / mento_buckets.reserve_asset
 
         if market_price * (1 - spread) > mento_price:
             self.sell_order_stable(
@@ -101,7 +101,7 @@ class ArbitrageTrading(TraderStrategy):
                 spread
             )
         elif market_price / (1 - spread) < mento_buckets:
-            self.sell_order_reserve_currency(
+            self.sell_order_reserve_asset(
                 mento_buckets,
                 market_price,
                 spread
@@ -115,12 +115,12 @@ class ArbitrageTrading(TraderStrategy):
         Calculate order for selling the stable
         """
         balance_stable = self.parent.balance.get(self.stable)
-        balance_reserve_currency = self.parent.balance.get(self.reserve_currency)
+        balance_reserve_asset = self.parent.balance.get(self.reserve_asset)
 
-        max_budget_stable = balance_stable + market_price * balance_reserve_currency
+        max_budget_stable = balance_stable + market_price * balance_reserve_asset
         sell_amount = self.optimal_sell_amount(
             buckets.stable,
-            buckets.reserve_currency,
+            buckets.reserve_asset,
             market_price,
             spread
         )
@@ -130,10 +130,10 @@ class ArbitrageTrading(TraderStrategy):
                 sell_amount,
                 max_budget_stable,
             ),
-            "sell_reserve_currency": False,
+            "sell_reserve_asset": False,
         }
 
-    def sell_order_reserve_currency(
+    def sell_order_reserve_asset(
         self,
         buckets: MentoBuckets,
         market_price: float,
@@ -142,11 +142,11 @@ class ArbitrageTrading(TraderStrategy):
         Calculate order for selling the reserve currency
         """
         balance_stable = self.parent.balance.get(self.stable)
-        balance_reserve_currency = self.parent.balance.get(self.reserve_currency)
+        balance_reserve_asset = self.parent.balance.get(self.reserve_asset)
 
-        max_budget_celo = balance_reserve_currency + balance_stable / market_price
+        max_budget_celo = balance_reserve_asset + balance_stable / market_price
         sell_amount = self.optimal_sell_amount(
-            buckets.reserve_currency,
+            buckets.reserve_asset,
             buckets.stable,
             1 / market_price,
             spread
@@ -157,7 +157,7 @@ class ArbitrageTrading(TraderStrategy):
                 sell_amount,
                 max_budget_celo,
             ),
-            "sell_reserve_currency": True,
+            "sell_reserve_asset": True,
         }
 
     # pylint: disable=no-self-use

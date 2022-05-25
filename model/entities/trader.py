@@ -8,9 +8,9 @@ from copy import deepcopy
 from uuid import UUID
 
 from model.generators.mento import MentoExchangeGenerator
-from model.entities.strategies import TraderStrategy
+from model.entities import strategies
 from model.entities.account import Account, Balance
-from model.types import Fiat, MentoExchangeConfig, TraderConfig
+from model.types import MentoExchangeConfig, TraderConfig
 
 if TYPE_CHECKING:
     from model.generators.accounts import AccountGenerator
@@ -19,7 +19,7 @@ class Trader(Account):
     """
     The Trader extens an account with a trading strategy.
     """
-    strategy: TraderStrategy
+    strategy: strategies.TraderStrategy
     config: TraderConfig
     exchange_config: MentoExchangeConfig
     mento: MentoExchangeGenerator
@@ -33,7 +33,11 @@ class Trader(Account):
     ):
         super().__init__(parent, account_id, account_name, config.balance)
         self.mento = self.parent.container.get(MentoExchangeGenerator)
-        self.strategy = config.trader_type.value(self)
+
+        strategy_class = getattr(strategies, config.trader_type.value)
+        assert strategy_class is not None, f"{config.trader_type.value} is not a strategy"
+        self.strategy = strategy_class(self)
+
         self.config = config
         self.exchange_config = self.mento.configs.get(self.config.exchange)
 
@@ -54,21 +58,21 @@ class Trader(Account):
             }
 
         sell_amount = order["sell_amount"]
-        sell_reserve_currency = order["sell_reserve_currency"]
-        self.rebalance_portfolio(sell_amount, sell_reserve_currency, prev_state)
+        sell_reserve_asset = order["sell_reserve_asset"]
+        self.rebalance_portfolio(sell_amount, sell_reserve_asset, prev_state)
 
         next_bucket, delta = self.mento.exchange(
             self.config.exchange,
             sell_amount,
-            sell_reserve_currency,
+            sell_reserve_asset,
             prev_state
         )
 
         self.balance += delta
         reserve_delta = Balance.zero()
         reserve_delta.set(
-            self.exchange_config.reserve_currency,
-            -1 * delta.get(self.exchange_config.reserve_currency),
+            self.exchange_config.reserve_asset,
+            -1 * delta.get(self.exchange_config.reserve_asset),
         )
         self.parent.reserve.balance += reserve_delta
 
@@ -81,30 +85,31 @@ class Trader(Account):
             "reserve_balance": self.parent.reserve.balance.__dict__
         }
 
-    def rebalance_portfolio(self, target_amount, target_is_reserve_currency, prev_state):
+    def rebalance_portfolio(self, target_amount, target_is_reserve_asset, prev_state):
         """
         Sometimes the optimal trade might require selling more of an
         asset than the trader has in his portfolio, but the total
         value of the portfolio would cover it therefore they can
         rebalance and execute the trade.
         """
-        reserve_currency = self.exchange_config.reserve_currency
-        stable = self.exchange_config.stable
+        reserve_asset = self.exchange_config.reserve_asset.value
+        stable = self.exchange_config.stable.value
+        peg = self.exchange_config.peg.value
 
         # TODO: Should these be quoted in the specific
         # fiat of the stable?
         market_price = (
-            prev_state["market_price"].get(reserve_currency).get(Fiat.USD)
-            / prev_state("market_price").get(stable).get(Fiat.USD)
+            prev_state["market_price"].get(reserve_asset).get(peg)
+            / prev_state("market_price").get(stable).get(peg)
         )
 
         delta = Balance.zero()
-        if target_is_reserve_currency and self.balance.get(reserve_currency) < target_amount:
+        if target_is_reserve_asset and self.balance.get(reserve_asset) < target_amount:
             delta.set(stable, -1 * self.balance.get(stable))
-            delta.set(reserve_currency, self.balance.get(stable) / market_price)
-        elif (not target_is_reserve_currency) and self.balance.get(stable) < target_amount:
-            delta.set(stable, self.balance.get(reserve_currency) * market_price)
-            delta.set(reserve_currency, -1 * self.balance.get(reserve_currency))
+            delta.set(reserve_asset, self.balance.get(stable) / market_price)
+        elif (not target_is_reserve_asset) and self.balance.get(stable) < target_amount:
+            delta.set(stable, self.balance.get(reserve_asset) * market_price)
+            delta.set(reserve_asset, -1 * self.balance.get(reserve_asset))
 
         self.balance += delta
         self.parent.untracked_floating_supply -= delta

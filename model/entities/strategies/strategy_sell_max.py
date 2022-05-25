@@ -14,14 +14,14 @@ class SellMax(TraderStrategy):
         self.sell_amount = None
 
     # @staticmethod
-    def sell_reserve_currency(self, _params, prev_state):
-        # Arb trade will sell reserve_currency if market price > mento price
+    def sell_reserve_asset(self, _params, prev_state):
+        # Arb trade will sell reserve_asset if market price > mento price
         mento_buckets = self.mento_buckets(prev_state)
         return (
-            prev_state["market_price"].get(self.reserve_currency).get(self.stable_fiat)
+            prev_state["market_price"].get(self.reserve_asset).get(self.peg)
             < (1 - self.exchange_config.spread)
             * mento_buckets.stable
-            / mento_buckets.reserve_currency
+            / mento_buckets.reserve_asset
         )
 
     def define_variables(self):
@@ -34,15 +34,15 @@ class SellMax(TraderStrategy):
         mento_buckets = self.mento_buckets(prev_state)
         spread = self.exchange_config.spread
 
-        if self.sell_reserve_currency(params, prev_state):
+        if self.sell_reserve_asset(params, prev_state):
             nominator = (
-                mento_buckets.reserve_currency
+                mento_buckets.reserve_asset
                 * mento_buckets.stable
             )
             denominator = (
-                mento_buckets.reserve_currency + self.variables["sell_amount"]
+                mento_buckets.reserve_asset + self.variables["sell_amount"]
             ) * (
-                mento_buckets.reserve_currency - self.variables["sell_amount"] * (spread - 1)
+                mento_buckets.reserve_asset - self.variables["sell_amount"] * (spread - 1)
             )
         else:
             nominator = (
@@ -52,7 +52,7 @@ class SellMax(TraderStrategy):
                 - self.variables["sell_amount"] * (spread - 1)
             )
             denominator = (
-                mento_buckets.reserve_currency * mento_buckets.stable
+                mento_buckets.reserve_asset * mento_buckets.stable
             )
 
         oracle_rate_after_trade = nominator / denominator
@@ -73,8 +73,8 @@ class SellMax(TraderStrategy):
         self.constraints = []
         # TODO: Get budget based on account
         max_budget_stable = 10000
-        max_budget_reserve_currency = 10000
-        if self.sell_reserve_currency(params, prev_state):
-            self.constraints.append(self.variables["sell_amount"] <= max_budget_reserve_currency)
+        max_budget_reserve_asset = 10000
+        if self.sell_reserve_asset(params, prev_state):
+            self.constraints.append(self.variables["sell_amount"] <= max_budget_reserve_asset)
         else:
             self.constraints.append(self.variables["sell_amount"] <= max_budget_stable)

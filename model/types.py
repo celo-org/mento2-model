@@ -2,13 +2,10 @@
 Various Python types used in the model
 """
 
-# See https://docs.python.org/3/library/dataclasses.html
-from dataclasses import dataclass
 from typing import Any, Dict, NamedTuple, Union
-
 from enum import Enum
+
 from model.entities.balance import Balance
-from model.entities.strategies import RandomTrading, SellMax, ArbitrageTrading
 
 # Celo system types
 Gas = int
@@ -40,9 +37,9 @@ class TraderType(Enum):
     """
     different account holders
     """
-    ARBITRAGE_TRADER = ArbitrageTrading
-    RANDOM_TRADER = RandomTrading
-    MAX_TRADER = SellMax
+    ARBITRAGE_TRADER = "ArbitrageTrading"
+    RANDOM_TRADER = "RandomTrading"
+    MAX_TRADER = "SellMax"
 
 class Stable(Enum):
     """
@@ -80,31 +77,22 @@ class ReserveBalance(NamedTuple):
 
 class MentoBuckets(NamedTuple):
     stable: float
-    reserve_currency: float
+    reserve_asset: float
 
-class FloatingSupply(NamedTuple):
-    cusd: float
-    celo: float
-
-    @classmethod
-    def from_balance(cls, balance: Balance):
-        return cls(cusd=balance.cusd, celo=balance.celo)
-
-@dataclass
-class TraderConfig:
+class TraderConfig(NamedTuple):
     trader_type: TraderType
     count: int
     balance: Balance
     exchange: MentoExchange
 
 class MentoExchangeConfig(NamedTuple):
+    reserve_asset: Crypto
+    stable: Stable
+    peg: Fiat
     reserve_fraction: float
     spread: float
     bucket_update_frequency_second: int
     max_sell_fraction_of_float: float
-    stable: Stable
-    stable_fiat: Fiat
-    reserve_currency: Crypto
 
 class MarketPriceConfig(NamedTuple):
     base: Currency

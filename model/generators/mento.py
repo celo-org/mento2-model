@@ -97,35 +97,35 @@ class MentoExchangeGenerator(Generator):
         Recalculates the bucket sizes for a given exchange
         """
         config = self.configs[exchange]
-        reserve_currency_bucket = (
+        reserve_asset_bucket = (
             config.reserve_fraction
-            * prev_state['reserve_balance'].get(config.reserve_currency, 0)
+            * prev_state['reserve_balance'].get(config.reserve_asset, 0)
         )
         stable_bucket = (
-            prev_state['oracle_rate'].get(config.reserve_currency, {}).get(config.stable)
-            * reserve_currency_bucket
+            prev_state['oracle_rate'].get(config.reserve_asset, {}).get(config.stable)
+            * reserve_asset_bucket
         )
-        return MentoBuckets(stable=stable_bucket, reserve_currency=reserve_currency_bucket)
+        return MentoBuckets(stable=stable_bucket, reserve_asset=reserve_asset_bucket)
 
     def get_buy_amount(
         self,
         exchange: MentoExchange,
         sell_amount: float,
-        sell_reserve_currency: bool,
+        sell_reserve_asset: bool,
         prev_state: Any,
         min_buy_amount: float = 0):
         """
-        Calculates the amount of currency (either stable or reserve_currency)
+        Calculates the amount of currency (either stable or reserve_asset)
         can be bought based on the buckets and spread.
         """
         spread = self.configs[exchange].spread
         reduced_sell_amount = sell_amount * (1 - spread)
 
-        if sell_reserve_currency:
+        if sell_reserve_asset:
             buy_token_bucket = prev_state["mento_buckets"][exchange].stable
-            sell_token_bucket = prev_state["mento_buckets"][exchange].reserve_currency
+            sell_token_bucket = prev_state["mento_buckets"][exchange].reserve_asset
         else:
-            buy_token_bucket = prev_state["mento_buckets"][exchange].reserve_currency
+            buy_token_bucket = prev_state["mento_buckets"][exchange].reserve_asset
             sell_token_bucket = prev_state["mento_buckets"][exchange].stable
 
         numerator = sell_amount * (1 - spread) * buy_token_bucket
@@ -138,30 +138,30 @@ class MentoExchangeGenerator(Generator):
         return buy_amount
 
 
-    def exchange(self, exchange: MentoExchange, sell_amount, sell_reserve_currency, prev_state):
+    def exchange(self, exchange: MentoExchange, sell_amount, sell_reserve_asset, prev_state):
         """
         Update the simulation state with a trade between the reserve currency and stable
         """
         config = self.configs.get(exchange)
         assert config is not None
 
-        buy_amount = self.get_buy_amount(exchange, sell_amount, sell_reserve_currency, prev_state)
+        buy_amount = self.get_buy_amount(exchange, sell_amount, sell_reserve_asset, prev_state)
 
-        if sell_reserve_currency:
+        if sell_reserve_asset:
             delta_stable = -buy_amount
-            delta_reserve_currency = sell_amount
+            delta_reserve_asset = sell_amount
         else:
             delta_stable = sell_amount
-            delta_reserve_currency = -buy_amount
+            delta_reserve_asset = -buy_amount
 
         prev_bucket = prev_state["mento_buckets"][exchange]
         next_bucket = MentoBuckets(
             stable=prev_bucket.stable + delta_stable,
-            reserve_currency=prev_bucket.reserve_currency + delta_reserve_currency
+            reserve_asset=prev_bucket.reserve_asset + delta_reserve_asset
         )
 
         delta = Balance.zero()
-        delta.set(config.reserve_currency, -1 * delta_reserve_currency)
+        delta.set(config.reserve_asset, -1 * delta_reserve_asset)
         delta.set(config.stable, -1 * delta_stable)
 
         return (next_bucket, delta)

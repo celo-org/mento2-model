@@ -4,11 +4,12 @@ Balance class for easy balance manipulation
 Balance.zero() == Balance(celo=0, cusd=0)
 Balance(celo=2, cusd=10) + Balance(celo=5, cusd=0) = Balance(celo=7, cusd=10)
 """
+from typing import Callable, TYPE_CHECKING
 from dataclasses import dataclass
-from typing import Callable
-from model.types import Currency
 
 from model.utils import default
+if TYPE_CHECKING:
+    from model.types import Currency
 
 @dataclass
 class Balance:
@@ -24,10 +25,10 @@ class Balance:
     ceur: float = default(0)
     creal: float = default(0)
 
-    def get(self, currency: Currency) -> float:
+    def get(self, currency: "Currency") -> float:
         return getattr(self, currency.value)
 
-    def set(self, currency: Currency, value: float):
+    def set(self, currency: "Currency", value: float):
         if currency.value not in self.__dict__:
             raise ValueError(f"{currency.value} not a valid balance item")
         setattr(self, currency.value, value)

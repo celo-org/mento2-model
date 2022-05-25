@@ -51,27 +51,27 @@ class Parameters:
     # Configuration params for each stable's exchange
     mento_exchanges_config: List[Dict[Stable, MentoExchangeConfig]] = default([{
         MentoExchange.CUSD_CELO: MentoExchangeConfig(
-            base=Crypto.CELO,
+            reserve_asset=Crypto.CELO,
             stable=Stable.CUSD,
-            stable_fiat=Fiat.USD,
+            peg=Fiat.USD,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,
             max_sell_fraction_of_float=0.0001
         ),
         MentoExchange.CEUR_CELO: MentoExchangeConfig(
-            base=Crypto.CELO,
+            reserve_asset=Crypto.CELO,
             stable=Stable.CEUR,
-            stable_fiat=Fiat.EUR,
+            peg=Fiat.EUR,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,
             max_sell_fraction_of_float=0.0001
         ),
         MentoExchange.CREAL_CELO: MentoExchangeConfig(
-            base=Crypto.CELO,
+            reserve_asset=Crypto.CELO,
             stable=Stable.CREAL,
-            stable_fiat=Fiat.BRL,
+            peg=Fiat.BRL,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,
@@ -163,7 +163,7 @@ class Parameters:
     }])
 
     # Trader Balances
-    traders: List[List[TraderConfig]] = default(
+    traders: List[List[TraderConfig]] = default([
         [
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
@@ -178,7 +178,7 @@ class Parameters:
                 exchange=MentoExchange.CEUR_CELO
             ),
         ]
-    )
+    ])
 
     reserve_inventory: List[Dict[Currency, float]] = default([{
         Crypto.CELO: 12000000,
