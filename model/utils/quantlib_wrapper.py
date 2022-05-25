@@ -1,6 +1,7 @@
 """
 This module provides a wrapper class for the required QuantLib functionality
 """
+from typing import List
 import numpy as np
 
 from QuantLib import (TimeGrid, StochasticProcessArray,
@@ -9,6 +10,7 @@ from QuantLib import (TimeGrid, StochasticProcessArray,
 
 from experiments import simulation_configuration
 from model import constants
+from model.types import MarketPriceConfig
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
@@ -18,6 +20,11 @@ class QuantLibWrapper():
     """
     This class wraps part of QuantLib to create increments
     """
+
+    processes: List[MarketPriceConfig]
+    correlations: List[List[float]]
+    initial_value: float
+    number_of_paths_per_asset: int
 
     def __init__(self, processes, correlation,
                  _blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
@@ -37,11 +44,11 @@ class QuantLibWrapper():
         timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
         #     sample_size = timesteps * blocks_per_timestep + 1
 
-        processes = [asset['process'](
+        processes = [config.process(
             self.initial_value,
-            asset['param_1'] / timesteps_per_year,
-            asset['param_2'] / np.sqrt(timesteps_per_year))
-            for ticker, asset in self.processes.items()]
+            config.param_1 / timesteps_per_year,
+            config.param_2 / np.sqrt(timesteps_per_year))
+            for config in self.processes]
         process_array = StochasticProcessArray(processes, self.correlation)
         return process_array
 

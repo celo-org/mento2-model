@@ -2,12 +2,15 @@
 market price generator and related functions
 """
 
+from copy import deepcopy
 from enum import Enum
 import logging
+from typing import List, Tuple
 import numpy as np
 
-
 from experiments import simulation_configuration
+
+from model.types import Currency, Fiat
 from model.utils.data_feed import DATA_FILE_NAME, DATA_FOLDER, DataFeed
 from model.utils.generator import Generator
 from model.utils.quantlib_wrapper import QuantLibWrapper
@@ -15,7 +18,6 @@ from model.utils.rng_provider import rngp
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
-
 
 class MarketPriceModel(Enum):
     QUANTLIB = "quantlib"
@@ -40,11 +42,11 @@ class MarketPriceGenerator(Generator):
     This class is providing a market environment
     """
 
+    impacted_assets: List[Tuple[Currency, Fiat]]
+
     # TODO multi currency configurable
     # TODO in particular delay for Celo supply
     # TODO typing
-    # TODO All seeds as params
-    # TODO unified seed generation
     # TODO Comments
     def __init__(
         self,
@@ -52,17 +54,16 @@ class MarketPriceGenerator(Generator):
         impacted_assets,
         price_impact_model=PriceImpact.ROOT_QUANTITY,
         increments=None,
-        seed=1,
         custom_impact_function=None,
     ):
-        self.seed = seed
         self.price_impact_model = price_impact_model
         self.model = model
         self.increments = increments
-        self.supply_changes = {asset.split('_')[0]: np.zeros(
+        self.supply_changes = {base: np.zeros(
             simulation_configuration.BLOCKS_PER_TIMESTEP
             * simulation_configuration.TIMESTEPS
-            + 1) for asset in impacted_assets}
+            + 1) for (base, quote) in impacted_assets}
+        self.impacted_assets = impacted_assets
         self.data_folder = "../../data/"
         self.custom_impact_function = custom_impact_function
         self.rng = rngp.get_rng("MarketPriceGenerator")
@@ -76,7 +77,9 @@ class MarketPriceGenerator(Generator):
             if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
                 market_price_generator.custom_impact_function = params["custom_impact"]
             quant_lib_wrapper = QuantLibWrapper(
-                params['processes'], params['correlation'])
+                params['market_price_processes'],
+                params['market_price_correlation_matrix'],
+            )
             market_price_generator.increments = quant_lib_wrapper.correlated_returns()
         elif params["model"] == MarketPriceModel.PRICE_IMPACT:
             market_price_generator = cls(params["model"], params['impacted_assets'])
@@ -118,7 +121,6 @@ class MarketPriceGenerator(Generator):
         step = state["timestep"]
         market_prices = {}
         if self.model == MarketPriceModel.QUANTLIB:
-
             for asset in state["market_price"]:
                 market_prices[asset] = (state["market_price"][asset]
                                         * np.exp(self.increments[asset][step - 1]))
@@ -167,23 +169,18 @@ class MarketPriceGenerator(Generator):
         }
         self.impact_delay(block_supply_change, current_step)
 
-        price_impact = {}
-        prices = {}
-
-        for asset in params['impacted_assets']:
-            asset_1, _ = asset.split('_')
-            if asset_1 == 'usd':
-                raise Exception(f'Incorrect quoting convention for {asset}')
-            variance_daily = params["variance_market_price"][asset] / 365
-            average_daily_volume = params["average_daily_volume"][asset]
-            price_impact[asset] = self.price_impact_function(self.price_impact_model)(
-                self.supply_changes[asset_1][current_step],
+        impacted_prices = deepcopy(market_prices)
+        for (base, quote) in self.impacted_assets:
+            variance_daily = params["variance_market_price"][base][quote] / 365
+            average_daily_volume = params["average_daily_volume"][base][quote]
+            price_impact = self.price_impact_function(self.price_impact_model)(
+                self.supply_changes[base][current_step],
                 variance_daily,
                 average_daily_volume,
             )
-            prices[asset] = market_prices[asset] + price_impact[asset]
+            impacted_prices[base][quote] += price_impact
 
-        return prices
+        return impacted_prices
 
     def impact_delay(
         self, block_supply_change, current_step, impact_delay=ImpactDelay.INSTANT

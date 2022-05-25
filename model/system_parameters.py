@@ -18,6 +18,7 @@ from model.types import (
     Crypto,
     Currency,
     Fiat,
+    MarketPriceConfig,
     MentoExchange,
     MentoExchangeConfig,
     Stable,
@@ -47,37 +48,30 @@ class Parameters:
     For example, for dt = 100, each timestep equals 100 blocks.
     """
 
-    # Buy_and_sell-related parameters
-    cusd_demand: List[float] = default([10000000])
-    ceur_demand: List[float] = default([100000])
-    creal_demand: List[float] = default([1000])
-
-    """
-    Configuration params for each stable's exchange
-    """
+    # Configuration params for each stable's exchange
     mento_exchanges_config: List[Dict[Stable, MentoExchangeConfig]] = default([{
         MentoExchange.CUSD_CELO: MentoExchangeConfig(
+            base=Crypto.CELO,
             stable=Stable.CUSD,
             stable_fiat=Fiat.USD,
-            base=Crypto.CELO,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,
             max_sell_fraction_of_float=0.0001
         ),
         MentoExchange.CEUR_CELO: MentoExchangeConfig(
+            base=Crypto.CELO,
             stable=Stable.CEUR,
             stable_fiat=Fiat.EUR,
-            base=Crypto.CELO,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,
             max_sell_fraction_of_float=0.0001
         ),
         MentoExchange.CREAL_CELO: MentoExchangeConfig(
+            base=Crypto.CELO,
             stable=Stable.CREAL,
             stable_fiat=Fiat.BRL,
-            base=Crypto.CELO,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,
@@ -100,28 +94,39 @@ class Parameters:
 
     # check order of parameters for each model, e.g. for GBM param_1 is drift and
     # param_2 is volatility
-    processes: List[Dict] = default(
+    market_price_processes: List[List[MarketPriceConfig]] = default([
         [
-            {
-                'celo_usd': {'process': GeometricBrownianMotionProcess,
-                             'param_1': 0,
-                             'param_2': 1},
-                'cusd_usd': {'process': GeometricBrownianMotionProcess,
-                             'param_1': 0,
-                             'param_2': 0.01},
-                'btc_usd': {'process': GeometricBrownianMotionProcess,
-                            'param_1': 0,
-                            'param_2': 0.01}
-
-            }
+            MarketPriceConfig(
+                base=Crypto.CELO,
+                quote=Fiat.USD,
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=1,
+            ),
+            MarketPriceConfig(
+                base=Stable.CUSD,
+                quote=Fiat.USD,
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=0.01,
+            ),
+            MarketPriceConfig(
+                base=Crypto.BTC,
+                quote=Fiat.USD,
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=0.01,
+            ),
         ]
-    )
-    correlation: List[float] = default([[[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
-    drift_market_price: List[float] = default([[-5*5, 0]])
-    # data_file: List[str] = default(['mock_logreturns.csv'])
-    # custom_impact: List[FunctionType] = default(
-    #    [lambda asset_1, asset_2: asset_1**2 / asset_2]
-    # )
+    ])
+
+    market_price_correlation_matrix: List[List[List[float]]] = default([
+        [ [1, 0, 0],
+          [0, 1, 0],
+          [0, 0, 1] ]
+    ])
+    # TODO: is this used?
+    # drift_market_price: List[float] = default([[-5*5, 0]])
 
     average_daily_volume: List[Dict[Currency, Dict[Fiat, float]]] = default([
         {
@@ -147,6 +152,7 @@ class Parameters:
         (Crypto.CELO, Fiat.USD),
         (Stable.CUSD, Fiat.USD)
     ]])
+
     variance_market_price: List[Dict[Currency, Dict[Fiat, float]]] = default([{
         Crypto.CELO: {
             Fiat.USD: 1

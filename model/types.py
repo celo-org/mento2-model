@@ -4,7 +4,7 @@ Various Python types used in the model
 
 # See https://docs.python.org/3/library/dataclasses.html
 from dataclasses import dataclass
-from typing import Dict, NamedTuple, Union
+from typing import Any, Dict, NamedTuple, Union
 
 from enum import Enum
 from model.entities.balance import Balance
@@ -105,3 +105,10 @@ class MentoExchangeConfig(NamedTuple):
     stable: Stable
     stable_fiat: Fiat
     reserve_currency: Crypto
+
+class MarketPriceConfig(NamedTuple):
+    base: Currency
+    quote: Fiat
+    process: Any
+    param_1: float
+    param_2: float

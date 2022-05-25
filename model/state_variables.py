@@ -20,7 +20,12 @@ from model.types import (
     MarketBuckets,
 )
 
-from data.historical_values import  celo_supply_mean, cusd_supply_mean
+from data.historical_values import (
+    CELO_SUPPLY_MEAN,
+    CUSD_SUPPLY_MEAN,
+    CEUR_SUPPLY_MEAN,
+    CREAL_SUPPLY_MEAN,
+)
 
 
 @dataclass
@@ -32,8 +37,10 @@ class StateVariables:
 
     # The initial floating supply of the simulation
     floating_supply: Dict[Union[Crypto, Stable], float] = default({
-        Stable.CUSD: cusd_supply_mean,
-        Crypto.CELO: celo_supply_mean
+        Crypto.CELO: CELO_SUPPLY_MEAN,
+        Stable.CUSD: CUSD_SUPPLY_MEAN,
+        Stable.CEUR: CEUR_SUPPLY_MEAN,
+        Stable.CREAL: CREAL_SUPPLY_MEAN,
     })
 
     oracle_rate: CurrencyRate = default({
@@ -59,7 +66,9 @@ class StateVariables:
 
     # Virtual Market Fiat Bucket
     market_buckets: MarketBuckets = default({
-        Fiat.USD: cusd_supply_mean
+        Fiat.USD: CUSD_SUPPLY_MEAN,
+        Fiat.EUR: CEUR_SUPPLY_MEAN,
+        Fiat.BRL: CREAL_SUPPLY_MEAN,
     })
 
     market_price: CurrencyRate = default({
