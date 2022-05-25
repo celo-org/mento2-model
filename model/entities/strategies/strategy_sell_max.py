@@ -36,27 +36,25 @@ class SellMax(TraderStrategy):
 
         if self.sell_reserve_asset(params, prev_state):
             nominator = (
-                mento_buckets.reserve_asset
-                * mento_buckets.stable
+                mento_buckets['reserve_asset'] * mento_buckets['stable']
             )
             denominator = (
-                mento_buckets.reserve_asset + self.variables["sell_amount"]
+                mento_buckets['reserve_asset'] + self.variables["sell_amount"]
             ) * (
-                mento_buckets.reserve_asset - self.variables["sell_amount"] * (spread - 1)
+                mento_buckets['reserve_asset'] - self.variables["sell_amount"] * (spread - 1)
             )
         else:
             nominator = (
-                mento_buckets.stable + self.variables["sell_amount"]
+                mento_buckets['stable'] + self.variables["sell_amount"]
             ) * (
-                mento_buckets.stable
+                mento_buckets['stable']
                 - self.variables["sell_amount"] * (spread - 1)
             )
             denominator = (
-                mento_buckets.reserve_asset * mento_buckets.stable
+                mento_buckets['reserve_asset'] * mento_buckets['stable']
             )
 
         oracle_rate_after_trade = nominator / denominator
-
         self.expressions["oracle_rate_after_trade"] = oracle_rate_after_trade
 
     def define_objective_function(self, _params, _prev_state):

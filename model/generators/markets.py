@@ -59,17 +59,17 @@ class MarketPriceGenerator(Generator):
         self.price_impact_model = price_impact_model
         self.model = model
         self.increments = increments
-        self.supply_changes = {base: np.zeros(
+        self.supply_changes = {pair: np.zeros(
             simulation_configuration.BLOCKS_PER_TIMESTEP
             * simulation_configuration.TIMESTEPS
-            + 1) for (base, quote) in impacted_assets}
+            + 1) for pair in impacted_assets}
         self.impacted_assets = impacted_assets
         self.data_folder = "../../data/"
         self.custom_impact_function = custom_impact_function
         self.rng = rngp.get_rng("MarketPriceGenerator")
 
     @classmethod
-    def from_parameters(cls, params, _initial_state):
+    def from_parameters(cls, params, _initial_state, _container):
         if params["model"] == MarketPriceModel.QUANTLIB:
             market_price_generator = cls(
                 params["model"], params['impacted_assets']
@@ -120,21 +120,13 @@ class MarketPriceGenerator(Generator):
         """
         step = state["timestep"]
         market_prices = {}
-        if self.model == MarketPriceModel.QUANTLIB:
-            for asset in state["market_price"]:
-                market_prices[asset] = (state["market_price"][asset]
-                                        * np.exp(self.increments[asset][step - 1]))
-
-        elif self.model == MarketPriceModel.HIST_SIM:
-            for asset in state["market_price"]:
-                market_prices[asset] = (state["market_price"][asset]
-                                        * np.exp(self.increments[asset][step]))
-
-        elif self.model == MarketPriceModel.SCENARIO:
-            for asset in state["market_price"]:
-                market_prices[asset] = (state["market_price"][asset]
-                                        * np.exp(self.increments[asset][step]))
-
+        for asset in state["market_price"]:
+            increments = self.increments.get(asset)
+            if increments is None:
+                scale_factor = 1
+            else:
+                scale_factor = np.exp(increments[step])
+            market_prices[asset] = state["market_price"][asset] * scale_factor
         return market_prices
 
     # pylint: disable=no-self-use
@@ -170,24 +162,25 @@ class MarketPriceGenerator(Generator):
         self.impact_delay(block_supply_change, current_step)
 
         impacted_prices = deepcopy(market_prices)
-        for (base, quote) in self.impacted_assets:
-            variance_daily = params["variance_market_price"][base][quote] / 365
-            average_daily_volume = params["average_daily_volume"][base][quote]
+        for pair in self.impacted_assets:
+            variance_daily = params["variance_market_price"][pair] / 365
+            average_daily_volume = params["average_daily_volume"][pair]
             price_impact = self.price_impact_function(self.price_impact_model)(
-                self.supply_changes[base][current_step],
+                self.supply_changes[pair][current_step],
                 variance_daily,
                 average_daily_volume,
             )
-            impacted_prices[base][quote] += price_impact
+            impacted_prices[pair] += price_impact
 
         return impacted_prices
 
     def impact_delay(
         self, block_supply_change, current_step, impact_delay=ImpactDelay.INSTANT
     ):
-        for ccy in block_supply_change:
+        for pair in self.supply_changes:
             if impact_delay == ImpactDelay.INSTANT:
-                self.supply_changes[ccy][current_step] += block_supply_change[ccy]
+                # TODO: Impact should be somehow split between pairs
+                self.supply_changes[pair][current_step] += block_supply_change[pair.base]
 
     def historical_returns(self, sample_size):
         """Passes a historic scenario or creates a random sample from a set of

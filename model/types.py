@@ -2,7 +2,7 @@
 Various Python types used in the model
 """
 
-from typing import Any, Dict, NamedTuple, Union
+from typing import Any, Dict, NamedTuple, TypedDict, Union
 from enum import Enum
 
 from model.entities.balance import Balance
@@ -33,6 +33,10 @@ Timestep = int
 Blocknumber = int
 Day = int
 
+class SerializableEnum(Enum):
+    def __str__(self):
+        return self.value
+
 class TraderType(Enum):
     """
     different account holders
@@ -41,7 +45,7 @@ class TraderType(Enum):
     RANDOM_TRADER = "RandomTrading"
     MAX_TRADER = "SellMax"
 
-class Stable(Enum):
+class Stable(SerializableEnum):
     """
     Celo Stable assets
     """
@@ -49,33 +53,37 @@ class Stable(Enum):
     CREAL = "creal"
     CEUR = "ceur"
 
-class Crypto(Enum):
+class Crypto(SerializableEnum):
     CELO = "celo"
     ETH = "eth"
     BTC = "btc"
     DAI = "dai"
 
-class Fiat(Enum):
+    def __str__(self):
+        return self.value
+
+class Fiat(SerializableEnum):
     USD = "usd"
     EUR = "eur"
     BRL = "brl"
 
-Currency = Union[Stable, Fiat, Crypto]
-CurrencyRate = Dict[Currency, Dict[Currency, float]]
-MarketBuckets = Dict[Currency, float]
-
-class MentoExchange(Enum):
+class MentoExchange(SerializableEnum):
     CUSD_CELO = "cusd_celo"
     CREAL_CELO = "creal_celo"
-    CEUR_CELO = "ceuro_celo"
+    CEUR_CELO = "ceur_celo"
 
-class ReserveBalance(NamedTuple):
-    celo: float
-    btc: float
-    dai: float
-    eth: float
+Currency = Union[Stable, Fiat, Crypto]
 
-class MentoBuckets(NamedTuple):
+class Pair(NamedTuple):
+    base: Currency
+    quote: Currency
+
+    def __str__(self):
+        return f"{self.base.value}_{self.quote.value}"
+
+MarketBuckets = Dict[Currency, float]
+
+class MentoBuckets(TypedDict):
     stable: float
     reserve_asset: float
 
@@ -95,8 +103,7 @@ class MentoExchangeConfig(NamedTuple):
     max_sell_fraction_of_float: float
 
 class MarketPriceConfig(NamedTuple):
-    base: Currency
-    quote: Fiat
+    pair: Pair
     process: Any
     param_1: float
     param_2: float

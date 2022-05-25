@@ -9,7 +9,7 @@ import numpy as np
 
 from model.constants import blocktime_seconds
 from model.entities.balance import Balance
-from model.types import MentoBuckets, MentoExchange, MentoExchangeConfig, Stable
+from model.types import MentoBuckets, MentoExchange, MentoExchangeConfig, Pair, Stable
 from model.utils.generator import Generator, state_update_blocks
 from model.utils import update_from_signal
 
@@ -34,7 +34,7 @@ class MentoExchangeGenerator(Generator):
         self.active_exchanges = active_exchanges
 
     @classmethod
-    def from_parameters(cls, params, _initial_state):
+    def from_parameters(cls, params, _initial_state, _container):
         return cls(
             params['mento_exchanges_config'],
             set(params['mento_exchanges_active'])
@@ -64,11 +64,13 @@ class MentoExchangeGenerator(Generator):
             _state_history,
             prev_state,
         ):
+            mento_buckets = {
+                exchange: self.get_next_buckets(prev_state, exchange)
+                for exchange in self.active_exchanges
+            }
+
             return {
-                'mento_buckets': {
-                    exchange: self.get_next_buckets(prev_state, exchange)
-                    for exchange in self.active_exchanges
-                }
+                'mento_buckets': mento_buckets
             }
         return p_bucket_update
 
@@ -99,10 +101,10 @@ class MentoExchangeGenerator(Generator):
         config = self.configs[exchange]
         reserve_asset_bucket = (
             config.reserve_fraction
-            * prev_state['reserve_balance'].get(config.reserve_asset, 0)
+            * prev_state['reserve_balance'].get(config.reserve_asset)
         )
         stable_bucket = (
-            prev_state['oracle_rate'].get(config.reserve_asset, {}).get(config.stable)
+            prev_state['oracle_rate'].get(Pair(config.reserve_asset, config.peg))
             * reserve_asset_bucket
         )
         return MentoBuckets(stable=stable_bucket, reserve_asset=reserve_asset_bucket)
@@ -122,11 +124,11 @@ class MentoExchangeGenerator(Generator):
         reduced_sell_amount = sell_amount * (1 - spread)
 
         if sell_reserve_asset:
-            buy_token_bucket = prev_state["mento_buckets"][exchange].stable
-            sell_token_bucket = prev_state["mento_buckets"][exchange].reserve_asset
+            buy_token_bucket = prev_state["mento_buckets"][exchange]['stable']
+            sell_token_bucket = prev_state["mento_buckets"][exchange]['reserve_asset']
         else:
-            buy_token_bucket = prev_state["mento_buckets"][exchange].reserve_asset
-            sell_token_bucket = prev_state["mento_buckets"][exchange].stable
+            buy_token_bucket = prev_state["mento_buckets"][exchange]['reserve_asset']
+            sell_token_bucket = prev_state["mento_buckets"][exchange]['stable']
 
         numerator = sell_amount * (1 - spread) * buy_token_bucket
         denominator = sell_token_bucket + reduced_sell_amount

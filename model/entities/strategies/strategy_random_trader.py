@@ -5,19 +5,16 @@ from cvxpy import Variable
 import numpy as np
 
 from experiments import simulation_configuration
-from model.entities.trader import Trader
 from model.utils.rng_provider import rngp
 
 from .trader_strategy import TraderStrategy
 
-
-# pylint: disable=using-constant-test
 class RandomTrading(TraderStrategy):
     """
     Random Trading
     """
 
-    def __init__(self, parent: Trader, acting_frequency=1):
+    def __init__(self, parent, acting_frequency=1):
         # The following is used to define the strategy and needs to be provided in subclass
         super().__init__(parent, acting_frequency)
         self.generate_sell_amounts()

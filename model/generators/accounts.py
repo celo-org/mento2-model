@@ -13,7 +13,7 @@ from model.entities.balance import Balance
 from model.types import TraderConfig
 from model.utils import update_from_signal
 from model.utils.generator import Generator, state_update_blocks
-from model.utils.generator_container import GENERATOR_CONTAINER_PARAM_KEY, GeneratorContainer
+from model.utils.generator_container import GeneratorContainer
 
 ACCOUNTS_NS = uuid4()
 
@@ -34,7 +34,7 @@ class AccountGenerator(Generator):
                 initial_floating_supply: Balance,
                 traders: List[TraderConfig],
                 container: GeneratorContainer):
-        # reserve account with account_id=0
+        self.container = container
         self.reserve = self.create_reserve_account(
             initial_balance=reserve_inventory
         )
@@ -47,15 +47,14 @@ class AccountGenerator(Generator):
                 )
 
         self.untracked_floating_supply = initial_floating_supply - self.tracked_floating_supply
-        self.container = container
 
     @classmethod
-    def from_parameters(cls, params, initial_state):
+    def from_parameters(cls, params, initial_state, container):
         accounts = cls(
-            Balance(**params["reserve_inventory"]),
-            Balance(**initial_state["floating_supply"]),
+            Balance(params["reserve_inventory"]),
+            Balance(initial_state["floating_supply"]),
             params["traders"],
-            params[GENERATOR_CONTAINER_PARAM_KEY],
+            container,
         )
 
         return accounts
@@ -115,35 +114,13 @@ class AccountGenerator(Generator):
         return account
 
     @property
-    def total_supply_celo(self) -> float:
-        """
-        sums up celo balances over all accounts
-        """
-        return self.floating_supply.celo + self.reserve.balance.celo
-
-    @property
-    def tracked_floating_supply_celo(self) -> float:
-        """
-        sums up celo balances over all accounts except reserve
-        """
-        return reduce(lambda s, account: s + account.balance.celo, self.accounts_by_id.values(), 0)
-
-    @property
-    def tracked_floating_supply_cusd(self) -> float:
-        """
-        sums up cusd balances over all accounts except reserve
-        """
-        return reduce(lambda s, account: s + account.balance.cusd, self.accounts_by_id.values(), 0)
-
-    @property
     def tracked_floating_supply(self) -> Balance:
         """
         Tracked floating supply which originates from
         """
-        return Balance(
-            celo=self.tracked_floating_supply_celo,
-            cusd=self.tracked_floating_supply_cusd
-        )
+        return reduce(lambda supply, balance: supply + balance,
+                      map(lambda account: account.balance, self.accounts_by_id.values()),
+                      Balance.zero())
 
     @property
     def floating_supply(self) -> Balance:

@@ -35,15 +35,16 @@ class ArbitrageTrading(TraderStrategy):
         and market price
         """
         mento_buckets = self.mento_buckets(prev_state)
+        mento_price = mento_buckets['stable'] / mento_buckets['reserve_asset']
         market_price = self.market_price(prev_state)
 
         price_up_profit = (
             market_price * (1 - self.exchange_config.spread)
-            > mento_buckets.stable / mento_buckets.reserve_asset
+            > mento_price
         )
         price_down_profit = (
             market_price / (1 - self.exchange_config.spread)
-            < mento_buckets.stable / mento_buckets.reserve_asset
+            < mento_price
         )
 
         if price_up_profit:
@@ -92,7 +93,7 @@ class ArbitrageTrading(TraderStrategy):
         market_price = self.market_price(prev_state)
         mento_buckets = self.mento_buckets(prev_state)
         spread = self.exchange_config.spread
-        mento_price = mento_buckets.stable / mento_buckets.reserve_asset
+        mento_price = mento_buckets['stable'] / mento_buckets['reserve_asset']
 
         if market_price * (1 - spread) > mento_price:
             self.sell_order_stable(
@@ -100,7 +101,7 @@ class ArbitrageTrading(TraderStrategy):
                 market_price,
                 spread
             )
-        elif market_price / (1 - spread) < mento_buckets:
+        elif market_price / (1 - spread) < mento_price:
             self.sell_order_reserve_asset(
                 mento_buckets,
                 market_price,

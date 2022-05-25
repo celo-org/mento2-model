@@ -8,21 +8,25 @@
   inside of solve() but the
  objective_function and the constraints should still be specified for completeness!
 """
+from typing import TYPE_CHECKING
+import logging
 from cvxpy import Maximize, Minimize, Problem, Variable
 import cvxpy
 
-from model.entities.trader import Trader
-from model.generators.mento import MentoExchangeGenerator
-from model.types import MentoBuckets, MentoExchangeConfig
+from model.types import MentoBuckets, MentoExchangeConfig, Pair
+if TYPE_CHECKING:
+    from model.entities.trader import Trader
 
-# pylint: disable=missing-class-docstring
-# pylint: disable=broad-except
 class TraderStrategy:
-    parent: Trader
-    mento: MentoExchangeGenerator
+    """
+    Base trader strategy class to solve a convex optimisation problem.
+    Subclasses are responsible for defining the strategy via constraints.
+
+    """
+    parent: "Trader"
     exchange_config: MentoExchangeConfig
 
-    def __init__(self, parent: Trader, acting_frequency):
+    def __init__(self, parent: "Trader", acting_frequency):
         self.parent = parent
         self.acting_frequency = acting_frequency
         self.exchange_config = self.mento.configs.get(self.parent.config.exchange)
@@ -40,15 +44,15 @@ class TraderStrategy:
 
     @property
     def peg(self):
-        return self.exchange_config.peg.value
+        return self.exchange_config.peg
 
     @property
     def stable(self):
-        return self.exchange_config.stable.value
+        return self.exchange_config.stable
 
     @property
     def reserve_asset(self):
-        return self.exchange_config.reserve_asset.value
+        return self.exchange_config.reserve_asset
 
     @property
     def mento(self):
@@ -108,22 +112,18 @@ class TraderStrategy:
         prob = Problem(obj, self.constraints)
 
         # The optimization problem of SellMax is quasi-convex
-        try:
-            prob.solve(
-                solver=cvxpy.ECOS,
-                abstol=1e-6,
-                reltol=1e-6,
-                max_iters=10000,
-                verbose=True,
-            )
-
-        except Exception as error:
-            print(error)
+        prob.solve(
+            solver=cvxpy.ECOS,
+            abstol=1e-6,
+            reltol=1e-6,
+            max_iters=10000,
+            verbose=True,
+        )
 
         assert prob.status == "optimal", "Optimization NOT successful!"
-        # print(f'Objective value in optimum is {prob.value}.')
-        # print(self.variables['sell_amount'].value)
-        # print(self.expressions['oracle_rate_after_trade'].value)
+        logging.debug('Objective value in optimum is %s', prob.value)
+        logging.debug(self.variables['sell_amount'].value)
+        logging.debug(self.expressions['oracle_rate_after_trade'].value)
 
     # pylint: disable=duplicate-code
     def optimize(self, params, prev_state):
@@ -150,12 +150,12 @@ class TraderStrategy:
         # Todo logic is probably wrong, fix!
         if sell_reserve_asset:
             sell_amount_adjusted = min(
-                params["average_daily_volume"].get(self.stable).get(self.peg),
+                params["average_daily_volume"].get(Pair(self.stable, self.peg)),
                 sell_amount
             )
         elif not sell_reserve_asset:
             sell_amount_adjusted = min(
-                params["average_daily_volume"].get(self.reserve_asset).get(self.peg),
+                params["average_daily_volume"].get(Pair(self.reserve_asset, self.peg)),
                 sell_amount
             )
         return sell_amount_adjusted
@@ -199,8 +199,8 @@ class TraderStrategy:
     def market_price(self, prev_state) -> float:
         # TODO: Do we need to quote in equivalent Fiat for Stable?
         return (
-            prev_state["market_price"].get(self.reserve_asset).get(self.peg)
-            / prev_state["market_price"].get(self.stable).get(self.peg)
+            prev_state["market_price"].get(Pair(self.reserve_asset, self.peg))
+            / prev_state["market_price"].get(Pair(self.stable, self.peg))
         )
 
     def mento_buckets(self, prev_state) -> MentoBuckets:

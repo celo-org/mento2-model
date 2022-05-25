@@ -13,9 +13,10 @@ from model.utils import default
 
 from model.types import (
     Crypto,
-    CurrencyRate,
     Fiat,
     MentoBuckets,
+    MentoExchange,
+    Pair,
     Stable,
     MarketBuckets,
 )
@@ -43,12 +44,10 @@ class StateVariables:
         Stable.CREAL: CREAL_SUPPLY_MEAN,
     })
 
-    oracle_rate: CurrencyRate = default({
-        Crypto.CELO: {
-            Stable.CUSD: 3,
-            Stable.CEUR: 3,
-            Stable.CREAL: 3,
-        }
+    oracle_rate: Dict[Pair, float] = default({
+        Pair(Crypto.CELO, Fiat.USD): 3,
+        Pair(Crypto.CELO, Fiat.EUR): 2.5,
+        Pair(Crypto.CELO, Fiat.BRL): 15,
     })
 
     # Reserve state variable
@@ -57,10 +56,10 @@ class StateVariables:
     })
     # Mento state variables
     # TODO initial calibration of buckets
-    mento_buckets: Dict[Stable, MentoBuckets] = default({
-        Stable.CUSD: MentoBuckets(0, 0),
-        Stable.CEUR: MentoBuckets(0, 0),
-        Stable.CREAL: MentoBuckets(0, 0)
+    mento_buckets: Dict[MentoExchange, MentoBuckets] = default({
+        MentoExchange.CUSD_CELO: MentoBuckets(stable=0, reserve_asset=0),
+        MentoExchange.CEUR_CELO: MentoBuckets(stable=0, reserve_asset=0),
+        MentoExchange.CREAL_CELO: MentoBuckets(stable=0, reserve_asset=0),
     })
 
 
@@ -71,21 +70,13 @@ class StateVariables:
         Fiat.BRL: CREAL_SUPPLY_MEAN,
     })
 
-    market_price: CurrencyRate = default({
-        Crypto.CELO: {
-            Fiat.USD: 3,
-            Fiat.EUR: 3,
-            Fiat.BRL: 3,
-        },
-        Stable.CUSD: {
-            Fiat.USD: 1
-        },
-        Stable.CEUR: {
-            Fiat.EUR: 1
-        },
-        Stable.CREAL: {
-            Fiat.BRL: 1
-        },
+    market_price: Dict[Pair, float] = default({
+        Pair(Crypto.CELO, Fiat.USD): 3,
+        Pair(Crypto.CELO, Fiat.EUR): 2.4,
+        Pair(Crypto.CELO, Fiat.BRL): 15,
+        Pair(Stable.CUSD, Fiat.USD): 1,
+        Pair(Stable.CEUR, Fiat.EUR): 1,
+        Pair(Stable.CREAL, Fiat.BRL): 1
     })
 
 # Initialize State Variables instance with default values

@@ -21,7 +21,7 @@ def p_market_price(
     market_price = market_price_generator.market_price(prev_state)
     return {
         "market_price": market_price,
-        "oracle_rate": market_price["celo_usd"],
+        "oracle_rate": market_price, # TODO: nope
     }
 
 

@@ -7,7 +7,7 @@ By using a dataclass to represent the System Parameters:
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Tuple
+from typing import List, Dict
 from QuantLib import GeometricBrownianMotionProcess
 import experiments.simulation_configuration as simulation
 
@@ -21,6 +21,7 @@ from model.types import (
     MarketPriceConfig,
     MentoExchange,
     MentoExchangeConfig,
+    Pair,
     Stable,
     TraderConfig,
     TraderType,
@@ -97,22 +98,19 @@ class Parameters:
     market_price_processes: List[List[MarketPriceConfig]] = default([
         [
             MarketPriceConfig(
-                base=Crypto.CELO,
-                quote=Fiat.USD,
+                pair=Pair(Crypto.CELO, Fiat.USD),
                 process=GeometricBrownianMotionProcess,
                 param_1=0,
                 param_2=1,
             ),
             MarketPriceConfig(
-                base=Stable.CUSD,
-                quote=Fiat.USD,
+                pair=Pair(Stable.CUSD, Fiat.USD),
                 process=GeometricBrownianMotionProcess,
                 param_1=0,
                 param_2=0.01,
             ),
             MarketPriceConfig(
-                base=Crypto.BTC,
-                quote=Fiat.USD,
+                pair=Pair(Crypto.BTC, Fiat.USD),
                 process=GeometricBrownianMotionProcess,
                 param_1=0,
                 param_2=0.01,
@@ -128,38 +126,28 @@ class Parameters:
     # TODO: is this used?
     # drift_market_price: List[float] = default([[-5*5, 0]])
 
-    average_daily_volume: List[Dict[Currency, Dict[Fiat, float]]] = default([
-        {
-            Crypto.CELO: {
-                Fiat.USD: 1000000,
-                Fiat.EUR: 1000000,
-                Fiat.BRL: 1000000
-            },
-            Stable.CUSD: {
-                Fiat.USD: 1000000,
-            },
-            Stable.CEUR: {
-                Fiat.EUR: 1000000,
-            },
-            Stable.CREAL: {
-                Fiat.BRL: 1000000,
-            },
-        }
-    ])
+    average_daily_volume: List[Dict[Pair, float]] = default([{
+        Pair(Crypto.CELO, Fiat.USD): 1000000,
+        Pair(Crypto.CELO, Fiat.EUR): 1000000,
+        Pair(Crypto.CELO, Fiat.BRL): 1000000,
+        Pair(Stable.CUSD, Fiat.USD): 1000000,
+        Pair(Stable.CEUR, Fiat.EUR): 1000000,
+        Pair(Stable.CREAL, Fiat.BRL): 1000000,
+    }])
 
     # Impact Parameters
-    impacted_assets: List[List[Tuple[Currency, Fiat]]] = default([[
-        (Crypto.CELO, Fiat.USD),
-        (Stable.CUSD, Fiat.USD)
+    impacted_assets: List[List[Pair]] = default([[
+        Pair(Crypto.CELO, Fiat.USD),
+        Pair(Stable.CUSD, Fiat.USD),
+        Pair(Stable.CEUR, Fiat.EUR),
+        Pair(Stable.CREAL, Fiat.BRL),
     ]])
 
     variance_market_price: List[Dict[Currency, Dict[Fiat, float]]] = default([{
-        Crypto.CELO: {
-            Fiat.USD: 1
-        },
-        Stable.CUSD: {
-            Fiat.USD: 0.01
-        }
+        Pair(Crypto.CELO, Fiat.USD): 1,
+        Pair(Stable.CUSD, Fiat.USD): 1,
+        Pair(Stable.CEUR, Fiat.EUR): 1,
+        Pair(Stable.CREAL, Fiat.BRL): 1
     }])
 
     # Trader Balances
@@ -168,13 +156,13 @@ class Parameters:
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
                 count=1,
-                balance=Balance(celo=500000, cusd=1000000),
+                balance=Balance({ Crypto.CELO: 500000, Stable.CUSD: 1000000 }),
                 exchange=MentoExchange.CUSD_CELO
             ),
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
                 count=2,
-                balance=Balance(celo=500000, ceur=1000000),
+                balance=Balance({ Crypto.CELO: 500000, Stable.CEUR: 1000000 }),
                 exchange=MentoExchange.CEUR_CELO
             ),
         ]

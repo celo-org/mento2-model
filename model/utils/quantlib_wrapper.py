@@ -57,8 +57,8 @@ class QuantLibWrapper():
                            _timesteps=simulation_configuration.TIMESTEPS):
         log_returns = self.generate_correlated_paths()
         increments = {}
-        for asset, path in zip(self.processes, log_returns):
-            increments[asset] = path
+        for config, path in zip(self.processes, log_returns):
+            increments[config.pair] = path
         return increments
 
     # pylint: disable = too-many-locals

@@ -10,7 +10,7 @@ from uuid import UUID
 from model.generators.mento import MentoExchangeGenerator
 from model.entities import strategies
 from model.entities.account import Account, Balance
-from model.types import MentoExchangeConfig, TraderConfig
+from model.types import MentoExchangeConfig, Pair, TraderConfig
 
 if TYPE_CHECKING:
     from model.generators.accounts import AccountGenerator
@@ -33,13 +33,12 @@ class Trader(Account):
     ):
         super().__init__(parent, account_id, account_name, config.balance)
         self.mento = self.parent.container.get(MentoExchangeGenerator)
+        self.config = config
+        self.exchange_config = self.mento.configs.get(self.config.exchange)
 
         strategy_class = getattr(strategies, config.trader_type.value)
         assert strategy_class is not None, f"{config.trader_type.value} is not a strategy"
         self.strategy = strategy_class(self)
-
-        self.config = config
-        self.exchange_config = self.mento.configs.get(self.config.exchange)
 
     def execute(
         self,
@@ -69,11 +68,10 @@ class Trader(Account):
         )
 
         self.balance += delta
-        reserve_delta = Balance.zero()
-        reserve_delta.set(
-            self.exchange_config.reserve_asset,
-            -1 * delta.get(self.exchange_config.reserve_asset),
-        )
+        reserve_delta = Balance({
+            self.exchange_config.reserve_asset:
+                -1 * delta.get(self.exchange_config.reserve_asset),
+        })
         self.parent.reserve.balance += reserve_delta
 
         next_buckets = deepcopy(prev_state["mento_buckets"])
@@ -81,8 +79,8 @@ class Trader(Account):
 
         return {
             "mento_buckets": next_buckets,
-            "floating_supply": self.parent.floating_supply.__dict__,
-            "reserve_balance": self.parent.reserve.balance.__dict__
+            "floating_supply": self.parent.floating_supply.values,
+            "reserve_balance": self.parent.reserve.balance.values,
         }
 
     def rebalance_portfolio(self, target_amount, target_is_reserve_asset, prev_state):
@@ -92,15 +90,15 @@ class Trader(Account):
         value of the portfolio would cover it therefore they can
         rebalance and execute the trade.
         """
-        reserve_asset = self.exchange_config.reserve_asset.value
-        stable = self.exchange_config.stable.value
-        peg = self.exchange_config.peg.value
+        reserve_asset = self.exchange_config.reserve_asset
+        stable = self.exchange_config.stable
+        peg = self.exchange_config.peg
 
         # TODO: Should these be quoted in the specific
         # fiat of the stable?
         market_price = (
-            prev_state["market_price"].get(reserve_asset).get(peg)
-            / prev_state("market_price").get(stable).get(peg)
+            prev_state["market_price"].get(Pair(reserve_asset, peg))
+            / prev_state["market_price"].get(Pair(stable, peg))
         )
 
         delta = Balance.zero()
