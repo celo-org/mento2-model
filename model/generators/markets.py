@@ -198,7 +198,7 @@ class MarketPriceGenerator(Generator):
         # TODO Consider different sampling options
         # TODO Random Seed
         data_feed = DataFeed(data_folder=DATA_FOLDER)
-        data = data_feed.data
+        data = data_feed.data.copy()
         if self.model == MarketPriceModel.HIST_SIM:
             random_index_array = np.random.randint(low=0,
                                                    high=data_feed.length - 1,
