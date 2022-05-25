@@ -100,7 +100,12 @@ class Parameters:
             {
                 OracleType.SINGLE_SOURCE:
                     OracleConfig(count=1,
-                                 aggregation=None)
+                                 aggregation=None,
+                                 delay=10,
+                                 oracle_price_threshold=0.02,
+                                 oracle_reporting_interval=6,
+                                 tickers=['celo_usd']
+                                 )
             }
         ]
     )

@@ -73,6 +73,10 @@ class AggregationMethod(Enum):
 class OracleConfig:
     count: int
     aggregation: AggregationMethod
+    delay: int
+    oracle_reporting_interval: int
+    oracle_price_threshold: int
+    tickers: str
 
 
 Oracles = Dict[OracleType, OracleConfig]
