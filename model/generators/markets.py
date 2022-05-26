@@ -8,7 +8,7 @@ import numpy as np
 
 from experiments import simulation_configuration
 from model.types import MarketPriceModel
-from model.utils.data_feed import DATA_FILE_NAME, DATA_FOLDER, DataFeed
+from model.utils.data_feed import DATA_FOLDER, DataFeed
 from model.utils.generator import Generator
 from model.utils.price_impact_valuator import PriceImpactValuator
 from model.utils.quantlib_wrapper import QuantLibWrapper
@@ -116,18 +116,13 @@ class MarketPriceGenerator(Generator):
         historical log-returns"""
         # TODO Consider different sampling options
         # TODO Random Seed
-        data_feed = DataFeed(data_folder=DATA_FOLDER, data_file_name=DATA_FILE_NAME)
-        data = data_feed.historical_data
-        if self.sample_size > (data_feed.length+1):
-            raise RuntimeError(
-                "Simulation time longer than historical return time series, "
-                "`SCENARIO`based market price generation not possible"
-            )
+        data_feed = DataFeed(data_folder=DATA_FOLDER)
+        data = data_feed.data.copy()
         if self.model == MarketPriceModel.HIST_SIM:
             random_index_array = np.random.randint(low=0,
                                                    high=data_feed.length - 1,
                                                    size=self.sample_size)
-            data = data_feed.historical_data[random_index_array, :]
+            data = data_feed.data[random_index_array, :]
         increments = {}
         for index, asset in enumerate(data_feed.assets):
             increments[asset] = data[:, index]
