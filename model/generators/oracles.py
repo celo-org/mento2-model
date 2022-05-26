@@ -63,11 +63,6 @@ class OracleRateGenerator(Generator):
         self.oracles_by_id[oracle_provider.oracle_id] = oracle_provider
         return oracle_provider
 
-    def delay(self):
-        """
-        Delay function for advanced delaying or different delay types (e.r. random)
-        """
-
     def exchange_rate(self, state_history, prev_state):
         exchange_rate = self.aggregation(state_history, prev_state)
         return exchange_rate
