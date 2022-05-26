@@ -46,7 +46,7 @@ class PriceImpactValuator():
                 raise Exception(f'Incorrect quoting convention for {asset}')
             variance_daily = params["variance_market_price"][asset] / 365
             average_daily_volume = params["average_daily_volume"][asset]
-            price_impact[asset] = self.price_impact_function(self.price_impact_model)(
+            price_impact[asset] = self.__price_impact_function__(self.price_impact_model)(
                 self.supply_changes[asset_1][current_step],
                 variance_daily,
                 average_daily_volume,
@@ -77,7 +77,7 @@ class PriceImpactValuator():
                                                         block_supply_change[ccy])
 
     # pylint: disable=no-self-use
-    def price_impact_function(self, mode):
+    def __price_impact_function__(self, mode):
         """
         calculates the price impact of a trade
         """

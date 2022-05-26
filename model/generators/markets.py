@@ -51,31 +51,23 @@ class MarketPriceGenerator(Generator):
         self.custom_impact_function = custom_impact_function
         self.rng = rngp.get_rng("MarketPriceGenerator")
 
-    @ classmethod
+    @classmethod
     def from_parameters(cls, params, _initial_state):
         if params["model"] == MarketPriceModel.QUANTLIB:
             market_price_generator = cls(
                 params["model"], params['impacted_assets']
             )
-            # if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-            #    market_price_generator.custom_impact_function = params["custom_impact"]
             quant_lib_wrapper = QuantLibWrapper(
                 params['processes'], params['correlation'], market_price_generator.sample_size)
             market_price_generator.increments = quant_lib_wrapper.correlated_returns()
         elif params["model"] == MarketPriceModel.PRICE_IMPACT:
             market_price_generator = cls(params["model"], params['impacted_assets'])
-            # if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-            #    market_price_generator.custom_impact_function = params["custom_impact"]
         elif params["model"] == MarketPriceModel.HIST_SIM:
             market_price_generator = cls(params["model"], params['impacted_assets'])
-            # if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-            #    market_price_generator.custom_impact_function = params["custom_impact"]
             market_price_generator.historical_returns()
             logging.info("increments updated")
         elif params["model"] == MarketPriceModel.SCENARIO:
             market_price_generator = cls(params["model"], params['impacted_assets'])
-            # if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-            #    market_price_generator.custom_impact_function = params["custom_impact"]
             market_price_generator.historical_returns()
             logging.info("increments updated")
         return market_price_generator
