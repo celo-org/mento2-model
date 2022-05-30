@@ -19,35 +19,31 @@ class QuantLibWrapper():
     This class wraps part of QuantLib to create increments
     """
 
-    def __init__(self, processes, correlation,
-                 _blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
-                 _timesteps=simulation_configuration.TIMESTEPS, _number_of_paths=1):
+    def __init__(self, processes, correlation, sample_size):
         self.processes = processes
         self.correlation = correlation
         # as we use the log returns of each process initial value is irrelevant for processes
         # with independent multiplicative increments
         self.initial_value = 1
         self.number_of_paths_per_asset = 1
+        self.timesteps_per_year = (constants.blocks_per_year /
+                                   simulation_configuration.BLOCKS_PER_TIMESTEP)
+        self.sample_size = sample_size
 
-    def process_container(self,
-                          blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP):
+    def process_container(self):
         """
         Creates an array of processes
         """
-        timesteps_per_year = constants.blocks_per_year // blocks_per_timestep
-        #     sample_size = timesteps * blocks_per_timestep + 1
 
         processes = [asset['process'](
             self.initial_value,
-            asset['param_1'] / timesteps_per_year,
-            asset['param_2'] / np.sqrt(timesteps_per_year))
+            asset['param_1'] / self.timesteps_per_year,
+            asset['param_2'] / np.sqrt(self.timesteps_per_year))
             for ticker, asset in self.processes.items()]
         process_array = StochasticProcessArray(processes, self.correlation)
         return process_array
 
-    def correlated_returns(self,
-                           _blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
-                           _timesteps=simulation_configuration.TIMESTEPS):
+    def correlated_returns(self):
         log_returns = self.generate_correlated_paths()
         increments = {}
         for asset, path in zip(self.processes, log_returns):
@@ -55,14 +51,12 @@ class QuantLibWrapper():
         return increments
 
     # pylint: disable = too-many-locals
-    def generate_correlated_paths(self,
-                                  _blocks_per_timestep=simulation_configuration.BLOCKS_PER_TIMESTEP,
-                                  timesteps=simulation_configuration.TIMESTEPS):
+    def generate_correlated_paths(self):
         """
         Generates paths
         """
         process = self.process_container()
-        time_grid = TimeGrid(timesteps, timesteps)
+        time_grid = TimeGrid(self.sample_size, self.sample_size)
         if isinstance(process, StochasticProcessArray):
             # time points are not really required for block step size but will if we change
             # to other time delta
