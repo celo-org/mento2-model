@@ -13,7 +13,7 @@ import experiments.simulation_configuration as simulation
 
 from model.entities.balance import Balance
 from model.generators.markets import MarketPriceModel
-from model.types import Blocknumber, TraderConfig, TraderType
+from model.types import Blocknumber, ImpactDelay, OracleConfig, TraderConfig, TraderType, OracleType
 from model.utils import default
 
 
@@ -84,6 +84,9 @@ class Parameters:
                                             'cusd_usd',
                                             'btc_usd',
                                             'eth_usd']])
+
+    impact_delay: List[Dict] = default([{'model': ImpactDelay.NBLOCKS, 'param_1': 10}])
+    impacted_assets: List[List] = default([['celo_usd', 'cusd_usd']])
     average_daily_volume: List[Dict] = default(
         [{'celo_usd': 1000000,
           'cusd_usd': 1000000,
@@ -107,6 +110,19 @@ class Parameters:
         ]
     )
     reserve_inventory: List[Dict] = default([{"celo": 120000000, "cusd": 0}])
+
+    # Oracles
+    oracles: List[List[OracleConfig]] = default([
+        [
+            OracleConfig(count=1,
+                         type=OracleType.SINGLE_SOURCE,
+                         aggregation=None,
+                         delay=10,
+                         price_threshold=0.02,
+                         reporting_interval=6,
+                         tickers=['celo_usd'])
+        ]
+    ])
 
 
 # Initialize Parameters instance with default values
