@@ -5,7 +5,8 @@ import logging
 
 # from model.system_parameters import parameters
 from model.generators.accounts import AccountGenerator
-from model.parts import buy_and_sell, policies_oracles
+from model.generators.oracles import OracleRateGenerator
+from model.parts import buy_and_sell
 from model.parts import celo_system
 import model.parts.market_prices as market_price
 from model.utils import update_from_signal
@@ -34,15 +35,6 @@ state_update_block_market_price_change = {
     "variables": {
         "market_price": update_from_signal("market_price")
     },
-}
-
-state_update_block_oracle_report = {
-    "description": """
-       updates the oracle rate
-    """,
-    "policies": {"oracle_rate": policies_oracles.p_oracle_report},
-    "variables": {
-        "oracle_rate": update_from_signal("oracle_rate")},
 }
 
 state_update_block_periodic_mento_bucket_update = {
@@ -74,7 +66,7 @@ state_update_block_epoch_rewards = {
 # Create state_update blocks list
 _state_update_blocks = [
     state_update_block_market_price_change,
-    state_update_block_oracle_report,
+    generator_state_update_block(OracleRateGenerator, "report"),
     state_update_block_periodic_mento_bucket_update,
     generator_state_update_block(AccountGenerator, "traders"),
     state_update_block_epoch_rewards,

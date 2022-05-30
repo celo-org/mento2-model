@@ -4,7 +4,7 @@ Various Python types used in the model
 
 # See https://docs.python.org/3/library/dataclasses.html
 from dataclasses import dataclass
-from typing import Dict, TypedDict
+from typing import Dict, List, NamedTuple, TypedDict
 
 from enum import Enum
 
@@ -69,22 +69,17 @@ class AggregationMethod(Enum):
     IDENTITY = 'indentity'
 
 
-@dataclass
-class OracleConfig:
+class OracleConfig(NamedTuple):
+    type: OracleType
     count: int
     aggregation: AggregationMethod
     delay: int
-    oracle_reporting_interval: int
-    oracle_price_threshold: int
-    tickers: str
-
-
-Oracles = Dict[OracleType, OracleConfig]
-
+    reporting_interval: int
+    price_threshold: int
+    tickers: List[str]
 
 class MarketPrice(TypedDict):
     cusd_usd: float
-
 
 # Todo Solve naming conflict
 class MarketPriceG(TypedDict):

@@ -2,17 +2,18 @@
 oracle generator and related functions
 """
 
-from typing import Dict
+from typing import Dict, List
 from uuid import UUID, uuid4, uuid5
 import numpy as np
 
 
 from model.entities.oracle_provider import OracleProvider
-from model.types import AggregationMethod, Oracles
-from model.utils.generator import Generator
+from model.types import OracleConfig
+from model.utils import update_from_signal
+from model.utils.generator import Generator, state_update_blocks
 from model.utils.rng_provider import rngp
 
-ACCOUNTS_NS = uuid4()
+ORACLES_NS = uuid4()
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
@@ -27,41 +28,30 @@ class OracleRateGenerator(Generator):
 
     def __init__(
         self,
-        oracles: Oracles
+        oracles: List[OracleConfig]
     ):
         self.input = None
         self.rng = rngp.get_rng("OracleGenerator")
-        for (oracle_type, oracle_params) in oracles.items():
-            for index in range(oracle_params.count):
-                self.create_oracle(
-                    oracle_name=f"{oracle_type}_{index}",
-                    aggregation=oracle_params.aggregation,
-                    delay=oracle_params.delay,
-                    oracle_reporting_interval=oracle_params.oracle_reporting_interval,
-                    oracle_price_threshold=oracle_params.oracle_price_threshold,
-                    tickers=oracle_params.tickers
-                )
+        for oracle_config in oracles:
+            for index in range(oracle_config.count):
+                self.create_oracle(index, oracle_config)
 
     @classmethod
     def from_parameters(cls, params, _initial_state):
         oracle_generator = cls(params['oracles'])
         return oracle_generator
 
-    def create_oracle(self, oracle_name: str, aggregation: AggregationMethod, delay: int,
-                      oracle_reporting_interval: int, oracle_price_threshold: float, tickers: str):
+    def create_oracle(self, index: int, oracle_config: OracleConfig):
         """
         Creates Oracle Providers
         """
-        oracle_provider = OracleProvider(oracle_name=oracle_name,
-                                         oracle_id=uuid5(ACCOUNTS_NS, oracle_name),
-                                         aggregation=aggregation,
-                                         delay=delay,
-                                         oracle_reporting_interval=oracle_reporting_interval,
-                                         oracle_price_threshold=oracle_price_threshold,
-                                         tickers=tickers
-                                         )
-        self.oracles_by_id[oracle_provider.oracle_id] = oracle_provider
-        return oracle_provider
+        oracle_name = f"{oracle_config.type}_{index}"
+        oracle_id = uuid5(ORACLES_NS, oracle_name)
+
+        oracle_provider = OracleProvider(name=oracle_name,
+                                         oracle_id=oracle_id,
+                                         config=oracle_config)
+        self.oracles_by_id[oracle_id] = oracle_provider
 
     def exchange_rate(self, state_history, prev_state):
         exchange_rate = self.aggregation(state_history, prev_state)
@@ -77,3 +67,28 @@ class OracleRateGenerator(Generator):
     def update_oracles(self, state_history, prev_state):
         for _id, oracle in self.oracles_by_id.items():
             oracle.update(state_history, prev_state)
+
+    @state_update_blocks("report")
+    def oracle_report(self):
+        return [{
+            "description": """
+                updates the oracle rate
+            """,
+            "policies": {"oracle_rate": self.get_oracle_report_policy()},
+            "variables": {
+                "oracle_rate": update_from_signal("oracle_rate")},
+        }]
+
+    def get_oracle_report_policy(self):
+        """
+        Updates the median rate to update the Mento buckets
+        """
+        def p_oracle_report(
+            _params,
+            _substep,
+            state_history,
+            prev_state,
+        ):
+            oracle_rates = self.exchange_rate(state_history, prev_state)
+            return {'oracle_rate': oracle_rates}
+        return p_oracle_report

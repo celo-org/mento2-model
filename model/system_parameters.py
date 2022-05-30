@@ -95,20 +95,17 @@ class Parameters:
     reserve_inventory: List[Dict] = default([{"celo": 120000000, "cusd": 0}])
 
     # Oracles
-    oracles: List[Dict[OracleType, Dict[str, Any]]] = default(
+    oracles: List[List[OracleConfig]] = default([
         [
-            {
-                OracleType.SINGLE_SOURCE:
-                    OracleConfig(count=1,
-                                 aggregation=None,
-                                 delay=10,
-                                 oracle_price_threshold=0.02,
-                                 oracle_reporting_interval=6,
-                                 tickers=['celo_usd']
-                                 )
-            }
+            OracleConfig(count=1,
+                         type=OracleType.SINGLE_SOURCE,
+                         aggregation=None,
+                         delay=10,
+                         price_threshold=0.02,
+                         reporting_interval=6,
+                         tickers=['celo_usd'])
         ]
-    )
+    ])
 
 
 # Initialize Parameters instance with default values
