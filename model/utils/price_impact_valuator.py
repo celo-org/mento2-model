@@ -1,11 +1,18 @@
 """
 Provides Class for price impact valuation
 """
+from typing import Callable, Dict
 import numpy as np
 
 from experiments import simulation_configuration
 from model.types import ImpactDelay, PriceImpact
 
+PRICE_IMPACT_FUNCTION: Dict[PriceImpact, Callable] = {
+    PriceImpact.ROOT_QUANTITY:
+        lambda asset_quantity, variance_daily, average_daily_volume:
+            -np.sign(asset_quantity)
+            * np.sqrt(variance_daily * abs(asset_quantity) / average_daily_volume)
+}
 
 class PriceImpactValuator():
     """
@@ -46,7 +53,9 @@ class PriceImpactValuator():
                 raise Exception(f'Incorrect quoting convention for {asset}')
             variance_daily = params["variance_market_price"][asset] / 365
             average_daily_volume = params["average_daily_volume"][asset]
-            price_impact[asset] = self.__price_impact_function__(self.price_impact_model)(
+            impact_fn = PRICE_IMPACT_FUNCTION.get(self.price_impact_model)
+            assert impact_fn is not None, f"{self.price_impact_model} does not have a function"
+            price_impact[asset] = impact_fn(
                 self.supply_changes[asset_1][current_step],
                 variance_daily,
                 average_daily_volume,
@@ -75,18 +84,3 @@ class PriceImpactValuator():
                                                             self.sample_size %
                                                             current_step) *
                                                         block_supply_change[ccy])
-
-    # pylint: disable=no-self-use
-    def __price_impact_function__(self, mode):
-        """
-        calculates the price impact of a trade
-        """
-        if mode == PriceImpact.ROOT_QUANTITY:
-            impact_function = (
-                lambda asset_quantity, variance_daily, average_daily_volume: -np.sign(
-                    asset_quantity
-                )
-                * np.sqrt(variance_daily * abs(asset_quantity) / average_daily_volume)
-            )
-
-        return impact_function
