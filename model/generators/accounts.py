@@ -16,6 +16,7 @@ from model.utils.generator import Generator, state_update_blocks
 
 ACCOUNTS_NS = uuid4()
 
+
 class AccountGenerator(Generator):
     """
     AccountsManager Generator
@@ -28,9 +29,9 @@ class AccountGenerator(Generator):
     untracked_floating_supply: Balance
 
     def __init__(self,
-                reserve_inventory: Balance,
-                initial_floating_supply: Balance,
-                traders: Traders):
+                 reserve_inventory: Balance,
+                 initial_floating_supply: Balance,
+                 traders: Traders):
         # reserve account with account_id=0
         self.reserve = self.create_reserve_account(
             initial_balance=reserve_inventory
