@@ -6,51 +6,80 @@ By using a dataclass to represent the System Parameters:
 * Ensure that all System Parameters are initialized
 """
 
-from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, TypedDict
 from QuantLib import GeometricBrownianMotionProcess
 import experiments.simulation_configuration as simulation
 
 from model.entities.balance import Balance
-from model.generators.markets import MarketPriceModel
 from model.types import (
     Blocknumber,
     Crypto,
     Currency,
     Fiat,
+    ImpactDelayConfig,
+    ImpactDelayType,
     MarketPriceConfig,
+    MarketPriceModel,
     MentoExchange,
     MentoExchangeConfig,
+    OracleConfig,
+    OracleType,
     Pair,
     Stable,
     TraderConfig,
     TraderType,
 )
-from model.utils import default
 
+class Parameters(TypedDict):
+    """
+    System Parameters as they are passed to a simulation run
+    after the parameter sweep.
+    Used as type annotation for functions that take params.
+    """
+    dt: Blocknumber
+    # Simulation timescale / timestep unit of time, in blocks.
+    # Used to scale calculations that depend on the number of blocks that have passed.
+    # For example, for dt = 100, each timestep equals 100 blocks.
+    mento_exchanges_config: Dict[Stable, MentoExchangeConfig]
+    mento_exchanges_active: List[MentoExchange]
+    market_price_model: MarketPriceModel
+    market_price_processes: List[MarketPriceConfig]
+    market_price_correlation_matrix: List[List[float]]
+    average_daily_volume: Dict[Pair, float]
+    impact_delay: ImpactDelayConfig
+    impacted_assets: List[Pair]
+    variance_market_price: Dict[Currency, Dict[Fiat, float]]
+    traders: List[TraderConfig]
+    reserve_inventory: Dict[Currency, float]
+    oracles: List[OracleConfig]
 
-# pylint: disable=too-many-instance-attributes
-@dataclass
-class Parameters:
+class InitParameters(TypedDict):
     """System Parameters
     Each System Parameter is defined as:
     system parameter key: system parameter type = default system parameter value
-
-    Because lists are mutable, we need to wrap each parameter list in the
-     `default(...)` method.
-
     """
+    dt: List[Blocknumber]
+    # Simulation timescale / timestep unit of time, in blocks.
+    # Used to scale calculations that depend on the number of blocks that have passed.
+    # For example, for dt = 100, each timestep equals 100 blocks.
+    mento_exchanges_config: List[Dict[Stable, MentoExchangeConfig]]
+    mento_exchanges_active: List[List[MentoExchange]]
+    market_price_model: List[MarketPriceModel]
+    market_price_processes: List[List[MarketPriceConfig]]
+    market_price_correlation_matrix: List[List[List[float]]]
+    average_daily_volume: List[Dict[Pair, float]]
+    impact_delay: List[ImpactDelayConfig]
+    impacted_assets: List[List[Pair]]
+    variance_market_price: List[Dict[Currency, Dict[Fiat, float]]]
+    traders: List[List[TraderConfig]]
+    reserve_inventory: List[Dict[Currency, float]]
+    oracles: List[List[OracleConfig]]
 
+parameters = InitParameters(
     # Time-related parameters
-    dt: List[Blocknumber] = default([simulation.BLOCKS_PER_TIMESTEP])
-    """
-    Simulation timescale / timestep unit of time, in blocks.
-    Used to scale calculations that depend on the number of blocks that have passed.
-    For example, for dt = 100, each timestep equals 100 blocks.
-    """
-
+    dt=[simulation.BLOCKS_PER_TIMESTEP],
     # Configuration params for each stable's exchange
-    mento_exchanges_config: List[Dict[Stable, MentoExchangeConfig]] = default([{
+    mento_exchanges_config=[{
         MentoExchange.CUSD_CELO: MentoExchangeConfig(
             reserve_asset=Crypto.CELO,
             stable=Stable.CUSD,
@@ -78,24 +107,19 @@ class Parameters:
             bucket_update_frequency_second=5*60,
             max_sell_fraction_of_float=0.0001
         ),
-    }])
-
-    """
-    List of active mento exchanges
-    """
-    mento_exchanges_active: List[List[MentoExchange]] = default([[
+    }],
+    mento_exchanges_active=[[
         MentoExchange.CUSD_CELO,
         MentoExchange.CEUR_CELO,
         MentoExchange.CREAL_CELO
-    ]])
-
+    ]],
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.QUANTLIB])
+    market_price_model=[MarketPriceModel.QUANTLIB],
 
     # check order of parameters for each model, e.g. for GBM param_1 is drift and
     # param_2 is volatility
-    market_price_processes: List[List[MarketPriceConfig]] = default([
+    market_price_processes=[
         [
             MarketPriceConfig(
                 pair=Pair(Crypto.CELO, Fiat.USD),
@@ -116,42 +140,44 @@ class Parameters:
                 param_2=0.01,
             ),
         ]
-    ])
+    ],
 
-    market_price_correlation_matrix: List[List[List[float]]] = default([
+    market_price_correlation_matrix=[
         [ [1, 0, 0],
           [0, 1, 0],
           [0, 0, 1] ]
-    ])
-    # TODO: is this used?
-    # drift_market_price: List[float] = default([[-5*5, 0]])
+    ],
 
-    average_daily_volume: List[Dict[Pair, float]] = default([{
+    average_daily_volume=[{
         Pair(Crypto.CELO, Fiat.USD): 1000000,
         Pair(Crypto.CELO, Fiat.EUR): 1000000,
         Pair(Crypto.CELO, Fiat.BRL): 1000000,
         Pair(Stable.CUSD, Fiat.USD): 1000000,
         Pair(Stable.CEUR, Fiat.EUR): 1000000,
         Pair(Stable.CREAL, Fiat.BRL): 1000000,
-    }])
+    }],
 
-    # Impact Parameters
-    impacted_assets: List[List[Pair]] = default([[
+    impact_delay=[
+        ImpactDelayConfig(
+            model=ImpactDelayType.NBLOCKS,
+            param_1=10
+        )
+    ],
+    impacted_assets=[[
         Pair(Crypto.CELO, Fiat.USD),
         Pair(Stable.CUSD, Fiat.USD),
         Pair(Stable.CEUR, Fiat.EUR),
         Pair(Stable.CREAL, Fiat.BRL),
-    ]])
+    ]],
 
-    variance_market_price: List[Dict[Currency, Dict[Fiat, float]]] = default([{
+    variance_market_price=[{
         Pair(Crypto.CELO, Fiat.USD): 1,
-        Pair(Stable.CUSD, Fiat.USD): 1,
-        Pair(Stable.CEUR, Fiat.EUR): 1,
-        Pair(Stable.CREAL, Fiat.BRL): 1
-    }])
+        Pair(Stable.CUSD, Fiat.USD): 0.01,
+        Pair(Stable.CEUR, Fiat.EUR): 0.01,
+        Pair(Stable.CREAL, Fiat.BRL): 0.01
+    }],
 
-    # Trader Balances
-    traders: List[List[TraderConfig]] = default([
+    traders=[
         [
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
@@ -166,12 +192,23 @@ class Parameters:
                 exchange=MentoExchange.CEUR_CELO
             ),
         ]
-    ])
+    ],
 
-    reserve_inventory: List[Dict[Currency, float]] = default([{
+    reserve_inventory=[{
         Crypto.CELO: 12000000,
-    }])
+    }],
 
-
-# Initialize Parameters instance with default values
-parameters = Parameters().__dict__
+    oracles=[
+        [
+            OracleConfig(count=1,
+                         type=OracleType.SINGLE_SOURCE,
+                         aggregation=None,
+                         delay=10,
+                         price_threshold=0.02,
+                         reporting_interval=6,
+                         pairs=[
+                             Pair(Crypto.CELO, Fiat.USD)
+                         ])
+        ]
+    ]
+)

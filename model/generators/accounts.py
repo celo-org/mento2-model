@@ -17,6 +17,7 @@ from model.utils.generator_container import GeneratorContainer
 
 ACCOUNTS_NS = uuid4()
 
+
 class AccountGenerator(Generator):
     """
     AccountsManager Generator

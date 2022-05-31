@@ -4,6 +4,7 @@
 
 """
 from model.generators.markets import MarketPriceGenerator
+from model.state_variables import StateVariables
 from model.utils.generator_container import inject
 
 
@@ -21,19 +22,16 @@ def p_market_price(
     market_price = market_price_generator.market_price(prev_state)
     return {
         "market_price": market_price,
-        "oracle_rate": market_price, # TODO: nope
     }
 
 
-@ inject(MarketPriceGenerator)
+@inject(MarketPriceGenerator)
 def p_price_impact(
     params,
     _substep,
     state_history,
-    prev_state,
+    prev_state: StateVariables,
     market_price_generator: MarketPriceGenerator,
-
-
 ):
     """
     This function adds the delayed accumulated supply of the

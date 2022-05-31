@@ -1,8 +1,7 @@
 """
 Various Python types used in the model
 """
-
-from typing import Any, Dict, NamedTuple, TypedDict, Union
+from typing import Any, Dict, List, NamedTuple, TypedDict, Union
 from enum import Enum
 
 from model.entities.balance import Balance
@@ -59,9 +58,6 @@ class Crypto(SerializableEnum):
     BTC = "btc"
     DAI = "dai"
 
-    def __str__(self):
-        return self.value
-
 class Fiat(SerializableEnum):
     USD = "usd"
     EUR = "eur"
@@ -107,3 +103,36 @@ class MarketPriceConfig(NamedTuple):
     process: Any
     param_1: float
     param_2: float
+
+class MarketPriceModel(Enum):
+    QUANTLIB = "quantlib"
+    PRICE_IMPACT = "price_impact"
+    HIST_SIM = "hist_sim"
+    SCENARIO = "scenario"
+
+class PriceImpact(Enum):
+    ROOT_QUANTITY = "root_quantity"
+    CUSTOM = "custom"
+
+class ImpactDelayType(Enum):
+    INSTANT = "instant"
+    NBLOCKS = "nblocks"
+
+class AggregationMethod(Enum):
+    IDENTITY = 'indentity'
+
+class OracleType(Enum):
+    SINGLE_SOURCE = 'single_source'
+
+class OracleConfig(NamedTuple):
+    type: OracleType
+    count: int
+    aggregation: AggregationMethod
+    delay: int
+    reporting_interval: int
+    price_threshold: int
+    pairs: List[Pair]
+
+class ImpactDelayConfig(NamedTuple):
+    model: ImpactDelayType
+    param_1: float
