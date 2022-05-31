@@ -8,7 +8,7 @@ import numpy as np
 
 
 from model.entities.oracle_provider import OracleProvider
-from model.types import OracleConfig
+from model.types import OracleConfig, Pair
 from model.utils import update_from_signal
 from model.utils.generator import Generator, state_update_blocks
 from model.utils.rng_provider import rngp
@@ -24,21 +24,27 @@ class OracleRateGenerator(Generator):
     This class is providing oracle rates and is responsible generating oracle providers
      and emulate the functionality of sorted_oracles.sol
     """
-    oracles_by_id: Dict[UUID, OracleProvider] = {}
+    oracles_by_id: Dict[UUID, OracleProvider]
+    oracles_by_pair: Dict[Pair, List[OracleProvider]]
+    oracle_pairs: List[Pair]
 
     def __init__(
         self,
-        oracles: List[OracleConfig]
+        oracles: List[OracleConfig],
+        oracle_pairs: List[Pair]
     ):
         self.input = None
         self.rng = rngp.get_rng("OracleGenerator")
+        self.oracle_pairs = oracle_pairs
+        self.oracles_by_pair = {pair: [] for pair in oracle_pairs}
+        self.oracles_by_id = {}
         for oracle_config in oracles:
             for index in range(oracle_config.count):
                 self.create_oracle(index, oracle_config)
 
     @classmethod
-    def from_parameters(cls, params, _initial_state):
-        oracle_generator = cls(params['oracles'])
+    def from_parameters(cls, params, _initial_state, _container):
+        oracle_generator = cls(params['oracles'], params['oracle_pairs'])
         return oracle_generator
 
     def create_oracle(self, index: int, oracle_config: OracleConfig):
@@ -52,6 +58,8 @@ class OracleRateGenerator(Generator):
                                          oracle_id=oracle_id,
                                          config=oracle_config)
         self.oracles_by_id[oracle_id] = oracle_provider
+        for pair in oracle_config.pairs:
+            self.oracles_by_pair[pair].append(oracle_provider)
 
     def exchange_rate(self, state_history, prev_state):
         exchange_rate = self.aggregation(state_history, prev_state)
@@ -59,9 +67,13 @@ class OracleRateGenerator(Generator):
 
     def aggregation(self, state_history, prev_state):
         self.update_oracles(state_history, prev_state)
-        median_per_asset = {asset: np.median(
-            [oracle_provider.reports[asset] for _id, oracle_provider in self.oracles_by_id.items()])
-            for asset in ('celo_usd',)}
+        median_per_asset = {
+            pair: np.median([
+                oracle_provider.reports[pair]
+                for oracle_provider in self.oracles_by_pair[pair]
+            ] or [0])
+            for pair in self.oracle_pairs
+        }
         return median_per_asset
 
     def update_oracles(self, state_history, prev_state):

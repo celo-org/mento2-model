@@ -6,6 +6,7 @@ import logging
 import numpy as np
 
 from experiments import simulation_configuration
+from model.system_parameters import Parameters
 
 from model.types import MarketPriceModel
 from model.utils.data_feed import DATA_FOLDER, DataFeed
@@ -48,10 +49,11 @@ class MarketPriceGenerator(Generator):
         self.rng = rngp.get_rng("MarketPriceGenerator")
 
     @classmethod
-    def from_parameters(cls, params, _initial_state, _container):
-        if params["model"] == MarketPriceModel.QUANTLIB:
+    def from_parameters(cls, params: Parameters, _initial_state, _container):
+        model = params["market_price_model"]
+        if model == MarketPriceModel.QUANTLIB:
             market_price_generator = cls(
-                params["model"],
+                model,
                 params['impacted_assets']
             )
             quant_lib_wrapper = QuantLibWrapper(
@@ -60,14 +62,14 @@ class MarketPriceGenerator(Generator):
                 SAMPLE_SIZE
             )
             market_price_generator.increments = quant_lib_wrapper.correlated_returns()
-        elif params["model"] == MarketPriceModel.PRICE_IMPACT:
-            market_price_generator = cls(params["model"], params['impacted_assets'])
-        elif params["model"] == MarketPriceModel.HIST_SIM:
-            market_price_generator = cls(params["model"], params['impacted_assets'])
+        elif model == MarketPriceModel.PRICE_IMPACT:
+            market_price_generator = cls(model, params['impacted_assets'])
+        elif model == MarketPriceModel.HIST_SIM:
+            market_price_generator = cls(model, params['impacted_assets'])
             market_price_generator.historical_returns()
             logging.info("increments updated")
-        elif params["model"] == MarketPriceModel.SCENARIO:
-            market_price_generator = cls(params["model"], params['impacted_assets'])
+        elif model == MarketPriceModel.SCENARIO:
+            market_price_generator = cls(model, params['impacted_assets'])
             market_price_generator.historical_returns()
             logging.info("increments updated")
         return market_price_generator

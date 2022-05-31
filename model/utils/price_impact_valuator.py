@@ -23,12 +23,12 @@ class PriceImpactValuator():
 
     impacted_assets: List[Pair]
 
-    def __init__(self, impacted_assets, sample_size):
+    def __init__(self, impacted_assets: List[Pair], sample_size):
         self.impacted_assets = impacted_assets
-        self.supply_changes = {asset.split('_')[0]: np.zeros(
+        self.supply_changes = {pair.base: np.zeros(
             simulation_configuration.BLOCKS_PER_TIMESTEP
             * simulation_configuration.TIMESTEPS
-            + 1) for asset in impacted_assets}
+            + 1) for pair in impacted_assets}
         self.sample_size = sample_size
         self.price_impact_model = PriceImpact.ROOT_QUANTITY
 

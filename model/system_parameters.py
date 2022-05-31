@@ -73,6 +73,7 @@ class InitParameters(TypedDict):
     variance_market_price: List[Dict[Currency, Dict[Fiat, float]]]
     traders: List[List[TraderConfig]]
     reserve_inventory: List[Dict[Currency, float]]
+    oracle_pairs: List[List[Pair]]
     oracles: List[List[OracleConfig]]
 
 parameters = InitParameters(
@@ -198,6 +199,11 @@ parameters = InitParameters(
         Crypto.CELO: 12000000,
     }],
 
+    oracle_pairs=[[
+        Pair(Crypto.CELO, Fiat.USD),
+        Pair(Crypto.CELO, Fiat.EUR),
+        Pair(Crypto.CELO, Fiat.BRL),
+    ]],
     oracles=[
         [
             OracleConfig(count=1,
@@ -206,9 +212,9 @@ parameters = InitParameters(
                          delay=10,
                          price_threshold=0.02,
                          reporting_interval=6,
-                         pairs=[
+                         pairs={
                              Pair(Crypto.CELO, Fiat.USD)
-                         ])
+                         })
         ]
     ]
 )

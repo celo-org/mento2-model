@@ -1,7 +1,7 @@
 """
 Various Python types used in the model
 """
-from typing import Any, Dict, List, NamedTuple, TypedDict, Union
+from typing import Any, Dict, NamedTuple, Set, TypedDict, Union
 from enum import Enum
 
 from model.entities.balance import Balance
@@ -131,7 +131,7 @@ class OracleConfig(NamedTuple):
     delay: int
     reporting_interval: int
     price_threshold: int
-    pairs: List[Pair]
+    pairs: Set[Pair]
 
 class ImpactDelayConfig(NamedTuple):
     model: ImpactDelayType

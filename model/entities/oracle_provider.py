@@ -29,14 +29,14 @@ class OracleProvider():
         """
         if prev_state['timestep'] == 1:
             oracle_report = {
-                pair: prev_state['market_price'].get(pair) for pair in self.reports
+                pair: prev_state['market_price'].get(pair) for pair in self.config.pairs
             }
             self.reports = oracle_report
         else:
             delay = min(self.config.delay, prev_state['timestep']-1)
             oracle_report = {
                 pair: state_history[-delay][-1]['market_price'].get(pair)
-                for pair in self.reports}
+                for pair in self.config.pairs}
             if self.identify_outdated_reports(oracle_report, prev_state):
                 self.reports = oracle_report
 
@@ -50,7 +50,7 @@ class OracleProvider():
         if update_required:
             outdated_pairs = self.reports.keys()
         else:
-            outdated_pairs = [pair for pair in self.reports if
+            outdated_pairs = [pair for pair in self.config.pairs if
                             abs(prev_state['oracle_rate'].get(pair) -
                                     oracle_report[pair]) > 1 +
                                 self.config.price_threshold]

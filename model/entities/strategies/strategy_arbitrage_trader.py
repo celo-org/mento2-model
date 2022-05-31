@@ -120,8 +120,8 @@ class ArbitrageTrading(TraderStrategy):
 
         max_budget_stable = balance_stable + market_price * balance_reserve_asset
         sell_amount = self.optimal_sell_amount(
-            buckets.stable,
-            buckets.reserve_asset,
+            buckets['stable'],
+            buckets['reserve_asset'],
             market_price,
             spread
         )
@@ -147,8 +147,8 @@ class ArbitrageTrading(TraderStrategy):
 
         max_budget_celo = balance_reserve_asset + balance_stable / market_price
         sell_amount = self.optimal_sell_amount(
-            buckets.reserve_asset,
-            buckets.stable,
+            buckets['reserve_asset'],
+            buckets['stable'],
             1 / market_price,
             spread
         )
