@@ -13,7 +13,7 @@ import experiments.simulation_configuration as simulation
 from model.entities.balance import Balance
 from model.types import (
     Blocknumber,
-    Crypto,
+    CryptoAsset,
     Currency,
     Fiat,
     ImpactDelayConfig,
@@ -82,7 +82,7 @@ parameters = InitParameters(
     # Configuration params for each stable's exchange
     mento_exchanges_config=[{
         MentoExchange.CUSD_CELO: MentoExchangeConfig(
-            reserve_asset=Crypto.CELO,
+            reserve_asset=CryptoAsset.CELO,
             stable=Stable.CUSD,
             peg=Fiat.USD,
             reserve_fraction=0.1,
@@ -91,7 +91,7 @@ parameters = InitParameters(
             max_sell_fraction_of_float=0.0001
         ),
         MentoExchange.CEUR_CELO: MentoExchangeConfig(
-            reserve_asset=Crypto.CELO,
+            reserve_asset=CryptoAsset.CELO,
             stable=Stable.CEUR,
             peg=Fiat.EUR,
             reserve_fraction=0.1,
@@ -100,7 +100,7 @@ parameters = InitParameters(
             max_sell_fraction_of_float=0.0001
         ),
         MentoExchange.CREAL_CELO: MentoExchangeConfig(
-            reserve_asset=Crypto.CELO,
+            reserve_asset=CryptoAsset.CELO,
             stable=Stable.CREAL,
             peg=Fiat.BRL,
             reserve_fraction=0.1,
@@ -123,7 +123,7 @@ parameters = InitParameters(
     market_price_processes=[
         [
             MarketPriceConfig(
-                pair=Pair(Crypto.CELO, Fiat.USD),
+                pair=Pair(CryptoAsset.CELO, Fiat.USD),
                 process=GeometricBrownianMotionProcess,
                 param_1=0,
                 param_2=1,
@@ -135,7 +135,7 @@ parameters = InitParameters(
                 param_2=0.01,
             ),
             MarketPriceConfig(
-                pair=Pair(Crypto.BTC, Fiat.USD),
+                pair=Pair(CryptoAsset.BTC, Fiat.USD),
                 process=GeometricBrownianMotionProcess,
                 param_1=0,
                 param_2=0.01,
@@ -150,9 +150,9 @@ parameters = InitParameters(
     ],
 
     average_daily_volume=[{
-        Pair(Crypto.CELO, Fiat.USD): 1000000,
-        Pair(Crypto.CELO, Fiat.EUR): 1000000,
-        Pair(Crypto.CELO, Fiat.BRL): 1000000,
+        Pair(CryptoAsset.CELO, Fiat.USD): 1000000,
+        Pair(CryptoAsset.CELO, Fiat.EUR): 1000000,
+        Pair(CryptoAsset.CELO, Fiat.BRL): 1000000,
         Pair(Stable.CUSD, Fiat.USD): 1000000,
         Pair(Stable.CEUR, Fiat.EUR): 1000000,
         Pair(Stable.CREAL, Fiat.BRL): 1000000,
@@ -165,14 +165,14 @@ parameters = InitParameters(
         )
     ],
     impacted_assets=[[
-        Pair(Crypto.CELO, Fiat.USD),
+        Pair(CryptoAsset.CELO, Fiat.USD),
         Pair(Stable.CUSD, Fiat.USD),
         Pair(Stable.CEUR, Fiat.EUR),
         Pair(Stable.CREAL, Fiat.BRL),
     ]],
 
     variance_market_price=[{
-        Pair(Crypto.CELO, Fiat.USD): 1,
+        Pair(CryptoAsset.CELO, Fiat.USD): 1,
         Pair(Stable.CUSD, Fiat.USD): 0.01,
         Pair(Stable.CEUR, Fiat.EUR): 0.01,
         Pair(Stable.CREAL, Fiat.BRL): 0.01
@@ -183,26 +183,26 @@ parameters = InitParameters(
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
                 count=1,
-                balance=Balance({ Crypto.CELO: 500000, Stable.CUSD: 1000000 }),
+                balance=Balance({ CryptoAsset.CELO: 500000, Stable.CUSD: 1000000 }),
                 exchange=MentoExchange.CUSD_CELO
             ),
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
                 count=2,
-                balance=Balance({ Crypto.CELO: 500000, Stable.CEUR: 1000000 }),
+                balance=Balance({ CryptoAsset.CELO: 500000, Stable.CEUR: 1000000 }),
                 exchange=MentoExchange.CEUR_CELO
             ),
         ]
     ],
 
     reserve_inventory=[{
-        Crypto.CELO: 12000000,
+        CryptoAsset.CELO: 12000000,
     }],
 
     oracle_pairs=[[
-        Pair(Crypto.CELO, Fiat.USD),
-        Pair(Crypto.CELO, Fiat.EUR),
-        Pair(Crypto.CELO, Fiat.BRL),
+        Pair(CryptoAsset.CELO, Fiat.USD),
+        Pair(CryptoAsset.CELO, Fiat.EUR),
+        Pair(CryptoAsset.CELO, Fiat.BRL),
     ]],
     oracles=[
         [
@@ -213,7 +213,7 @@ parameters = InitParameters(
                          price_threshold=0.02,
                          reporting_interval=6,
                          pairs={
-                             Pair(Crypto.CELO, Fiat.USD)
+                             Pair(CryptoAsset.CELO, Fiat.USD)
                          })
         ]
     ]

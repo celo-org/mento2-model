@@ -9,7 +9,7 @@ from typing import Dict, TypedDict
 from model.entities.balance import Balance
 
 from model.types import (
-    Crypto,
+    CryptoAsset,
     Fiat,
     MentoBuckets,
     MentoExchange,
@@ -41,18 +41,18 @@ class StateVariables(TypedDict):
 # Initialize State Variables instance with default values
 initial_state = StateVariables(
     floating_supply=Balance({
-        Crypto.CELO: CELO_SUPPLY_MEAN,
+        CryptoAsset.CELO: CELO_SUPPLY_MEAN,
         Stable.CUSD: CUSD_SUPPLY_MEAN,
         Stable.CEUR: CEUR_SUPPLY_MEAN,
         Stable.CREAL: CREAL_SUPPLY_MEAN,
     }),
     oracle_rate={
-        Pair(Crypto.CELO, Fiat.USD): 3,
-        Pair(Crypto.CELO, Fiat.EUR): 2.5,
-        Pair(Crypto.CELO, Fiat.BRL): 15,
+        Pair(CryptoAsset.CELO, Fiat.USD): 3,
+        Pair(CryptoAsset.CELO, Fiat.EUR): 2.5,
+        Pair(CryptoAsset.CELO, Fiat.BRL): 15,
     },
     reserve_balance=Balance({
-        Crypto.CELO: 120000000.0
+        CryptoAsset.CELO: 120000000.0
     }),
     # TODO initial calibration of buckets
     mento_buckets={
@@ -66,9 +66,9 @@ initial_state = StateVariables(
         Fiat.BRL: CREAL_SUPPLY_MEAN,
     },
     market_price={
-        Pair(Crypto.CELO, Fiat.USD): 3,
-        Pair(Crypto.CELO, Fiat.EUR): 2.4,
-        Pair(Crypto.CELO, Fiat.BRL): 15,
+        Pair(CryptoAsset.CELO, Fiat.USD): 3,
+        Pair(CryptoAsset.CELO, Fiat.EUR): 2.4,
+        Pair(CryptoAsset.CELO, Fiat.BRL): 15,
         Pair(Stable.CUSD, Fiat.USD): 1,
         Pair(Stable.CEUR, Fiat.EUR): 1,
         Pair(Stable.CREAL, Fiat.BRL): 1

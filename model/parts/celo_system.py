@@ -6,7 +6,7 @@ General Celo blockchain mechanisms:
 from model.entities.balance import Balance
 from model.generators.accounts import AccountGenerator
 from model.constants import target_epoch_rewards_downscaled, seconds_per_epoch, blocktime_seconds
-from model.types import Crypto, Fiat, Pair, Stable
+from model.types import CryptoAsset, Fiat, Pair, Stable
 from model.utils.generator_container import inject
 
 
@@ -31,15 +31,15 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
     celo_rewards = target_epoch_rewards_downscaled - validator_rewards
     validator_rewards_in_cusd = (
         validator_rewards
-        / prev_state["oracle_rate"].get(Pair(Crypto.CELO, Fiat.USD))
+        / prev_state["oracle_rate"].get(Pair(CryptoAsset.CELO, Fiat.USD))
     )
 
 
     account_generator.reserve.balance += Balance({
-        Crypto.CELO: validator_rewards,
+        CryptoAsset.CELO: validator_rewards,
     })
     account_generator.untracked_floating_supply += Balance({
-        Crypto.CELO: celo_rewards - validator_rewards,
+        CryptoAsset.CELO: celo_rewards - validator_rewards,
         Stable.CUSD: validator_rewards_in_cusd
     })
 

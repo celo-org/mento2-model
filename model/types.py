@@ -52,7 +52,7 @@ class Stable(SerializableEnum):
     CREAL = "creal"
     CEUR = "ceur"
 
-class Crypto(SerializableEnum):
+class CryptoAsset(SerializableEnum):
     CELO = "celo"
     ETH = "eth"
     BTC = "btc"
@@ -68,7 +68,7 @@ class MentoExchange(SerializableEnum):
     CREAL_CELO = "creal_celo"
     CEUR_CELO = "ceur_celo"
 
-Currency = Union[Stable, Fiat, Crypto]
+Currency = Union[Stable, Fiat, CryptoAsset]
 
 class Pair(NamedTuple):
     base: Currency
@@ -90,7 +90,7 @@ class TraderConfig(NamedTuple):
     exchange: MentoExchange
 
 class MentoExchangeConfig(NamedTuple):
-    reserve_asset: Crypto
+    reserve_asset: CryptoAsset
     stable: Stable
     peg: Fiat
     reserve_fraction: float
