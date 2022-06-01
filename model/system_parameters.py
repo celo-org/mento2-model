@@ -47,7 +47,7 @@ class Parameters:
     bucket_update_frequency_seconds: List[int] = default([5 * 60])
 
     # Market parameters for MarketPriceGenerator
-    model: List[MarketPriceModel] = default([MarketPriceModel.QUANTLIB])
+    model: List[MarketPriceModel] = default([MarketPriceModel.SCENARIO])
 
     # check order of parameters for each model, e.g. for GBM param_1 is drift and
     # param_2 is volatility
@@ -62,25 +62,41 @@ class Parameters:
                              'param_2': 0.01},
                 'btc_usd': {'process': GeometricBrownianMotionProcess,
                             'param_1': 0,
-                            'param_2': 0.01}
-
+                            'param_2': 0.1},
+                'eth_usd': {'process': GeometricBrownianMotionProcess,
+                            'param_1': 0,
+                            'param_2': 0.2}
             }
         ]
     )
-    correlation: List[float] = default([[[1, 0, 0], [0, 1, 0], [0, 0, 1]]])
-    drift_market_price: List[float] = default([[-5*5, 0]])
+    correlation: List[float] = default([[[1, 0, 0, 0],
+                                         [0, 1, 0, 0],
+                                         [0, 0, 1, 0],
+                                         [0, 0, 0, 1]]])
+    drift_market_price: List[float] = default([[-5*5, 0, -5*4, -5*4]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
     # custom_impact: List[FunctionType] = default(
     #    [lambda asset_1, asset_2: asset_1**2 / asset_2]
     # )
 
     # Impact Parameters
+    impacted_assets: List[List] = default([['celo_usd',
+                                            'cusd_usd',
+                                            'btc_usd',
+                                            'eth_usd']])
+
     impact_delay: List[Dict] = default([{'model': ImpactDelay.NBLOCKS, 'param_1': 10}])
     impacted_assets: List[List] = default([['celo_usd', 'cusd_usd']])
     average_daily_volume: List[Dict] = default(
-        [{"celo_usd": 1000000, "cusd_usd": 1000000}]
+        [{'celo_usd': 1000000,
+          'cusd_usd': 1000000,
+          'btc_usd': 1000000,
+          'eth_usd': 1000000}]
     )
-    variance_market_price: List[Dict] = default([{"celo_usd": 1, "cusd_usd": 0.01}])
+    variance_market_price: List[Dict] = default([{'celo_usd': 1,
+                                                  'cusd_usd': 0.01,
+                                                  'btc_usd': 0.1,
+                                                  'eth_usd': 0.2}])
 
     # Trader Balances
     traders: List[Dict[TraderType, Dict[str, Any]]] = default(
