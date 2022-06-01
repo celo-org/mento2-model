@@ -2,37 +2,20 @@
 market price generator and related functions
 """
 
-from enum import Enum
 import logging
 import numpy as np
 
 
 from experiments import simulation_configuration
+from model.types import MarketPriceModel
 from model.utils.data_feed import DATA_FOLDER, DataFeed
 from model.utils.generator import Generator
+from model.utils.price_impact_valuator import PriceImpactValuator
 from model.utils.quantlib_wrapper import QuantLibWrapper
 from model.utils.rng_provider import rngp
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
-
-
-class MarketPriceModel(Enum):
-    QUANTLIB = "quantlib"
-    PRICE_IMPACT = "price_impact"
-    HIST_SIM = "hist_sim"
-    SCENARIO = "scenario"
-
-
-class PriceImpact(Enum):
-    CONSTANT_FIAT = "constant_fiat"
-    CONSTANT_PRODUCT = "constant_product"
-    ROOT_QUANTITY = "root_quantity"
-    CUSTOM = "custom"
-
-
-class ImpactDelay(Enum):
-    INSTANT = "instant"
 
 
 class MarketPriceGenerator(Generator):
@@ -46,23 +29,24 @@ class MarketPriceGenerator(Generator):
     # TODO All seeds as params
     # TODO unified seed generation
     # TODO Comments
+
     def __init__(
         self,
         model,
         impacted_assets,
-        price_impact_model=PriceImpact.ROOT_QUANTITY,
         increments=None,
         seed=1,
         custom_impact_function=None,
     ):
         self.seed = seed
-        self.price_impact_model = price_impact_model
         self.model = model
         self.increments = increments
-        self.supply_changes = {asset.split('_')[0]: np.zeros(
-            simulation_configuration.BLOCKS_PER_TIMESTEP
-            * simulation_configuration.TIMESTEPS
-            + 1) for asset in impacted_assets}
+        self.sample_size = (simulation_configuration.BLOCKS_PER_TIMESTEP
+                            * simulation_configuration.TIMESTEPS
+                            + 1
+                            )
+        self.price_impact_valuator: PriceImpactValuator = PriceImpactValuator(
+            impacted_assets, self.sample_size)
         self.data_folder = "../../data/"
         self.custom_impact_function = custom_impact_function
         self.rng = rngp.get_rng("MarketPriceGenerator")
@@ -73,41 +57,18 @@ class MarketPriceGenerator(Generator):
             market_price_generator = cls(
                 params["model"], params['impacted_assets']
             )
-            if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-                market_price_generator.custom_impact_function = params["custom_impact"]
             quant_lib_wrapper = QuantLibWrapper(
-                params['processes'], params['correlation'])
+                params['processes'], params['correlation'], market_price_generator.sample_size)
             market_price_generator.increments = quant_lib_wrapper.correlated_returns()
         elif params["model"] == MarketPriceModel.PRICE_IMPACT:
             market_price_generator = cls(params["model"], params['impacted_assets'])
-            if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-                market_price_generator.custom_impact_function = params["custom_impact"]
         elif params["model"] == MarketPriceModel.HIST_SIM:
             market_price_generator = cls(params["model"], params['impacted_assets'])
-            if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-                market_price_generator.custom_impact_function = params["custom_impact"]
-            sample_size = (
-                simulation_configuration.BLOCKS_PER_TIMESTEP
-                * simulation_configuration.TIMESTEPS
-                + 1
-            )
-            market_price_generator.historical_returns(sample_size)
+            market_price_generator.historical_returns()
             logging.info("increments updated")
         elif params["model"] == MarketPriceModel.SCENARIO:
             market_price_generator = cls(params["model"], params['impacted_assets'])
-            if market_price_generator.price_impact_model == PriceImpact.CUSTOM:
-                market_price_generator.custom_impact_function = params["custom_impact"]
-            sample_size = (
-                simulation_configuration.BLOCKS_PER_TIMESTEP
-                * simulation_configuration.TIMESTEPS
-                + 1
-            )
-            market_price_generator.historical_returns(sample_size)
-            if sample_size > (market_price_generator.increments["cusd_usd"].shape[0]+1):
-                raise RuntimeError(
-                    "Simulation time longer than historical return time series, "
-                    "`SCENARIO`based market price generation not possible"
-                )
+            market_price_generator.historical_returns()
             logging.info("increments updated")
         return market_price_generator
 
@@ -135,21 +96,6 @@ class MarketPriceGenerator(Generator):
 
         return market_prices
 
-    # pylint: disable=no-self-use
-    def price_impact_function(self, mode):
-        """
-        calculates the price impact of a trade
-        """
-        if mode == PriceImpact.ROOT_QUANTITY:
-            impact_function = (
-                lambda asset_quantity, variance_daily, average_daily_volume: -np.sign(
-                    asset_quantity
-                )
-                * np.sqrt(variance_daily * abs(asset_quantity) / average_daily_volume)
-            )
-
-        return impact_function
-
     def valuate_price_impact(
         self,
         floating_supply,
@@ -158,41 +104,14 @@ class MarketPriceGenerator(Generator):
         market_prices,
         params
     ):
-        """
-        This functions evaluates price impact of supply changes
-        """
-        block_supply_change = {
-            ccy: supply - pre_floating_supply[ccy]
-            for ccy, supply in floating_supply.items()
-        }
-        self.impact_delay(block_supply_change, current_step)
 
-        price_impact = {}
-        prices = {}
+        return self.price_impact_valuator.price_impact(floating_supply,
+                                                       pre_floating_supply,
+                                                       current_step,
+                                                       market_prices,
+                                                       params)
 
-        for asset in params['impacted_assets']:
-            asset_1, _ = asset.split('_')
-            if asset_1 == 'usd':
-                raise Exception(f'Incorrect quoting convention for {asset}')
-            variance_daily = params["variance_market_price"][asset] / 365
-            average_daily_volume = params["average_daily_volume"][asset]
-            price_impact[asset] = self.price_impact_function(self.price_impact_model)(
-                self.supply_changes[asset_1][current_step],
-                variance_daily,
-                average_daily_volume,
-            )
-            prices[asset] = market_prices[asset] + price_impact[asset]
-
-        return prices
-
-    def impact_delay(
-        self, block_supply_change, current_step, impact_delay=ImpactDelay.INSTANT
-    ):
-        for ccy in block_supply_change:
-            if impact_delay == ImpactDelay.INSTANT:
-                self.supply_changes[ccy][current_step] += block_supply_change[ccy]
-
-    def historical_returns(self, sample_size):
+    def historical_returns(self):
         """Passes a historic scenario or creates a random sample from a set of
         historical log-returns"""
         # TODO Consider different sampling options
@@ -202,7 +121,7 @@ class MarketPriceGenerator(Generator):
         if self.model == MarketPriceModel.HIST_SIM:
             random_index_array = np.random.randint(low=0,
                                                    high=data_feed.length - 1,
-                                                   size=sample_size)
+                                                   size=self.sample_size)
             data = data_feed.data[random_index_array, :]
         increments = {}
         for index, asset in enumerate(data_feed.assets):

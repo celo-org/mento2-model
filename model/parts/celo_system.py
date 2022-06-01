@@ -11,14 +11,15 @@ from model.utils.generator_container import inject
 
 @inject(AccountGenerator)
 def p_epoch_rewards(_params, _substep, _state_history, prev_state,
-                           account_generator=AccountGenerator):
+                    account_generator=AccountGenerator):
     """
     Naively propage celo supply by adding target epoch rewards per epoch (every 17280 blocks)
     Celo epoch target rewards are rewarded linearly over the next 15 years and after
     that logarithmically. Here it's only about the next 15 linear years
     """
 
-    is_not_epoch_block = ((prev_state['timestep'] * blocktime_seconds) % seconds_per_epoch) != 0
+    is_not_epoch_block = (
+        (prev_state['timestep'] * blocktime_seconds) % seconds_per_epoch) != 0
     if is_not_epoch_block or prev_state['timestep'] == 0:
         return {
             "floating_supply": prev_state["floating_supply"],
@@ -27,7 +28,8 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
 
     validator_rewards = 0.07 * target_epoch_rewards_downscaled
     celo_rewards = target_epoch_rewards_downscaled - validator_rewards
-    validator_rewards_in_cusd = validator_rewards / prev_state["oracle_rate"]
+    validator_rewards_in_cusd = validator_rewards / \
+        prev_state["oracle_rate"]['celo_usd']
 
     account_generator.reserve.balance += Balance(
         celo=validator_rewards,

@@ -37,7 +37,7 @@ def buckets_should_be_reset(params, prev_state):
 
 def bucket_update(params, prev_state):
     celo_bucket = params['reserve_fraction'] * prev_state['reserve_balance']['celo']
-    cusd_bucket = prev_state['oracle_rate'] * celo_bucket
+    cusd_bucket = prev_state['oracle_rate']['celo_usd'] * celo_bucket
     mento_buckets = {
         'cusd': cusd_bucket,
         'celo': celo_bucket
