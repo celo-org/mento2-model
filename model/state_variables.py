@@ -5,8 +5,6 @@ By using a dataclass to represent the State Variables:
 * Set default values
 * Ensure that all State Variables are initialized
 """
-# pylint: disable=too-many-instance-attributes
-
 from typing import Dict, TypedDict
 from model.entities.balance import Balance
 
