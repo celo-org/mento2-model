@@ -1,7 +1,6 @@
 """
 Provides Class for price impact valuation
 """
-from copy import deepcopy
 from typing import Callable, Dict, List
 import numpy as np
 
@@ -49,7 +48,7 @@ class PriceImpactValuator():
         }
         self.impact_delay(block_supply_change, current_step, params)
 
-        impacted_prices = deepcopy(market_prices)
+        impacted_prices = market_prices.copy()
 
         for pair in self.impacted_assets:
             if isinstance(pair.base, Fiat):
