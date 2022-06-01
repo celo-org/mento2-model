@@ -44,6 +44,6 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
     })
 
     return {
-        "floating_supply": account_generator.floating_supply.values,
-        "reserve_balance": account_generator.reserve.balance.values,
+        "floating_supply": account_generator.floating_supply,
+        "reserve_balance": account_generator.reserve.balance,
     }

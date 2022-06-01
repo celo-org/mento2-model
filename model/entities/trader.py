@@ -79,8 +79,8 @@ class Trader(Account):
 
         return {
             "mento_buckets": next_buckets,
-            "floating_supply": self.parent.floating_supply.values,
-            "reserve_balance": self.parent.reserve.balance.values,
+            "floating_supply": self.parent.floating_supply,
+            "reserve_balance": self.parent.reserve.balance,
         }
 
     def rebalance_portfolio(self, target_amount, target_is_reserve_asset, prev_state):
@@ -103,11 +103,11 @@ class Trader(Account):
 
         delta = Balance.zero()
         if target_is_reserve_asset and self.balance.get(reserve_asset) < target_amount:
-            delta.set(stable, -1 * self.balance.get(stable))
-            delta.set(reserve_asset, self.balance.get(stable) / market_price)
+            delta[stable] = -1 * self.balance.get(stable)
+            delta[reserve_asset] = self.balance.get(stable) / market_price
         elif (not target_is_reserve_asset) and self.balance.get(stable) < target_amount:
-            delta.set(stable, self.balance.get(reserve_asset) * market_price)
-            delta.set(reserve_asset, -1 * self.balance.get(reserve_asset))
+            delta[stable] = self.balance.get(reserve_asset) * market_price
+            delta[reserve_asset] = -1 * self.balance.get(reserve_asset)
 
         self.balance += delta
         self.parent.untracked_floating_supply -= delta

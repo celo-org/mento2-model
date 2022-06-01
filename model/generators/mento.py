@@ -162,8 +162,9 @@ class MentoExchangeGenerator(Generator):
             reserve_asset=prev_bucket.reserve_asset + delta_reserve_asset
         )
 
-        delta = Balance.zero()
-        delta.set(config.reserve_asset, -1 * delta_reserve_asset)
-        delta.set(config.stable, -1 * delta_stable)
+        delta = Balance({
+            config.reserve_asset:  -1 * delta_reserve_asset,
+            config.stable: -1 * delta_stable
+        })
 
         return (next_bucket, delta)

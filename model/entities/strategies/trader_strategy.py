@@ -177,7 +177,7 @@ class TraderStrategy:
                 if self.variables
                 else self.sell_amount
             )
-            if sell_amount is None:
+            if sell_amount is None or sell_amount == 0:
                 trade = None
             else:
                 sell_reserve_asset = self.sell_reserve_asset(params, prev_state)

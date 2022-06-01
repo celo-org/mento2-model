@@ -7,7 +7,8 @@ By using a dataclass to represent the State Variables:
 """
 # pylint: disable=too-many-instance-attributes
 
-from typing import Dict, TypedDict, Union
+from typing import Dict, TypedDict
+from model.entities.balance import Balance
 
 from model.types import (
     Crypto,
@@ -32,29 +33,29 @@ class StateVariables(TypedDict):
     Each State Variable is defined as:
     state variable key: state variable type = default state variable value
     """
-    floating_supply: Dict[Union[Crypto, Stable], float]
+    floating_supply: Balance
     oracle_rate: Dict[Pair, float]
-    reserve_balance: Dict[Crypto, float]
+    reserve_balance: Balance
     mento_buckets: Dict[MentoExchange, MentoBuckets]
     market_buckets: MarketBuckets
     market_price: Dict[Pair, float]
 
 # Initialize State Variables instance with default values
 initial_state = StateVariables(
-    floating_supply={
+    floating_supply=Balance({
         Crypto.CELO: CELO_SUPPLY_MEAN,
         Stable.CUSD: CUSD_SUPPLY_MEAN,
         Stable.CEUR: CEUR_SUPPLY_MEAN,
         Stable.CREAL: CREAL_SUPPLY_MEAN,
-    },
+    }),
     oracle_rate={
         Pair(Crypto.CELO, Fiat.USD): 3,
         Pair(Crypto.CELO, Fiat.EUR): 2.5,
         Pair(Crypto.CELO, Fiat.BRL): 15,
     },
-    reserve_balance={
+    reserve_balance=Balance({
         Crypto.CELO: 120000000.0
-    },
+    }),
     # TODO initial calibration of buckets
     mento_buckets={
         MentoExchange.CUSD_CELO: MentoBuckets(stable=0, reserve_asset=0),
