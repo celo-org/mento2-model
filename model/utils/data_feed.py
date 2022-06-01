@@ -14,7 +14,7 @@ import data.mock_data  # this is necessary to create mock data if not existent
 
 DATA_FOLDER = Path(__file__, "../../../data/").resolve()
 MOCK_DATA_FILE_NAME = "mock_logreturns.prq"
-HISTORICAL_DATA_FILE_NAME = "historical_market_data/cusd_celo_example.csv"
+HISTORICAL_DATA_FILE_NAME = "historical_market_data/scenario_data_example.csv"
 
 # pylint: disable = too-few-public-methods
 
@@ -34,7 +34,7 @@ class DataFeed:
         else:
             raise NotImplementedError("Data source not supported")
 
-        self.data = np.array(self.historical_data[['cusd_usd', 'celo_usd']])
+        self.data = np.array(self.historical_data)
         self.length = len(self.historical_data)
         self.assets = list(self.historical_data.columns)
 

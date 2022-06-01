@@ -138,15 +138,24 @@ parameters = InitParameters(
                 pair=Pair(CryptoAsset.BTC, Fiat.USD),
                 process=GeometricBrownianMotionProcess,
                 param_1=0,
-                param_2=0.01,
+                param_2=0.1,
+            ),
+            MarketPriceConfig(
+                pair=Pair(CryptoAsset.ETH, Fiat.USD),
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=0.2,
             ),
         ]
     ],
 
     market_price_correlation_matrix=[
-        [ [1, 0, 0],
-          [0, 1, 0],
-          [0, 0, 1] ]
+        [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ]
     ],
 
     average_daily_volume=[{
@@ -156,6 +165,8 @@ parameters = InitParameters(
         Pair(Stable.CUSD, Fiat.USD): 1000000,
         Pair(Stable.CEUR, Fiat.EUR): 1000000,
         Pair(Stable.CREAL, Fiat.BRL): 1000000,
+        Pair(CryptoAsset.BTC, Fiat.USD): 1000000,
+        Pair(CryptoAsset.ETH, Fiat.USD): 1000000,
     }],
 
     impact_delay=[
@@ -169,13 +180,17 @@ parameters = InitParameters(
         Pair(Stable.CUSD, Fiat.USD),
         Pair(Stable.CEUR, Fiat.EUR),
         Pair(Stable.CREAL, Fiat.BRL),
+        Pair(CryptoAsset.BTC, Fiat.USD),
+        Pair(CryptoAsset.ETH, Fiat.USD),
     ]],
 
     variance_market_price=[{
         Pair(CryptoAsset.CELO, Fiat.USD): 1,
         Pair(Stable.CUSD, Fiat.USD): 0.01,
         Pair(Stable.CEUR, Fiat.EUR): 0.01,
-        Pair(Stable.CREAL, Fiat.BRL): 0.01
+        Pair(Stable.CREAL, Fiat.BRL): 0.01,
+        Pair(CryptoAsset.BTC, Fiat.USD): 0.1,
+        Pair(CryptoAsset.ETH, Fiat.USD): 0.2,
     }],
 
     traders=[
