@@ -5,7 +5,6 @@ Account management, equivalent to addresses on the blockchain
 """
 from uuid import UUID, uuid4, uuid5
 from typing import List, Dict
-from functools import reduce
 
 from model.entities.account import Account
 from model.entities.trader import Trader
@@ -107,7 +106,11 @@ class AccountGenerator(Generator):
         return policy
 
     def traders(self) -> List[Trader]:
-        return filter(lambda account: isinstance(account, Trader), self.accounts_by_id.values())
+        return [
+            account
+            for account in self.accounts_by_id.values()
+            if isinstance(account, Trader)
+            ]
 
     def get(self, account_id) -> Account:
         account = self.accounts_by_id.get(account_id)
@@ -119,9 +122,10 @@ class AccountGenerator(Generator):
         """
         Tracked floating supply which originates from
         """
-        return reduce(lambda supply, balance: supply + balance,
-                      map(lambda account: account.balance, self.accounts_by_id.values()),
-                      Balance.zero())
+        return sum(
+            [account.balance for account in self.accounts_by_id.values()],
+            Balance.zero()
+            )
 
     @property
     def floating_supply(self) -> Balance:
