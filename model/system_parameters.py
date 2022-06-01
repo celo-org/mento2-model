@@ -129,10 +129,16 @@ parameters = InitParameters(
                 param_2=1,
             ),
             MarketPriceConfig(
-                pair=Pair(Stable.CUSD, Fiat.USD),
+                pair=Pair(CryptoAsset.CELO, Fiat.EUR),
                 process=GeometricBrownianMotionProcess,
                 param_1=0,
-                param_2=0.01,
+                param_2=1,
+            ),
+            MarketPriceConfig(
+                pair=Pair(CryptoAsset.CELO, Fiat.BRL),
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=1,
             ),
             MarketPriceConfig(
                 pair=Pair(CryptoAsset.BTC, Fiat.USD),
@@ -146,15 +152,37 @@ parameters = InitParameters(
                 param_1=0,
                 param_2=0.2,
             ),
+            MarketPriceConfig(
+                pair=Pair(Stable.CUSD, Fiat.USD),
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=0.01,
+            ),
+            MarketPriceConfig(
+                pair=Pair(Stable.CEUR, Fiat.EUR),
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=0.015,
+            ),
+            MarketPriceConfig(
+                pair=Pair(Stable.CREAL, Fiat.BRL),
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=0.02,
+            ),
         ]
     ],
 
     market_price_correlation_matrix=[
         [
-            [1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
         ]
     ],
 
