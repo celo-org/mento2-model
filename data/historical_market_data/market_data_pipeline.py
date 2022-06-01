@@ -24,27 +24,38 @@ cusd_usd = cusd_usd.set_index('timestamp')
 cusd_usd = cusd_usd.resample('5S').ffill().dropna()
 cusd_usd = cusd_usd[0:TEN_EPOCHS]
 
-btc_path = Path(DATA_FOLDER, 'FTX_BTCUSD_minute.csv')
-btc_usd = pd.read_csv(btc_path, usecols=['date', 'symbol', 'close'])
-btc_usd = btc_usd.rename(columns={'close': 'btc_usd'})
-btc_usd['date'] = pd.to_datetime(btc_usd['date'])
-btc_usd = btc_usd.set_index(['date'])
-btc_usd = btc_usd.sort_index()
-btc_usd = btc_usd[(btc_usd.index >= '2022-03-01') & (btc_usd.index <= '2022-03-11')]
-btc_usd = btc_usd.resample('5S').ffill().dropna()
-TEN_EPOCHS = 17280*10+1
-assert btc_usd.shape[0] == TEN_EPOCHS
 
-eth_path = Path(DATA_FOLDER, 'FTX_ETHUSD_minute.csv')
-eth_usd = pd.read_csv(eth_path, usecols=['date', 'symbol', 'close'])
-eth_usd = eth_usd.rename(columns={'close': 'eth_usd'})
-eth_usd['date'] = pd.to_datetime(eth_usd['date'])
-eth_usd = eth_usd.set_index(['date'])
-eth_usd = eth_usd.sort_index()
-eth_usd = eth_usd[(eth_usd.index >= '2022-03-01') & (eth_usd.index <= '2022-03-11')]
-eth_usd = eth_usd.resample('5S').ffill().dropna()
-TEN_EPOCHS = 17280*10+1
-assert eth_usd.shape[0] == TEN_EPOCHS
+def parse_price_data(filename: str,
+                     ticker_column: str,
+                     index_start: str,
+                     index_end: str,
+                     resolution: str):
+    """
+    prepares crypto asset price data
+    """
+    file_path = Path(DATA_FOLDER, filename)
+    data = pd.read_csv(file_path, usecols=['date', 'symbol', 'close'])
+    data = data.rename(columns={'close': ticker_column})
+    data['date'] = pd.to_datetime(data['date'])
+    data = data.set_index(['date'])
+    data = data.sort_index()
+    data = data[(data.index >= index_start) & (data.index <= index_end)]
+    data = data.resample(resolution).ffill().dropna()
+    assert data.shape[0] == TEN_EPOCHS
+    return data
+
+
+eth_usd = parse_price_data(ETH_FILE_NAME,
+                           ticker_column='eth_usd',
+                           index_start='2022-03-01',
+                           index_end='2022-03-11',
+                           resolution='5S')
+btc_usd = parse_price_data(BTC_FILE_NAME,
+                           ticker_column='btc_usd',
+                           index_start='2022-03-01',
+                           index_end='2022-03-11',
+                           resolution='5S')
+
 
 historical_market_data = pd.concat([oracle_median_rate['celo_usd'].reset_index(drop=True),
                                     cusd_usd['cusd_usd'].reset_index(drop=True),

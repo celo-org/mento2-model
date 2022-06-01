@@ -73,7 +73,6 @@ class Parameters:
                                          [0, 1, 0, 0],
                                          [0, 0, 1, 0],
                                          [0, 0, 0, 1]]])
-    drift_market_price: List[float] = default([[-5*5, 0, -5*4, -5*4]])
     # data_file: List[str] = default(['mock_logreturns.csv'])
     # custom_impact: List[FunctionType] = default(
     #    [lambda asset_1, asset_2: asset_1**2 / asset_2]
