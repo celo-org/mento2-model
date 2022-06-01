@@ -73,20 +73,19 @@ class Parameters:
                                          [0, 1, 0, 0],
                                          [0, 0, 1, 0],
                                          [0, 0, 0, 1]]])
-    drift_market_price: List[float] = default([[-5*5, 0, -5*4, -5*4]])
+
     # data_file: List[str] = default(['mock_logreturns.csv'])
     # custom_impact: List[FunctionType] = default(
     #    [lambda asset_1, asset_2: asset_1**2 / asset_2]
     # )
 
     # Impact Parameters
+    impact_delay: List[Dict] = default([{'model': ImpactDelay.NBLOCKS, 'param_1': 10}])
     impacted_assets: List[List] = default([['celo_usd',
                                             'cusd_usd',
                                             'btc_usd',
                                             'eth_usd']])
 
-    impact_delay: List[Dict] = default([{'model': ImpactDelay.NBLOCKS, 'param_1': 10}])
-    impacted_assets: List[List] = default([['celo_usd', 'cusd_usd']])
     average_daily_volume: List[Dict] = default(
         [{'celo_usd': 1000000,
           'cusd_usd': 1000000,
