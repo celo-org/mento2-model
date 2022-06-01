@@ -74,5 +74,6 @@ initial_state = StateVariables(
         Pair(Stable.CREAL, Fiat.BRL): 1,
         Pair(CryptoAsset.ETH, Fiat.USD): 2000,
         Pair(CryptoAsset.BTC, Fiat.USD): 30000,
+        Pair(CryptoAsset.DAI, Fiat.USD): 1,
     }
 )

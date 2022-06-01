@@ -153,6 +153,12 @@ parameters = InitParameters(
                 param_2=0.2,
             ),
             MarketPriceConfig(
+                pair=Pair(CryptoAsset.DAI, Fiat.USD),
+                process=GeometricBrownianMotionProcess,
+                param_1=0,
+                param_2=0.001,
+            ),
+            MarketPriceConfig(
                 pair=Pair(Stable.CUSD, Fiat.USD),
                 process=GeometricBrownianMotionProcess,
                 param_1=0,
@@ -175,14 +181,15 @@ parameters = InitParameters(
 
     market_price_correlation_matrix=[
         [
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 1],
         ]
     ],
 
@@ -195,6 +202,7 @@ parameters = InitParameters(
         Pair(Stable.CREAL, Fiat.BRL): 1000000,
         Pair(CryptoAsset.BTC, Fiat.USD): 1000000,
         Pair(CryptoAsset.ETH, Fiat.USD): 1000000,
+        Pair(CryptoAsset.DAI, Fiat.USD): 1000000,
     }],
 
     impact_delay=[
@@ -210,6 +218,7 @@ parameters = InitParameters(
         Pair(Stable.CREAL, Fiat.BRL),
         Pair(CryptoAsset.BTC, Fiat.USD),
         Pair(CryptoAsset.ETH, Fiat.USD),
+        Pair(CryptoAsset.DAI, Fiat.USD),
     ]],
 
     variance_market_price=[{
@@ -219,6 +228,7 @@ parameters = InitParameters(
         Pair(Stable.CREAL, Fiat.BRL): 0.01,
         Pair(CryptoAsset.BTC, Fiat.USD): 0.1,
         Pair(CryptoAsset.ETH, Fiat.USD): 0.2,
+        Pair(CryptoAsset.DAI, Fiat.USD): 0.001,
     }],
 
     traders=[
