@@ -5,7 +5,7 @@ market price generator and related functions
 import logging
 import numpy as np
 
-from experiments import simulation_configuration
+from experiments.simulation_configuration import TOTAL_BLOCKS
 from model.system_parameters import Parameters
 
 from model.types import MarketPriceModel
@@ -17,12 +17,6 @@ from model.utils.rng_provider import rngp
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
-
-SAMPLE_SIZE = (
-    simulation_configuration.BLOCKS_PER_TIMESTEP
-    * simulation_configuration.TIMESTEPS
-    + 1
-)
 
 class MarketPriceGenerator(Generator):
     """
@@ -45,7 +39,7 @@ class MarketPriceGenerator(Generator):
         self.model = model
         self.increments = increments
         self.price_impact_valuator = PriceImpactValuator(
-            impacted_assets, SAMPLE_SIZE)
+            impacted_assets, TOTAL_BLOCKS)
         self.rng = rngp.get_rng("MarketPriceGenerator")
 
     @classmethod
@@ -59,7 +53,7 @@ class MarketPriceGenerator(Generator):
             quant_lib_wrapper = QuantLibWrapper(
                 params['market_price_processes'],
                 params['market_price_correlation_matrix'],
-                SAMPLE_SIZE
+                TOTAL_BLOCKS
             )
             market_price_generator.increments = quant_lib_wrapper.correlated_returns()
         elif model == MarketPriceModel.PRICE_IMPACT:
@@ -113,7 +107,7 @@ class MarketPriceGenerator(Generator):
         if self.model == MarketPriceModel.HIST_SIM:
             random_index_array = np.random.randint(low=0,
                                                    high=data_feed.length - 1,
-                                                   size=SAMPLE_SIZE)
+                                                   size=TOTAL_BLOCKS)
             data = data_feed.data[random_index_array, :]
         increments = {}
         for index, asset in enumerate(data_feed.assets):
