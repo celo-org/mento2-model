@@ -92,13 +92,13 @@ class Trader(Account):
         """
         reserve_asset = self.exchange_config.reserve_asset
         stable = self.exchange_config.stable
-        peg = self.exchange_config.reference_fiat
+        reference_fiat = self.exchange_config.reference_fiat
 
         # TODO: Should these be quoted in the specific
         # fiat of the stable?
         market_price = (
-            prev_state["market_price"].get(Pair(reserve_asset, peg))
-            / prev_state["market_price"].get(Pair(stable, peg))
+            prev_state["market_price"].get(Pair(reserve_asset, reference_fiat))
+            / prev_state["market_price"].get(Pair(stable, reference_fiat))
         )
 
         delta = Balance.zero()
