@@ -5,28 +5,24 @@ from cvxpy import Variable
 import numpy as np
 
 from experiments import simulation_configuration
-from model.entities.trader import Trader
 from model.utils.rng_provider import rngp
 
 from .trader_strategy import TraderStrategy
 
-
-# pylint: disable=using-constant-test
 class RandomTrading(TraderStrategy):
     """
     Random Trading
     """
 
-    def __init__(self, parent: Trader, acting_frequency=1):
+    def __init__(self, parent, acting_frequency=1):
         # The following is used to define the strategy and needs to be provided in subclass
         super().__init__(parent, acting_frequency)
         self.generate_sell_amounts()
         self.sell_amount = None
         self.rng = rngp.get_rng("RandomTrader", self.parent.account_id)
 
-    def sell_gold(self, params, prev_state):
-        # Arb trade will sell CELO if  CELO/USD > CELO/cUSD
-        return self.orders[prev_state["timestep"]]["sell_gold"]
+    def sell_reserve_asset(self, _params, prev_state):
+        return self.orders[prev_state["timestep"]]["sell_reserve_asset"]
 
     def define_variables(self):
         self.variables["sell_amount"] = Variable(pos=True)
@@ -50,20 +46,22 @@ class RandomTrading(TraderStrategy):
         """
         self.constraints = []
         # TODO: Get budget based on account
-        max_budget_cusd = self.parent.balance["cusd"]
-        max_budget_celo = self.parent.balance["celo"]
-        if self.sell_gold(params, prev_state):
+        max_budget_stable = self.parent.balance.get(self.stable)
+        max_budget_reserve_asset = self.parent.balance.get(self.reserve_asset)
+        if self.sell_reserve_asset(params, prev_state):
             self.constraints.append(
                 self.variables["sell_amount"]
                 <= min(
-                    max_budget_celo, self.orders[prev_state["timestep"]]["sell_amount"]
+                    max_budget_reserve_asset,
+                    self.orders[prev_state["timestep"]]["sell_amount"]
                 )
             )
         else:
             self.constraints.append(
                 self.variables["sell_amount"]
                 <= min(
-                    max_budget_cusd, self.orders[prev_state["timestep"]]["sell_amount"]
+                    max_budget_stable,
+                    self.orders[prev_state["timestep"]]["sell_amount"]
                 )
             )
 
@@ -83,7 +81,7 @@ class RandomTrading(TraderStrategy):
             [sell_gold, np.abs(self.rng.normal(100, 5, size=sample_size))]
         )
         self.orders = np.core.records.fromarrays(
-            orders, names=["sell_gold", "sell_amount"]
+            orders, names=["sell_reserve_asset", "sell_amount"]
         )
 
     def calculate(self, _params, prev_state):

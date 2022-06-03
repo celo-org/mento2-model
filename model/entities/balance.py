@@ -4,21 +4,32 @@ Balance class for easy balance manipulation
 Balance.zero() == Balance(celo=0, cusd=0)
 Balance(celo=2, cusd=10) + Balance(celo=5, cusd=0) = Balance(celo=7, cusd=10)
 """
-from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Dict, TYPE_CHECKING
+if TYPE_CHECKING:
+    from model.types import Currency
 
-@dataclass
-class Balance:
+class Balance(dict):
     """
     Balance class holds various token balances and overloads
     addition and subtraction to make it easy to handle deltas.
     """
-    celo: float
-    cusd: float
+    values: Dict["Currency", float]
+
+    def __init__(self, initial_values: Dict["Currency", float] = None):
+        super().__init__()
+        self.update(initial_values or {})
+
+    def __str__(self) -> str:
+        values = ", ".join([
+            f"{currency}: {value}"
+            for (currency, value) in self.items()
+        ])
+        return f"Balance({values})"
+
 
     @staticmethod
     def zero():
-        return Balance(celo=0, cusd=0)
+        return Balance()
 
     def __add__(self, other: "Balance"):
         return self.__combine__(other, lambda a, b: a + b)
@@ -27,11 +38,14 @@ class Balance:
         return self.__combine__(other, lambda a, b: a - b)
 
     def __combine__(self, other: "Balance", combinator: Callable[[int, int], int]):
-        result = Balance.zero()
-        for (currency, _) in self.__dict__.items():
-            setattr(result, currency, combinator(getattr(self, currency), getattr(other, currency)))
-        return result
+        return Balance({
+            currency: combinator(self.get(currency, 0), other.get(currency, 0))
+            for currency in set(self.keys()).union(other.keys())
+        })
 
     @property
     def any_negative(self) -> bool:
-        return self.celo < 0 or self.cusd < 0
+        for (_, value) in self.items():
+            if value < 0:
+                return True
+        return False

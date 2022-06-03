@@ -1,16 +1,10 @@
 """
 Various Python types used in the model
 """
-
-# See https://docs.python.org/3/library/dataclasses.html
-from dataclasses import dataclass
-from typing import Dict, List, NamedTuple, TypedDict
-
+from typing import Any, NamedTuple, Set, TypedDict, Union
 from enum import Enum
 
 from model.entities.balance import Balance
-
-from model.entities.strategies import RandomTrading, SellMax, ArbitrageTrading
 
 # Celo system types
 Gas = int
@@ -38,37 +32,95 @@ Timestep = int
 Blocknumber = int
 Day = int
 
+class SerializableEnum(Enum):
+    def __str__(self):
+        return self.value
 
 class TraderType(Enum):
     """
     different account holders
     """
+    ARBITRAGE_TRADER = "ArbitrageTrading"
+    RANDOM_TRADER = "RandomTrading"
+    MAX_TRADER = "SellMax"
 
-    ARBITRAGE_TRADER = ArbitrageTrading
-    RANDOM_TRADER = RandomTrading
-    MAX_TRADER = SellMax
+class Stable(SerializableEnum):
+    """
+    Celo Stable assets
+    """
+    CUSD = "cusd"
+    CREAL = "creal"
+    CEUR = "ceur"
 
+class CryptoAsset(SerializableEnum):
+    CELO = "celo"
+    ETH = "eth"
+    BTC = "btc"
+    DAI = "dai"
 
-@dataclass
-class TraderConfig:
+class Fiat(SerializableEnum):
+    USD = "usd"
+    EUR = "eur"
+    BRL = "brl"
+
+class MentoExchange(SerializableEnum):
+    CUSD_CELO = "cusd_celo"
+    CREAL_CELO = "creal_celo"
+    CEUR_CELO = "ceur_celo"
+
+Currency = Union[Stable, Fiat, CryptoAsset]
+
+class Pair(NamedTuple):
+    base: Currency
+    quote: Currency
+
+    def __str__(self):
+        return f"{self.base.value}_{self.quote.value}"
+
+class MentoBuckets(TypedDict):
+    stable: float
+    reserve_asset: float
+
+class TraderConfig(NamedTuple):
+    trader_type: TraderType
     count: int
     balance: Balance
+    exchange: MentoExchange
 
+class MentoExchangeConfig(NamedTuple):
+    reserve_asset: CryptoAsset
+    stable: Stable
+    reference_fiat: Fiat
+    reserve_fraction: float
+    spread: float
+    bucket_update_frequency_second: int
+    max_sell_fraction_of_float: float
 
-Traders = Dict[TraderType, TraderConfig]
+class MarketPriceConfig(NamedTuple):
+    pair: Pair
+    process: Any
+    param_1: float
+    param_2: float
 
-class MarketPrice(TypedDict):
-    cusd_usd: float
-      
-# Oracles
+class MarketPriceModel(Enum):
+    QUANTLIB = "quantlib"
+    PRICE_IMPACT = "price_impact"
+    HIST_SIM = "hist_sim"
+    SCENARIO = "scenario"
 
-class OracleType(Enum):
-    SINGLE_SOURCE = 'single_source'
+class PriceImpact(Enum):
+    ROOT_QUANTITY = "root_quantity"
+    CUSTOM = "custom"
 
+class ImpactDelayType(Enum):
+    INSTANT = "instant"
+    NBLOCKS = "nblocks"
 
 class AggregationMethod(Enum):
     IDENTITY = 'indentity'
 
+class OracleType(Enum):
+    SINGLE_SOURCE = 'single_source'
 
 class OracleConfig(NamedTuple):
     type: OracleType
@@ -77,31 +129,8 @@ class OracleConfig(NamedTuple):
     delay: int
     reporting_interval: int
     price_threshold: int
-    tickers: List[str]
+    pairs: Set[Pair]
 
-class MarketPrice(TypedDict):
-    cusd_usd: float
-
-# Todo Solve naming conflict
-class MarketPriceG(TypedDict):
-    cusd_usd: MarketPriceGenerator
-
-class MarketBuckets(TypedDict):
-    usd: float
-
-
-class MarketPriceModel(Enum):
-    QUANTLIB = "quantlib"
-    PRICE_IMPACT = "price_impact"
-    HIST_SIM = "hist_sim"
-    SCENARIO = "scenario"
-
-
-class PriceImpact(Enum):
-    ROOT_QUANTITY = "root_quantity"
-    CUSTOM = "custom"
-
-
-class ImpactDelay(Enum):
-    INSTANT = "instant"
-    NBLOCKS = "nblocks"
+class ImpactDelayConfig(NamedTuple):
+    model: ImpactDelayType
+    param_1: float

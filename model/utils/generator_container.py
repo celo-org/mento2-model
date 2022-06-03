@@ -36,7 +36,7 @@ class GeneratorContainer():
         assert generator_class is not None, "generator_class is None"
         if self.generators.get(generator_class.__name__) is None:
             self.generators[generator_class.__name__] = \
-                generator_class.from_parameters(self.params, self.initial_state)
+                generator_class.from_parameters(self.params, self.initial_state, self)
 
         return self.generators[generator_class.__name__]
 

@@ -4,6 +4,7 @@
 
 """
 from model.generators.markets import MarketPriceGenerator
+from model.state_variables import StateVariables
 from model.utils.generator_container import inject
 
 
@@ -29,7 +30,7 @@ def p_price_impact(
     params,
     _substep,
     state_history,
-    prev_state,
+    prev_state: StateVariables,
     market_price_generator: MarketPriceGenerator,
 ):
     """

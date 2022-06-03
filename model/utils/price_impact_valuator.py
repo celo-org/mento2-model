@@ -1,11 +1,11 @@
 """
 Provides Class for price impact valuation
 """
-from typing import Callable, Dict
+from typing import Callable, Dict, List
 import numpy as np
 
-from experiments import simulation_configuration
-from model.types import ImpactDelay, PriceImpact
+from model.system_parameters import Parameters
+from model.types import Fiat, ImpactDelayType, Pair, PriceImpact
 
 PRICE_IMPACT_FUNCTION: Dict[PriceImpact, Callable] = {
     PriceImpact.ROOT_QUANTITY:
@@ -19,11 +19,14 @@ class PriceImpactValuator():
     This class evaluates the price impact of trades with CEX / general off-chain market
     """
 
-    def __init__(self, impacted_assets, sample_size):
-        self.supply_changes = {asset.split('_')[0]: np.zeros(
-            simulation_configuration.BLOCKS_PER_TIMESTEP
-            * simulation_configuration.TIMESTEPS
-            + 1) for asset in impacted_assets}
+    impacted_assets: List[Pair]
+
+    def __init__(self, impacted_assets: List[Pair], sample_size):
+        self.impacted_assets = impacted_assets
+        self.supply_changes = {
+            pair.base: np.zeros(sample_size)
+            for pair in impacted_assets
+            }
         self.sample_size = sample_size
         self.price_impact_model = PriceImpact.ROOT_QUANTITY
 
@@ -33,7 +36,7 @@ class PriceImpactValuator():
         pre_floating_supply,
         current_step,
         market_prices,
-        params
+        params: Parameters
     ):
         """
         This functions evaluates price impact of supply changes
@@ -44,39 +47,36 @@ class PriceImpactValuator():
         }
         self.impact_delay(block_supply_change, current_step, params)
 
-        price_impact = {}
-        prices = {}
+        impacted_prices = market_prices.copy()
 
-        for asset in params['impacted_assets']:
-            asset_1, _ = asset.split('_')
-            if asset_1 == 'usd':
-                raise Exception(f'Incorrect quoting convention for {asset}')
-            variance_daily = params["variance_market_price"][asset] / 365
-            average_daily_volume = params["average_daily_volume"][asset]
+        for pair in self.impacted_assets:
+            if isinstance(pair.base, Fiat):
+                raise Exception(f'Incorrect quoting convention for {pair}')
+            variance_daily = params["variance_market_price"][pair] / 365
+            average_daily_volume = params["average_daily_volume"][pair]
             impact_fn = PRICE_IMPACT_FUNCTION.get(self.price_impact_model)
             assert impact_fn is not None, f"{self.price_impact_model} does not have a function"
-            price_impact[asset] = impact_fn(
-                self.supply_changes[asset_1][current_step],
+            price_impact = impact_fn(
+                self.supply_changes[pair.base][current_step],
                 variance_daily,
                 average_daily_volume,
             )
-            prices[asset] = market_prices[asset] + price_impact[asset]
-
-        return prices
+            impacted_prices[pair] += price_impact
+        return impacted_prices
 
     def impact_delay(
-        self, block_supply_change, current_step, params
+        self, block_supply_change, current_step, params: Parameters
     ):
         """
         This function distributes / delays supply changes across future timesteps
         """
         impact_delay = params['impact_delay']
         for ccy in block_supply_change:
-            if impact_delay['model'] == ImpactDelay.INSTANT:
+            if impact_delay.model == ImpactDelayType.INSTANT:
                 self.supply_changes[ccy][current_step] += block_supply_change[ccy]
 
-            elif impact_delay['model'] == ImpactDelay.NBLOCKS:
-                delay = impact_delay['param_1']
+            elif impact_delay.model == ImpactDelayType.NBLOCKS:
+                delay = impact_delay.param_1
                 for block in range(current_step, current_step +
                                    min(delay, self.sample_size % current_step)):
                     self.supply_changes[ccy][block] += (1 /

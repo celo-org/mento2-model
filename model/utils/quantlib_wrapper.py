@@ -1,6 +1,7 @@
 """
 This module provides a wrapper class for the required QuantLib functionality
 """
+from typing import List
 import numpy as np
 
 from QuantLib import (TimeGrid, StochasticProcessArray,
@@ -9,6 +10,7 @@ from QuantLib import (TimeGrid, StochasticProcessArray,
 
 from experiments import simulation_configuration
 from model import constants
+from model.types import MarketPriceConfig
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
@@ -18,6 +20,11 @@ class QuantLibWrapper():
     """
     This class wraps part of QuantLib to create increments
     """
+
+    processes: List[MarketPriceConfig]
+    correlations: List[List[float]]
+    initial_value: float
+    number_of_paths_per_asset: int
 
     def __init__(self, processes, correlation, sample_size):
         self.processes = processes
@@ -35,19 +42,19 @@ class QuantLibWrapper():
         Creates an array of processes
         """
 
-        processes = [asset['process'](
+        processes = [config.process(
             self.initial_value,
-            asset['param_1'] / self.timesteps_per_year,
-            asset['param_2'] / np.sqrt(self.timesteps_per_year))
-            for ticker, asset in self.processes.items()]
+            config.param_1 / self.timesteps_per_year,
+            config.param_2 / np.sqrt(self.timesteps_per_year))
+            for config in self.processes]
         process_array = StochasticProcessArray(processes, self.correlation)
         return process_array
 
     def correlated_returns(self):
         log_returns = self.generate_correlated_paths()
         increments = {}
-        for asset, path in zip(self.processes, log_returns):
-            increments[asset] = path
+        for config, path in zip(self.processes, log_returns):
+            increments[config.pair] = path
         return increments
 
     # pylint: disable = too-many-locals

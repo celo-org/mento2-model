@@ -21,7 +21,7 @@ class OracleProvider():
         self.orace_id = oracle_id
         self.config = config
         self.rng = rngp.get_rng("Oracle", oracle_id)
-        self.reports = {ticker: None for ticker in config.tickers}
+        self.reports = {pair: None for pair in config.pairs}
 
     def update(self, state_history, prev_state):
         """
@@ -29,28 +29,29 @@ class OracleProvider():
         """
         if prev_state['timestep'] == 1:
             oracle_report = {
-                ticker: prev_state['market_price'][ticker] for ticker in self.reports}
+                pair: prev_state['market_price'].get(pair) for pair in self.config.pairs
+            }
             self.reports = oracle_report
         else:
             delay = min(self.config.delay, prev_state['timestep']-1)
             oracle_report = {
-                ticker: state_history[-delay][-1]['market_price'][ticker]
-                for ticker in self.reports}
+                pair: state_history[-delay][-1]['market_price'].get(pair)
+                for pair in self.config.pairs}
             if self.identify_outdated_reports(oracle_report, prev_state):
                 self.reports = oracle_report
 
     def identify_outdated_reports(self, oracle_report, prev_state):
         """
-        returns list of tickers that are outdated
+        returns list of pairs that are outdated
         """
         update_required = ((blocktime_seconds * prev_state['timestep']) %
                            self.config.reporting_interval == 0)
 
         if update_required:
-            outdated_tickers = self.reports.keys()
+            outdated_pairs = self.reports.keys()
         else:
-            outdated_tickers = [ticker for ticker in self.reports if
-                                abs(prev_state['oracle_rate'][ticker] -
-                                    oracle_report[ticker]) > 1 +
+            outdated_pairs = [pair for pair in self.config.pairs if
+                            abs(prev_state['oracle_rate'].get(pair) -
+                                    oracle_report[pair]) > 1 +
                                 self.config.price_threshold]
-        return outdated_tickers
+        return outdated_pairs

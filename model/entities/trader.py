@@ -3,11 +3,14 @@ Agents extends accounts to implement behavior via strategies.
 Agents implement the Actor type.
 """
 # pylint: disable=too-few-public-methods
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING
+from copy import deepcopy
 from uuid import UUID
-from model.parts.buy_and_sell import exchange
-from model.entities.strategies import TraderStrategy
+
+from model.generators.mento import MentoExchangeGenerator
+from model.entities import strategies
 from model.entities.account import Account, Balance
+from model.types import MentoExchangeConfig, Pair, TraderConfig
 
 if TYPE_CHECKING:
     from model.generators.accounts import AccountGenerator
@@ -16,24 +19,30 @@ class Trader(Account):
     """
     The Trader extens an account with a trading strategy.
     """
-    strategy: TraderStrategy
+    strategy: strategies.TraderStrategy
+    config: TraderConfig
+    exchange_config: MentoExchangeConfig
+    mento: MentoExchangeGenerator
 
     def __init__(
         self,
         parent: "AccountGenerator",
         account_id: UUID,
         account_name: str,
-        balance: Balance,
-        strategy: Type[TraderStrategy]
+        config: TraderConfig,
     ):
-        super().__init__(parent, account_id, account_name, balance)
-        self.strategy = strategy(self)
+        super().__init__(parent, account_id, account_name, config.balance)
+        self.mento = self.parent.container.get(MentoExchangeGenerator)
+        self.config = config
+        self.exchange_config = self.mento.configs.get(self.config.exchange)
+
+        strategy_class = getattr(strategies, config.trader_type.value)
+        assert strategy_class is not None, f"{config.trader_type.value} is not a strategy"
+        self.strategy = strategy_class(self)
 
     def execute(
         self,
         params,
-        substep,
-        state_history,
         prev_state,
     ):
         """
@@ -48,45 +57,57 @@ class Trader(Account):
             }
 
         sell_amount = order["sell_amount"]
-        sell_gold = order["sell_gold"]
-        self.rebalance_portfolio(sell_amount, sell_gold, prev_state)
+        sell_reserve_asset = order["sell_reserve_asset"]
+        self.rebalance_portfolio(sell_amount, sell_reserve_asset, prev_state)
 
-        mento_buckets, deltas = exchange(
-            params, sell_amount, sell_gold, substep, state_history, prev_state
+        next_bucket, delta = self.mento.exchange(
+            self.config.exchange,
+            sell_amount,
+            sell_reserve_asset,
+            prev_state
         )
 
-        self.balance += Balance(**deltas)
-        self.parent.reserve.balance += Balance(celo=-deltas["celo"], cusd=0)
+        self.balance += delta
+        reserve_delta = Balance({
+            self.exchange_config.reserve_asset:
+                -1 * delta.get(self.exchange_config.reserve_asset),
+        })
+        self.parent.reserve.balance += reserve_delta
 
+        next_buckets = deepcopy(prev_state["mento_buckets"])
+        next_buckets[self.config.exchange] = next_bucket
 
         return {
-            "mento_buckets": mento_buckets,
-            "floating_supply": self.parent.floating_supply.__dict__,
-            "reserve_balance": self.parent.reserve.balance.__dict__
+            "mento_buckets": next_buckets,
+            "floating_supply": self.parent.floating_supply,
+            "reserve_balance": self.parent.reserve.balance,
         }
 
-    def rebalance_portfolio(self, target_amount, target_is_celo, prev_state):
+    def rebalance_portfolio(self, target_amount, target_is_reserve_asset, prev_state):
         """
         Sometimes the optimal trade might require selling more of an
         asset than the trader has in his portfolio, but the total
         value of the portfolio would cover it therefore they can
         rebalance and execute the trade.
         """
-        price_celo_cusd = (
-            prev_state["market_price"]["celo_usd"]
-            / prev_state["market_price"]["cusd_usd"]
+        reserve_asset = self.exchange_config.reserve_asset
+        stable = self.exchange_config.stable
+        reference_fiat = self.exchange_config.reference_fiat
+
+        # TODO: Should these be quoted in the specific
+        # fiat of the stable?
+        market_price = (
+            prev_state["market_price"].get(Pair(reserve_asset, reference_fiat))
+            / prev_state["market_price"].get(Pair(stable, reference_fiat))
         )
+
         delta = Balance.zero()
-        if target_is_celo and self.balance.celo < target_amount:
-            delta = Balance(
-                cusd=-self.balance.cusd,
-                celo=self.balance.cusd / price_celo_cusd
-            )
-        elif (not target_is_celo) and self.balance.cusd < target_amount:
-            delta = Balance(
-                cusd=self.balance.celo * price_celo_cusd,
-                celo=-self.balance.celo
-            )
+        if target_is_reserve_asset and self.balance.get(reserve_asset) < target_amount:
+            delta[stable] = -1 * self.balance.get(stable)
+            delta[reserve_asset] = self.balance.get(stable) / market_price
+        elif (not target_is_reserve_asset) and self.balance.get(stable) < target_amount:
+            delta[stable] = self.balance.get(reserve_asset) * market_price
+            delta[reserve_asset] = -1 * self.balance.get(reserve_asset)
 
         self.balance += delta
         self.parent.untracked_floating_supply -= delta
