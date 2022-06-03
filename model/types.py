@@ -1,7 +1,7 @@
 """
 Various Python types used in the model
 """
-from typing import Any, Dict, NamedTuple, Set, TypedDict, Union
+from typing import Any, NamedTuple, Set, TypedDict, Union
 from enum import Enum
 
 from model.entities.balance import Balance
@@ -77,8 +77,6 @@ class Pair(NamedTuple):
     def __str__(self):
         return f"{self.base.value}_{self.quote.value}"
 
-MarketBuckets = Dict[Currency, float]
-
 class MentoBuckets(TypedDict):
     stable: float
     reserve_asset: float
@@ -92,7 +90,7 @@ class TraderConfig(NamedTuple):
 class MentoExchangeConfig(NamedTuple):
     reserve_asset: CryptoAsset
     stable: Stable
-    peg: Fiat
+    reference_fiat: Fiat
     reserve_fraction: float
     spread: float
     bucket_update_frequency_second: int

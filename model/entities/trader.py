@@ -92,7 +92,7 @@ class Trader(Account):
         """
         reserve_asset = self.exchange_config.reserve_asset
         stable = self.exchange_config.stable
-        peg = self.exchange_config.peg
+        peg = self.exchange_config.reference_fiat
 
         # TODO: Should these be quoted in the specific
         # fiat of the stable?
