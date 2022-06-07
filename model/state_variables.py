@@ -16,6 +16,9 @@ from model.types import (
     Pair,
     Stable,
     MarketBuckets,
+    reserve_balance_in_usd,
+    reserve_ratio,
+    floating_supply_stables_in_usd,
 )
 
 from data.historical_values import (
@@ -37,6 +40,9 @@ class StateVariables(TypedDict):
     mento_buckets: Dict[MentoExchange, MentoBuckets]
     market_buckets: MarketBuckets
     market_price: Dict[Pair, float]
+    reserve_balance_in_usd: float
+    reserve_ratio: float
+
 
 # Initialize State Variables instance with default values
 initial_state = StateVariables(
@@ -52,9 +58,11 @@ initial_state = StateVariables(
         Pair(CryptoAsset.CELO, Fiat.BRL): 15,
     },
     reserve_balance=Balance({
-        CryptoAsset.CELO: 120000000.0
+        CryptoAsset.CELO: 10000000.0,
+        CryptoAsset.BTC: 1000.0,
+        CryptoAsset.ETH: 15000.0,
+        CryptoAsset.DAI: 80000000.0,
     }),
-    # TODO initial calibration of buckets
     mento_buckets={
         MentoExchange.CUSD_CELO: MentoBuckets(stable=0, reserve_asset=0),
         MentoExchange.CEUR_CELO: MentoBuckets(stable=0, reserve_asset=0),
@@ -75,5 +83,8 @@ initial_state = StateVariables(
         Pair(CryptoAsset.ETH, Fiat.USD): 2000,
         Pair(CryptoAsset.BTC, Fiat.USD): 30000,
         Pair(CryptoAsset.DAI, Fiat.USD): 1,
-    }
+    },
+    reserve_balance_in_usd=0.0,
+    floating_supply_stables_in_usd=0.0,
+    reserve_ratio=0.0,
 )

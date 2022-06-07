@@ -8,6 +8,7 @@ from typing import Callable, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from model.types import Currency
 
+
 class Balance(dict):
     """
     Balance class holds various token balances and overloads

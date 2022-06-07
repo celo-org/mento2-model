@@ -249,7 +249,10 @@ parameters = InitParameters(
     ],
 
     reserve_inventory=[{
-        CryptoAsset.CELO: 12000000,
+        CryptoAsset.CELO: 10000000.0,
+        CryptoAsset.BTC: 1000.0,
+        CryptoAsset.ETH: 15000.0,
+        CryptoAsset.DAI: 80000000.0,
     }],
 
     oracle_pairs=[[
