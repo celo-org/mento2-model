@@ -104,7 +104,7 @@ class MentoExchangeGenerator(Generator):
             * prev_state['reserve_balance'].get(config.reserve_asset)
         )
         stable_bucket = (
-            prev_state['oracle_rate'].get(Pair(config.reserve_asset, config.peg))
+            prev_state['oracle_rate'].get(Pair(config.reserve_asset, config.reference_fiat))
             * reserve_asset_bucket
         )
         return MentoBuckets(stable=stable_bucket, reserve_asset=reserve_asset_bucket)

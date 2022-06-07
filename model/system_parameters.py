@@ -8,11 +8,9 @@ By using a dataclass to represent the System Parameters:
 
 from typing import List, Dict, TypedDict
 from QuantLib import GeometricBrownianMotionProcess
-import experiments.simulation_configuration as simulation
 
 from model.entities.balance import Balance
 from model.types import (
-    Blocknumber,
     CryptoAsset,
     Currency,
     Fiat,
@@ -36,10 +34,6 @@ class Parameters(TypedDict):
     after the parameter sweep.
     Used as type annotation for functions that take params.
     """
-    dt: Blocknumber
-    # Simulation timescale / timestep unit of time, in blocks.
-    # Used to scale calculations that depend on the number of blocks that have passed.
-    # For example, for dt = 100, each timestep equals 100 blocks.
     mento_exchanges_config: Dict[Stable, MentoExchangeConfig]
     mento_exchanges_active: List[MentoExchange]
     market_price_model: MarketPriceModel
@@ -58,10 +52,6 @@ class InitParameters(TypedDict):
     Each System Parameter is defined as:
     system parameter key: system parameter type = default system parameter value
     """
-    dt: List[Blocknumber]
-    # Simulation timescale / timestep unit of time, in blocks.
-    # Used to scale calculations that depend on the number of blocks that have passed.
-    # For example, for dt = 100, each timestep equals 100 blocks.
     mento_exchanges_config: List[Dict[Stable, MentoExchangeConfig]]
     mento_exchanges_active: List[List[MentoExchange]]
     market_price_model: List[MarketPriceModel]
@@ -77,14 +67,12 @@ class InitParameters(TypedDict):
     oracles: List[List[OracleConfig]]
 
 parameters = InitParameters(
-    # Time-related parameters
-    dt=[simulation.BLOCKS_PER_TIMESTEP],
     # Configuration params for each stable's exchange
     mento_exchanges_config=[{
         MentoExchange.CUSD_CELO: MentoExchangeConfig(
             reserve_asset=CryptoAsset.CELO,
             stable=Stable.CUSD,
-            peg=Fiat.USD,
+            reference_fiat=Fiat.USD,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,
@@ -93,7 +81,7 @@ parameters = InitParameters(
         MentoExchange.CEUR_CELO: MentoExchangeConfig(
             reserve_asset=CryptoAsset.CELO,
             stable=Stable.CEUR,
-            peg=Fiat.EUR,
+            reference_fiat=Fiat.EUR,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,
@@ -102,7 +90,7 @@ parameters = InitParameters(
         MentoExchange.CREAL_CELO: MentoExchangeConfig(
             reserve_asset=CryptoAsset.CELO,
             stable=Stable.CREAL,
-            peg=Fiat.BRL,
+            reference_fiat=Fiat.BRL,
             reserve_fraction=0.1,
             spread=0.0025,
             bucket_update_frequency_second=5*60,

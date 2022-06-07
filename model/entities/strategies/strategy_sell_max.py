@@ -18,7 +18,7 @@ class SellMax(TraderStrategy):
         # Arb trade will sell reserve_asset if market price > mento price
         mento_buckets = self.mento_buckets(prev_state)
         return (
-            prev_state["market_price"].get(self.reserve_asset).get(self.peg)
+            prev_state["market_price"].get(self.reserve_asset).get(self.reference_fiat)
             < (1 - self.exchange_config.spread)
             * mento_buckets['stable']
             / mento_buckets['reserve_asset']

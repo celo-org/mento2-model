@@ -32,7 +32,7 @@ def p_reserve_statistics(
                            for key, inventory in prev_state['reserve_balance'].items()])
 
     stable_fiat_pairs = [[_params['mento_exchanges_config'][exchange].stable,
-                          _params['mento_exchanges_config'][exchange].peg]
+                          _params['mento_exchanges_config'][exchange].reference_fiat]
                          for exchange in _params['mento_exchanges_config']]
 
     stable_fiat_pairs = dict(zip([pair[0] for pair in stable_fiat_pairs],

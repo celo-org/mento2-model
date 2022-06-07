@@ -4,7 +4,6 @@ Provides Class for price impact valuation
 from typing import Callable, Dict, List
 import numpy as np
 
-from experiments import simulation_configuration
 from model.system_parameters import Parameters
 from model.types import Fiat, ImpactDelayType, Pair, PriceImpact
 
@@ -24,10 +23,10 @@ class PriceImpactValuator():
 
     def __init__(self, impacted_assets: List[Pair], sample_size):
         self.impacted_assets = impacted_assets
-        self.supply_changes = {pair.base: np.zeros(
-            simulation_configuration.BLOCKS_PER_TIMESTEP
-            * simulation_configuration.TIMESTEPS
-            + 1) for pair in impacted_assets}
+        self.supply_changes = {
+            pair.base: np.zeros(sample_size)
+            for pair in impacted_assets
+            }
         self.sample_size = sample_size
         self.price_impact_model = PriceImpact.ROOT_QUANTITY
 

@@ -15,10 +15,6 @@ from model.types import (
     MentoExchange,
     Pair,
     Stable,
-    MarketBuckets,
-    reserve_balance_in_usd,
-    reserve_ratio,
-    floating_supply_stables_in_usd,
 )
 
 from data.historical_values import (
@@ -38,7 +34,6 @@ class StateVariables(TypedDict):
     oracle_rate: Dict[Pair, float]
     reserve_balance: Balance
     mento_buckets: Dict[MentoExchange, MentoBuckets]
-    market_buckets: MarketBuckets
     market_price: Dict[Pair, float]
     reserve_balance_in_usd: float
     reserve_ratio: float
@@ -67,11 +62,6 @@ initial_state = StateVariables(
         MentoExchange.CUSD_CELO: MentoBuckets(stable=0, reserve_asset=0),
         MentoExchange.CEUR_CELO: MentoBuckets(stable=0, reserve_asset=0),
         MentoExchange.CREAL_CELO: MentoBuckets(stable=0, reserve_asset=0),
-    },
-    market_buckets={
-        Fiat.USD: CUSD_SUPPLY_MEAN,
-        Fiat.EUR: CEUR_SUPPLY_MEAN,
-        Fiat.BRL: CREAL_SUPPLY_MEAN,
     },
     market_price={
         Pair(CryptoAsset.CELO, Fiat.USD): 3,

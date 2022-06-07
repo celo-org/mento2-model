@@ -33,7 +33,6 @@ def p_epoch_rewards(_params, _substep, _state_history, prev_state,
         validator_rewards
         / prev_state["oracle_rate"].get(Pair(CryptoAsset.CELO, Fiat.USD))
     )
-
     account_generator.reserve.balance += Balance({
         CryptoAsset.CELO: validator_rewards,
     })

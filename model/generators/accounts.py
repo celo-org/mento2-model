@@ -30,10 +30,10 @@ class AccountGenerator(Generator):
     container: GeneratorContainer
 
     def __init__(self,
-                 reserve_inventory: Balance,
-                 initial_floating_supply: Balance,
-                 traders: List[TraderConfig],
-                 container: GeneratorContainer):
+                reserve_inventory: Balance,
+                initial_floating_supply: Balance,
+                traders: List[TraderConfig],
+                container: GeneratorContainer):
         self.container = container
         self.reserve = self.create_reserve_account(
             initial_balance=reserve_inventory

@@ -43,8 +43,8 @@ class TraderStrategy:
         self.order = None
 
     @property
-    def peg(self):
-        return self.exchange_config.peg
+    def reference_fiat(self):
+        return self.exchange_config.reference_fiat
 
     @property
     def stable(self):
@@ -150,12 +150,12 @@ class TraderStrategy:
         # Todo logic is probably wrong, fix!
         if sell_reserve_asset:
             sell_amount_adjusted = min(
-                params["average_daily_volume"].get(Pair(self.stable, self.peg)),
+                params["average_daily_volume"].get(Pair(self.stable, self.reference_fiat)),
                 sell_amount
             )
         elif not sell_reserve_asset:
             sell_amount_adjusted = min(
-                params["average_daily_volume"].get(Pair(self.reserve_asset, self.peg)),
+                params["average_daily_volume"].get(Pair(self.reserve_asset, self.reference_fiat)),
                 sell_amount
             )
         return sell_amount_adjusted
@@ -199,8 +199,8 @@ class TraderStrategy:
     def market_price(self, prev_state) -> float:
         # TODO: Do we need to quote in equivalent Fiat for Stable?
         return (
-            prev_state["market_price"].get(Pair(self.reserve_asset, self.peg))
-            / prev_state["market_price"].get(Pair(self.stable, self.peg))
+            prev_state["market_price"].get(Pair(self.reserve_asset, self.reference_fiat))
+            / prev_state["market_price"].get(Pair(self.stable, self.reference_fiat))
         )
 
     def mento_buckets(self, prev_state) -> MentoBuckets:
