@@ -36,6 +36,7 @@ class StateVariables(TypedDict):
     mento_buckets: Dict[MentoExchange, MentoBuckets]
     market_price: Dict[Pair, float]
     reserve_balance_in_usd: float
+    floating_supply_stables_in_usd: float
     reserve_ratio: float
 
 

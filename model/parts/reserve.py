@@ -5,13 +5,12 @@ Reserve metric and advanced balance calculation
 from model.types import (
     CryptoAsset,
     Fiat,
-    Pair,
-    Stable
+    Pair
 )
 
 
 def p_reserve_statistics(
-    _params,
+    params,
     _substep,
     _state_history,
     prev_state,
@@ -31,19 +30,13 @@ def p_reserve_statistics(
     reserve_balance = sum([inventory * prev_state['market_price'].get(Pair(key, Fiat.USD))
                            for key, inventory in prev_state['reserve_balance'].items()])
 
-    stable_fiat_pairs = [[_params['mento_exchanges_config'][exchange].stable,
-                          _params['mento_exchanges_config'][exchange].reference_fiat]
-                         for exchange in _params['mento_exchanges_config']]
-
-    stable_fiat_pairs = dict(zip([pair[0] for pair in stable_fiat_pairs],
-                                 [pair[1] for pair in stable_fiat_pairs]))
-
     # outstanding stables in Fiat.USD
-    stables_balance = sum([prev_state['floating_supply'].get(stable)
-                           * prev_state['market_price'].get(Pair(stable,
-                                                                 stable_fiat_pairs.get(stable)))
-                           / exchange_rates.get(Pair(Fiat.USD, stable_fiat_pairs.get(stable)))
-                           for stable in Stable])
+    stables_balance = sum([
+        prev_state['floating_supply'].get(config.stable)
+        * prev_state['market_price'].get(Pair(config.stable, config.reference_fiat))
+        / exchange_rates.get(Pair(Fiat.USD, config.reference_fiat))
+        for (_, config) in params['mento_exchanges_config'].items()
+    ])
 
     reserve_ratio = reserve_balance / stables_balance
 

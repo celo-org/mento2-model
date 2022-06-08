@@ -12,11 +12,6 @@ class SerializableEnum(Enum):
         return self.value
 
 
-class SerializableEnum(Enum):
-    def __str__(self):
-        return self.value
-
-
 class TraderType(Enum):
     """
     different account holders
@@ -132,8 +127,3 @@ class OracleConfig(NamedTuple):
 class ImpactDelayConfig(NamedTuple):
     model: ImpactDelayType
     param_1: float
-
-
-reserve_balance_in_usd = float
-reserve_ratio = float
-floating_supply_stables_in_usd = float
