@@ -24,12 +24,6 @@ def p_reserve_statistics(
     stables_balance_usd = get_stable_balance_in_usd(prev_state['floating_supply'],
                                                 prev_state['market_price'],
                                                 params['mento_exchanges_config'])
-    # stables_balance = sum([
-    #     prev_state['floating_supply'].get(config.stable)
-    #     * prev_state['market_price'].get(Pair(config.stable, config.reference_fiat))
-    #     / exchange_rates.get(Pair(Fiat.USD, config.reference_fiat))
-    #     for (_, config) in params['mento_exchanges_config'].items()
-    # ])
 
     reserve_ratio = reserve_balance_usd / stables_balance_usd
 
