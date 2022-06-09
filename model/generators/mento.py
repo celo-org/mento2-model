@@ -16,6 +16,7 @@ from model.utils import update_from_signal
 # raise numpy warnings as errors
 np.seterr(all='raise')
 
+
 class MentoExchangeGenerator(Generator):
     """
     The MentoExchangeGenerator emulates Mento AMMs that
@@ -83,7 +84,6 @@ class MentoExchangeGenerator(Generator):
             return self.recalculate_buckets(exchange, prev_state)
         return prev_state['mento_buckets'][exchange]
 
-
     def buckets_should_be_reset(self, exchange: MentoExchange, prev_state) -> bool:
         """
         Returns true if the buckets for a particular exchange have to be reset
@@ -104,18 +104,19 @@ class MentoExchangeGenerator(Generator):
             * prev_state['reserve_balance'].get(config.reserve_asset)
         )
         stable_bucket = (
-            prev_state['oracle_rate'].get(Pair(config.reserve_asset, config.reference_fiat))
+            prev_state['oracle_rate'].get(
+                Pair(config.reserve_asset, config.reference_fiat))
             * reserve_asset_bucket
         )
         return MentoBuckets(stable=stable_bucket, reserve_asset=reserve_asset_bucket)
 
     def get_buy_amount(
-        self,
-        exchange: MentoExchange,
-        sell_amount: float,
-        sell_reserve_asset: bool,
-        prev_state: Any,
-        min_buy_amount: float = 0):
+            self,
+            exchange: MentoExchange,
+            sell_amount: float,
+            sell_reserve_asset: bool,
+            prev_state: Any,
+            min_buy_amount: float = 0):
         """
         Calculates the amount of currency (either stable or reserve_asset)
         can be bought based on the buckets and spread.
@@ -139,7 +140,6 @@ class MentoExchangeGenerator(Generator):
 
         return buy_amount
 
-
     def exchange(self, exchange: MentoExchange, sell_amount, sell_reserve_asset, prev_state):
         """
         Update the simulation state with a trade between the reserve currency and stable
@@ -147,7 +147,8 @@ class MentoExchangeGenerator(Generator):
         config = self.configs.get(exchange)
         assert config is not None
 
-        buy_amount = self.get_buy_amount(exchange, sell_amount, sell_reserve_asset, prev_state)
+        buy_amount = self.get_buy_amount(
+            exchange, sell_amount, sell_reserve_asset, prev_state)
 
         if sell_reserve_asset:
             delta_stable = -buy_amount
@@ -158,12 +159,12 @@ class MentoExchangeGenerator(Generator):
 
         prev_bucket = prev_state["mento_buckets"][exchange]
         next_bucket = MentoBuckets(
-            stable=prev_bucket.stable + delta_stable,
-            reserve_asset=prev_bucket.reserve_asset + delta_reserve_asset
+            stable=prev_bucket['stable'] + delta_stable,
+            reserve_asset=prev_bucket['reserve_asset'] + delta_reserve_asset
         )
 
         delta = Balance({
-            config.reserve_asset:  -1 * delta_reserve_asset,
+            config.reserve_asset: -1 * delta_reserve_asset,
             config.stable: -1 * delta_stable
         })
 

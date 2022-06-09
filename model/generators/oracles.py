@@ -40,14 +40,14 @@ class OracleRateGenerator(Generator):
         self.oracles_by_id = {}
         for oracle_config in oracles:
             for index in range(oracle_config.count):
-                self.create_oracle(index, oracle_config)
+                self.create_oracle(index, oracle_config, self.oracle_pairs)
 
     @classmethod
     def from_parameters(cls, params, _initial_state, _container):
         oracle_generator = cls(params['oracles'], params['oracle_pairs'])
         return oracle_generator
 
-    def create_oracle(self, index: int, oracle_config: OracleConfig):
+    def create_oracle(self, index: int, oracle_config: OracleConfig, oracle_pairs: List[Pair]):
         """
         Creates Oracle Providers
         """
@@ -56,9 +56,10 @@ class OracleRateGenerator(Generator):
 
         oracle_provider = OracleProvider(name=oracle_name,
                                          oracle_id=oracle_id,
-                                         config=oracle_config)
+                                         config=oracle_config,
+                                         pairs=oracle_pairs)
         self.oracles_by_id[oracle_id] = oracle_provider
-        for pair in oracle_config.pairs:
+        for pair in self.oracle_pairs:
             self.oracles_by_pair[pair].append(oracle_provider)
 
     def exchange_rate(self, state_history, prev_state):
