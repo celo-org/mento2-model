@@ -3,7 +3,7 @@ Provides OracleProvider class for OracleRateGenerator
 """
 
 from uuid import UUID
-from model.types import OracleConfig
+from model.config_types import OracleConfig
 from model.utils.rng_provider import rngp
 from model.constants import blocktime_seconds
 
@@ -51,7 +51,7 @@ class OracleProvider():
             outdated_pairs = self.reports.keys()
         else:
             outdated_pairs = [pair for pair in self.config.pairs if
-                            abs(prev_state['oracle_rate'].get(pair) -
-                                    oracle_report[pair]) > 1 +
-                                self.config.price_threshold]
+                              abs(prev_state['oracle_rate'].get(pair) -
+                                  oracle_report[pair]) > 1 +
+                              self.config.price_threshold]
         return outdated_pairs

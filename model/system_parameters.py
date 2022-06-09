@@ -14,19 +14,22 @@ from model.types import (
     CryptoAsset,
     Currency,
     Fiat,
-    ImpactDelayConfig,
     ImpactDelayType,
-    MarketPriceConfig,
     MarketPriceModel,
     MentoExchange,
-    MentoExchangeConfig,
-    OracleConfig,
     OracleType,
     Pair,
     Stable,
-    TraderConfig,
     TraderType,
 )
+from model.config_types import (
+    MarketPriceConfig,
+    MentoExchangeConfig,
+    OracleConfig,
+    TraderConfig,
+    ImpactDelayConfig,
+)
+
 
 class Parameters(TypedDict):
     """
@@ -47,6 +50,7 @@ class Parameters(TypedDict):
     reserve_inventory: Dict[Currency, float]
     oracles: List[OracleConfig]
 
+
 class InitParameters(TypedDict):
     """System Parameters
     Each System Parameter is defined as:
@@ -65,6 +69,7 @@ class InitParameters(TypedDict):
     reserve_inventory: List[Dict[Currency, float]]
     oracle_pairs: List[List[Pair]]
     oracles: List[List[OracleConfig]]
+
 
 parameters = InitParameters(
     # Configuration params for each stable's exchange
@@ -224,13 +229,13 @@ parameters = InitParameters(
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
                 count=1,
-                balance=Balance({ CryptoAsset.CELO: 500000, Stable.CUSD: 1000000 }),
+                balance=Balance({CryptoAsset.CELO: 500000, Stable.CUSD: 1000000}),
                 exchange=MentoExchange.CUSD_CELO
             ),
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
                 count=2,
-                balance=Balance({ CryptoAsset.CELO: 500000, Stable.CEUR: 1000000 }),
+                balance=Balance({CryptoAsset.CELO: 500000, Stable.CEUR: 1000000}),
                 exchange=MentoExchange.CEUR_CELO
             ),
         ]

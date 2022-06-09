@@ -13,9 +13,11 @@ import logging
 from cvxpy import Maximize, Minimize, Problem, Variable
 import cvxpy
 
-from model.types import MentoBuckets, MentoExchangeConfig, Pair
+from model.types import MentoBuckets, Pair
+from model.config_types import MentoExchangeConfig
 if TYPE_CHECKING:
     from model.entities.trader import Trader
+
 
 class TraderStrategy:
     """
@@ -85,7 +87,8 @@ class TraderStrategy:
         max_budget_stable = self.parent.balance.get(self.stable)
         max_budget_reserve_asset = self.parent.balance.get(self.reserve_asset)
         if self.sell_reserve_asset(params, prev_state):
-            self.constraints.append(self.variables["sell_amount"] <= max_budget_reserve_asset)
+            self.constraints.append(
+                self.variables["sell_amount"] <= max_budget_reserve_asset)
         else:
             self.constraints.append(self.variables["sell_amount"] <= max_budget_stable)
 
@@ -150,12 +153,14 @@ class TraderStrategy:
         # Todo logic is probably wrong, fix!
         if sell_reserve_asset:
             sell_amount_adjusted = min(
-                params["average_daily_volume"].get(Pair(self.stable, self.reference_fiat)),
+                params["average_daily_volume"].get(
+                    Pair(self.stable, self.reference_fiat)),
                 sell_amount
             )
         elif not sell_reserve_asset:
             sell_amount_adjusted = min(
-                params["average_daily_volume"].get(Pair(self.reserve_asset, self.reference_fiat)),
+                params["average_daily_volume"].get(
+                    Pair(self.reserve_asset, self.reference_fiat)),
                 sell_amount
             )
         return sell_amount_adjusted
@@ -181,7 +186,8 @@ class TraderStrategy:
                 trade = None
             else:
                 sell_reserve_asset = self.sell_reserve_asset(params, prev_state)
-                sell_amount = self.minimise_price_impact(sell_amount, sell_reserve_asset, params)
+                sell_amount = self.minimise_price_impact(
+                    sell_amount, sell_reserve_asset, params)
                 buy_amount = self.mento.get_buy_amount(
                     exchange=self.parent.config.exchange,
                     sell_amount=sell_amount,
@@ -199,7 +205,8 @@ class TraderStrategy:
     def market_price(self, prev_state) -> float:
         # TODO: Do we need to quote in equivalent Fiat for Stable?
         return (
-            prev_state["market_price"].get(Pair(self.reserve_asset, self.reference_fiat))
+            prev_state["market_price"].get(
+                Pair(self.reserve_asset, self.reference_fiat))
             / prev_state["market_price"].get(Pair(self.stable, self.reference_fiat))
         )
 

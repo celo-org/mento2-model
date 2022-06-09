@@ -2,33 +2,24 @@
 Calculates exchange rates between currencies
 """
 from typing import Dict
-from model.types import Fiat, Pair, CryptoAsset
+from model.types import Fiat, Pair, CryptoAsset, Stable
 
 
-def get_exchange_rate(market_prices: Dict, from_fiat: Fiat, to_fiat: Fiat) -> Dict[Pair, float]:
+def get_exchange_rate(market_prices: Dict,
+                      base: Stable, quote: Fiat
+                      ) -> Dict[Pair, float]:
     """
-    calculate specified exchange rate
-    :return: exchange rate
+    This function calculates cStable/Fiat rates where Fiat is not reference Fiat
     """
-    exchange_rate = dict([
-        [Pair(base=to_fiat, quote=from_fiat),
-         market_prices[Pair(base=CryptoAsset.CELO, quote=from_fiat)] /
-         market_prices[Pair(base=CryptoAsset.CELO,  quote=to_fiat)]]
-    ])
-    return exchange_rate
+    exchange_pair = Pair(base, quote)
+    if exchange_pair in market_prices:
+        rate = market_prices[Pair(base, quote)]
+    else:
+        pair_1 = [pair for pair in market_prices if pair.base == base]
+        assert len(pair_1) == 1, f'No or multiple pairs simulated for {base}'
+        pair_1 = pair_1[0]
+        pair_2 = Pair(CryptoAsset.CELO, pair_1.quote)
+        pair_3 = Pair(CryptoAsset.CELO, quote)
+        rate = market_prices[pair_1] / market_prices[pair_2] * market_prices[pair_3]
 
-
-def get_stable_balance_in_usd(floating_supply: Dict,
-                              market_prices: Dict,
-                              exchanges_config: [Dict]) -> Dict[Pair, float]:
-    """
-    get stablecoin balance in Fiat.USD
-    """
-    balance = sum([floating_supply.get(config.stable) /
-                   get_exchange_rate(market_prices,
-                                     from_fiat=config.reference_fiat,
-                                     to_fiat=Fiat.USD)[Pair(base=Fiat.USD,
-                                                            quote=config.reference_fiat)]
-                   for (_, config) in exchanges_config.items()
-                   ])
-    return balance
+    return rate
