@@ -3,7 +3,6 @@ Various Python types used in the model
 """
 from typing import Any, NamedTuple, Set, TypedDict, Union
 from enum import Enum
-
 from model.entities.balance import Balance
 
 

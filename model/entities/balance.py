@@ -27,7 +27,6 @@ class Balance(dict):
         ])
         return f"Balance({values})"
 
-
     @staticmethod
     def zero():
         return Balance()

@@ -14,6 +14,7 @@ PRICE_IMPACT_FUNCTION: Dict[PriceImpact, Callable] = {
             * np.sqrt(variance_daily * abs(asset_quantity) / average_daily_volume)
 }
 
+
 class PriceImpactValuator():
     """
     This class evaluates the price impact of trades with CEX / general off-chain market
