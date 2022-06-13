@@ -18,6 +18,7 @@ from model.utils.rng_provider import rngp
 # raise numpy warnings as errors
 np.seterr(all='raise')
 
+
 class MarketPriceGenerator(Generator):
     """
     This class is providing a market environment
@@ -50,10 +51,13 @@ class MarketPriceGenerator(Generator):
                 model,
                 params['impacted_assets']
             )
+            seed_sequence = rngp.__seed__("MarketPriceGenerator")
+            quant_lib_seed = int(seed_sequence.generate_state(1)[0])
             quant_lib_wrapper = QuantLibWrapper(
                 params['market_price_processes'],
                 params['market_price_correlation_matrix'],
-                TOTAL_BLOCKS
+                TOTAL_BLOCKS,
+                quant_lib_seed
             )
             market_price_generator.increments = quant_lib_wrapper.correlated_returns()
         elif model == MarketPriceModel.PRICE_IMPACT:
