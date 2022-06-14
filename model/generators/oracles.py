@@ -28,7 +28,6 @@ class OracleRateGenerator(Generator):
     oracles_by_pair: Dict[Pair, List[OracleProvider]]
     oracle_pairs: List[Pair]
     rngp: RNGProvider
-    rng: np.random.Generator
 
     def __init__(
         self,
@@ -38,7 +37,6 @@ class OracleRateGenerator(Generator):
     ):
         self.input = None
         self.rngp = rngp
-        self.rng = rngp.get_rng("OracleGenerator")
         self.oracle_pairs = oracle_pairs
         self.oracles_by_pair = {pair: [] for pair in oracle_pairs}
         self.oracles_by_id = {}

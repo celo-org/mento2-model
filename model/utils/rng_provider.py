@@ -29,7 +29,7 @@ class RNGProvider():
     def __seed__(self, context: List[Union[str, int]]) -> np.random.SeedSequence:
         seed_sequence = np.random.SeedSequence(
             self.seed,
-            spawn_key=map(abs, map(__hash__, [self.monte_carlo_run] + context))
+            spawn_key=map(__hash__, [self.monte_carlo_run] + context)
         )
         logging.debug("Generated seed_sequence %s for context %s", seed_sequence, context)
         return seed_sequence
