@@ -5,7 +5,6 @@ from cvxpy import Variable
 import numpy as np
 
 from experiments import simulation_configuration
-from model.utils.rng_provider import rngp
 
 from .trader_strategy import TraderStrategy
 
@@ -19,7 +18,7 @@ class RandomTrading(TraderStrategy):
         super().__init__(parent, acting_frequency)
         self.generate_sell_amounts()
         self.sell_amount = None
-        self.rng = rngp.get_rng("RandomTrader", self.parent.account_id)
+        self.rng = parent.rngp.get_rng("RandomTrader", self.parent.account_id)
 
     def sell_reserve_asset(self, _params, prev_state):
         return self.orders[prev_state["timestep"]]["sell_reserve_asset"]
