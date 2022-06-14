@@ -11,6 +11,7 @@ from model.generators.mento import MentoExchangeGenerator
 from model.entities import strategies
 from model.entities.account import Account, Balance
 from model.types import MentoExchangeConfig, Pair, TraderConfig
+from model.utils.rng_provider import RNGProvider
 
 if TYPE_CHECKING:
     from model.generators.accounts import AccountGenerator
@@ -23,6 +24,7 @@ class Trader(Account):
     config: TraderConfig
     exchange_config: MentoExchangeConfig
     mento: MentoExchangeGenerator
+    rngp: RNGProvider
 
     def __init__(
         self,
@@ -30,8 +32,10 @@ class Trader(Account):
         account_id: UUID,
         account_name: str,
         config: TraderConfig,
+        rngp: RNGProvider
     ):
         super().__init__(parent, account_id, account_name, config.balance)
+        self.rngp = rngp
         self.mento = self.parent.container.get(MentoExchangeGenerator)
         self.config = config
         self.exchange_config = self.mento.configs.get(self.config.exchange)

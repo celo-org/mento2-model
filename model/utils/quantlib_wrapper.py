@@ -26,7 +26,7 @@ class QuantLibWrapper():
     initial_value: float
     number_of_paths_per_asset: int
 
-    def __init__(self, processes, correlation, sample_size):
+    def __init__(self, processes, correlation, sample_size, seed):
         self.processes = processes
         self.correlation = correlation
         # as we use the log returns of each process initial value is irrelevant for processes
@@ -36,6 +36,7 @@ class QuantLibWrapper():
         self.timesteps_per_year = (constants.blocks_per_year /
                                    simulation_configuration.BLOCKS_PER_TIMESTEP)
         self.sample_size = sample_size
+        self.seed = seed
 
     def process_container(self):
         """
@@ -72,7 +73,7 @@ class QuantLibWrapper():
                 time_points.append(time_grid[index])
             steps = (len(time_points) - 1) * process.size()
             sequence_generator = UniformRandomSequenceGenerator(
-                steps, UniformRandomGenerator())
+                steps, UniformRandomGenerator(seed=self.seed))
             gaussian_sequence_generator = GaussianRandomSequenceGenerator(
                 sequence_generator)
             path_generator = GaussianMultiPathGenerator(

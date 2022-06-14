@@ -5,8 +5,8 @@ Provides OracleProvider class for OracleRateGenerator
 from typing import List
 from uuid import UUID
 from model.types import OracleConfig, Pair
-from model.utils.rng_provider import rngp
 from model.constants import blocktime_seconds
+from model.utils.rng_provider import RNGProvider
 
 
 class OracleProvider():
@@ -17,7 +17,14 @@ class OracleProvider():
     id_: UUID
     config: OracleConfig
 
-    def __init__(self, name: str, oracle_id: UUID, config: OracleConfig, pairs: List[Pair]):
+    def __init__(
+        self,
+        name: str,
+        oracle_id: UUID,
+        config: OracleConfig,
+        pairs: List[Pair],
+        rngp: RNGProvider
+    ):
         self.name = name
         self.orace_id = oracle_id
         self.config = config
