@@ -13,11 +13,11 @@ def p_reserve_statistics(
     calculates reserve statistics
     """
     reserve_values_usd = prev_state['reserve_balance'].values_in_usd(
-        prev_state['market_price'])
+        prev_state)
     reserve_balance_usd = sum(list(reserve_values_usd.values()))
 
     floating_supply_values_usd = prev_state['floating_supply'].values_in_usd(
-        prev_state['market_price'])
+        prev_state)
     floating_supply_balance_usd = sum(list(floating_supply_values_usd.values()))
 
     reserve_ratio = reserve_balance_usd / floating_supply_balance_usd
