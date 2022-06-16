@@ -8,7 +8,7 @@ from model.generators import (
     AccountGenerator,
     OracleRateGenerator,
     MentoExchangeGenerator
-    )
+)
 from model.parts import celo_system
 from model.parts import reserve
 import model.parts.market_prices as market_price
@@ -64,6 +64,7 @@ state_update_block_reserve_statistics = {
     'variables': {
         'reserve_balance_in_usd': update_from_signal('reserve_balance_in_usd'),
         'reserve_ratio': update_from_signal('reserve_ratio'),
+        'collateralisation_ratio': update_from_signal('collateralisation_ratio'),
         'floating_supply_stables_in_usd': update_from_signal('floating_supply_stables_in_usd')
     }
 }
