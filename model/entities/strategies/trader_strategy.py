@@ -13,8 +13,7 @@ import logging
 from cvxpy import Maximize, Minimize, Problem, Variable
 import cvxpy
 
-from model.types import MentoBuckets, Pair
-from model.config_types import MentoExchangeConfig
+from model.types import MentoBuckets, Pair, MentoExchangeConfig
 if TYPE_CHECKING:
     from model.entities.trader import Trader
 

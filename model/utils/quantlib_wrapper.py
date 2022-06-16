@@ -10,7 +10,7 @@ from QuantLib import (TimeGrid, StochasticProcessArray,
 
 from experiments import simulation_configuration
 from model import constants
-from model.config_types import MarketPriceConfig
+from model.types import MarketPriceConfig
 
 # raise numpy warnings as errors
 np.seterr(all='raise')

@@ -3,8 +3,10 @@ Various Python types used in the model
 """
 from __future__ import annotations
 from ast import List
-from typing import NamedTuple, TypedDict, Union
+from typing import Any, NamedTuple, Set, TypedDict, Union
 from enum import Enum
+
+from model.entities.balance import Balance
 
 
 class SerializableEnum(Enum):
@@ -229,3 +231,42 @@ class AggregationMethod(Enum):
 
 class OracleType(Enum):
     SINGLE_SOURCE = 'single_source'
+
+
+class TraderConfig(NamedTuple):
+    trader_type: TraderType
+    count: int
+    balance: Balance
+    exchange: MentoExchange
+
+
+class MentoExchangeConfig(NamedTuple):
+    reserve_asset: CryptoAsset
+    stable: Stable
+    reference_fiat: Fiat
+    reserve_fraction: float
+    spread: float
+    bucket_update_frequency_second: int
+    max_sell_fraction_of_float: float
+
+
+class MarketPriceConfig(NamedTuple):
+    pair: Pair
+    process: Any
+    param_1: float
+    param_2: float
+
+
+class OracleConfig(NamedTuple):
+    type: OracleType
+    count: int
+    aggregation: AggregationMethod
+    delay: int
+    reporting_interval: int
+    price_threshold: int
+    pairs: Set[Pair]
+
+
+class ImpactDelayConfig(NamedTuple):
+    model: ImpactDelayType
+    param_1: float

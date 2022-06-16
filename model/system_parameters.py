@@ -21,13 +21,11 @@ from model.types import (
     Pair,
     Stable,
     TraderType,
-)
-from model.config_types import (
     MarketPriceConfig,
     MentoExchangeConfig,
     OracleConfig,
     TraderConfig,
-    ImpactDelayConfig,
+    ImpactDelayConfig
 )
 
 

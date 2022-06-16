@@ -8,8 +8,7 @@ import numpy as np
 
 
 from model.entities.oracle_provider import OracleProvider
-from model.types import Pair
-from model.config_types import OracleConfig
+from model.types import Pair, OracleConfig
 from model.utils import update_from_signal
 from model.utils.generator import Generator, state_update_blocks
 from model.utils.rng_provider import rngp

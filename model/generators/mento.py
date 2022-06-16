@@ -9,8 +9,7 @@ import numpy as np
 
 from model.constants import blocktime_seconds
 from model.entities.balance import Balance
-from model.types import MentoBuckets, MentoExchange, Pair, Stable
-from model.config_types import MentoExchangeConfig
+from model.types import MentoBuckets, MentoExchange, Pair, Stable, MentoExchangeConfig
 from model.utils.generator import Generator, state_update_blocks
 from model.utils import update_from_signal
 
