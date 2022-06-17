@@ -48,7 +48,7 @@ class Balance(dict):
 
     def values_in_usd(self, prev_state):
         values_in_usd = {
-            key: inventory * Pair(key, Fiat.USD).get_rate(prev_state)
+            key: inventory * Pair(key, Fiat.USD).get_rate(prev_state).value
             for key, inventory in self.items()}
         return values_in_usd
 

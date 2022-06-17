@@ -6,7 +6,7 @@ By using a dataclass to represent the State Variables:
 * Ensure that all State Variables are initialized
 """
 from typing import Dict, TypedDict
-from model.entities.balance import Balance
+
 
 from model.types.base import (
     CryptoAsset,
@@ -16,7 +16,7 @@ from model.types.base import (
     Stable,
 )
 from model.types.pair import Pair
-
+from model.entities.balance import Balance
 from data.historical_values import (
     CELO_SUPPLY_MEAN,
     CUSD_SUPPLY_MEAN,
