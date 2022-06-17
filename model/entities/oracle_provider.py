@@ -3,7 +3,7 @@ Provides OracleProvider class for OracleRateGenerator
 """
 
 from uuid import UUID
-from model.types import OracleConfig
+from model.types.configs import OracleConfig
 from model.utils.rng_provider import rngp
 from model.constants import blocktime_seconds
 

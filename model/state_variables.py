@@ -8,14 +8,14 @@ By using a dataclass to represent the State Variables:
 from typing import Dict, TypedDict
 from model.entities.balance import Balance
 
-from model.types import (
+from model.types.base import (
     CryptoAsset,
     Fiat,
     MentoBuckets,
     MentoExchange,
-    Pair,
     Stable,
 )
+from model.types.pair import Pair
 
 from data.historical_values import (
     CELO_SUPPLY_MEAN,

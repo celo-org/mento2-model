@@ -10,7 +10,8 @@ from typing import List, Dict, TypedDict
 from QuantLib import GeometricBrownianMotionProcess
 
 from model.entities.balance import Balance
-from model.types import (
+
+from model.types.base import (
     CryptoAsset,
     Currency,
     Fiat,
@@ -18,9 +19,11 @@ from model.types import (
     MarketPriceModel,
     MentoExchange,
     OracleType,
-    Pair,
     Stable,
     TraderType,
+)
+from model.types.pair import Pair
+from model.types.configs import (
     MarketPriceConfig,
     MentoExchangeConfig,
     OracleConfig,

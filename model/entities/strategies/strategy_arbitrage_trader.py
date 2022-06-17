@@ -4,8 +4,9 @@ Strategy: Arbitrage Trader
 from enum import Enum
 import numpy as np
 
-from model.types import MentoBuckets
+from model.types.base import MentoBuckets
 from .trader_strategy import TraderStrategy
+
 
 class TradingRegime(Enum):
     SELL_STABLE = "SELL_STABLE"
@@ -135,10 +136,10 @@ class ArbitrageTrading(TraderStrategy):
         }
 
     def sell_order_reserve_asset(
-        self,
-        buckets: MentoBuckets,
-        market_price: float,
-        spread: float):
+            self,
+            buckets: MentoBuckets,
+            market_price: float,
+            spread: float):
         """
         Calculate order for selling the reserve currency
         """

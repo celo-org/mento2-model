@@ -10,7 +10,8 @@ from uuid import UUID
 from model.generators.mento import MentoExchangeGenerator
 from model.entities import strategies
 from model.entities.account import Account, Balance
-from model.types import Pair, MentoExchangeConfig, TraderConfig
+from model.types.pair import Pair
+from model.types.configs import MentoExchangeConfig, TraderConfig
 
 if TYPE_CHECKING:
     from model.generators.accounts import AccountGenerator

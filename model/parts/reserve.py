@@ -3,7 +3,7 @@ Reserve metric and advanced balance calculation
 """
 
 
-from model.types import CryptoAsset
+from model.types.base import CryptoAsset
 
 
 def p_reserve_statistics(

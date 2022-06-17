@@ -6,7 +6,8 @@ General Celo blockchain mechanisms:
 from model.entities.balance import Balance
 from model.generators.accounts import AccountGenerator
 from model.constants import target_epoch_rewards_downscaled, seconds_per_epoch, blocktime_seconds
-from model.types import CryptoAsset, Fiat, Pair, Stable
+from model.types.base import CryptoAsset, Fiat, Stable
+from model.types.pair import Pair
 from model.utils.generator_container import inject
 
 

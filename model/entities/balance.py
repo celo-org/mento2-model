@@ -6,9 +6,10 @@ Balance(celo=2, cusd=10) + Balance(celo=5, cusd=0) = Balance(celo=7, cusd=10)
 """
 from typing import Callable, Dict, TYPE_CHECKING
 
-from model.types import Fiat, Pair
+from model.types.base import Fiat
+from model.types.pair import Pair
 if TYPE_CHECKING:
-    from model.types import Currency
+    from model.types.base import Currency
 
 
 class Balance(dict):
