@@ -7,7 +7,7 @@ from model.types.base import CryptoAsset
 
 
 def p_reserve_statistics(
-    _params,
+    params,
     _substep,
     _state_history,
     prev_state,
@@ -25,7 +25,8 @@ def p_reserve_statistics(
         prev_state)
     floating_supply_balance_usd = sum(list(floating_supply_values_usd.values()))
 
-    reserve_ratio = reserve_celo_usd / floating_supply_balance_usd
+    reserve_ratio = (reserve_celo_usd /
+                     params['reserve_target_weight'] / floating_supply_balance_usd)
 
     collateralisation_ratio = reserve_balance_usd / floating_supply_balance_usd
 

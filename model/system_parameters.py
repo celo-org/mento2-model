@@ -49,6 +49,7 @@ class Parameters(TypedDict):
     variance_market_price: Dict[Currency, Dict[Fiat, float]]
     traders: List[TraderConfig]
     reserve_inventory: Dict[Currency, float]
+    reserve_target_weight: float
     oracles: List[OracleConfig]
 
 
@@ -68,6 +69,7 @@ class InitParameters(TypedDict):
     variance_market_price: List[Dict[Currency, Dict[Fiat, float]]]
     traders: List[List[TraderConfig]]
     reserve_inventory: List[Dict[Currency, float]]
+    reserve_target_weight: List[float]
     oracle_pairs: List[List[Pair]]
     oracles: List[List[OracleConfig]]
 
@@ -248,6 +250,9 @@ parameters = InitParameters(
         CryptoAsset.ETH: 15000.0,
         CryptoAsset.DAI: 80000000.0,
     }],
+
+    reserve_target_weight=[0.5
+                           ],
 
     oracle_pairs=[[
         Pair(CryptoAsset.CELO, Fiat.USD),
