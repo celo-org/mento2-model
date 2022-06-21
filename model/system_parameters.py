@@ -10,23 +10,27 @@ from typing import List, Dict, TypedDict
 from QuantLib import GeometricBrownianMotionProcess
 
 from model.entities.balance import Balance
-from model.types import (
+
+from model.types.base import (
     CryptoAsset,
     Currency,
     Fiat,
-    ImpactDelayConfig,
     ImpactDelayType,
-    MarketPriceConfig,
     MarketPriceModel,
     MentoExchange,
-    MentoExchangeConfig,
-    OracleConfig,
     OracleType,
-    Pair,
     Stable,
-    TraderConfig,
     TraderType,
 )
+from model.types.pair import Pair
+from model.types.configs import (
+    MarketPriceConfig,
+    MentoExchangeConfig,
+    OracleConfig,
+    TraderConfig,
+    ImpactDelayConfig
+)
+
 
 class Parameters(TypedDict):
     """
@@ -45,7 +49,9 @@ class Parameters(TypedDict):
     variance_market_price: Dict[Currency, Dict[Fiat, float]]
     traders: List[TraderConfig]
     reserve_inventory: Dict[Currency, float]
+    reserve_target_weight: float
     oracles: List[OracleConfig]
+
 
 class InitParameters(TypedDict):
     """System Parameters
@@ -63,8 +69,10 @@ class InitParameters(TypedDict):
     variance_market_price: List[Dict[Currency, Dict[Fiat, float]]]
     traders: List[List[TraderConfig]]
     reserve_inventory: List[Dict[Currency, float]]
+    reserve_target_weight: List[float]
     oracle_pairs: List[List[Pair]]
     oracles: List[List[OracleConfig]]
+
 
 parameters = InitParameters(
     # Configuration params for each stable's exchange
@@ -224,13 +232,13 @@ parameters = InitParameters(
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
                 count=1,
-                balance=Balance({ CryptoAsset.CELO: 500000, Stable.CUSD: 1000000 }),
+                balance=Balance({CryptoAsset.CELO: 500000, Stable.CUSD: 1000000}),
                 exchange=MentoExchange.CUSD_CELO
             ),
             TraderConfig(
                 trader_type=TraderType.ARBITRAGE_TRADER,
                 count=2,
-                balance=Balance({ CryptoAsset.CELO: 500000, Stable.CEUR: 1000000 }),
+                balance=Balance({CryptoAsset.CELO: 500000, Stable.CEUR: 1000000}),
                 exchange=MentoExchange.CEUR_CELO
             ),
         ]
@@ -242,6 +250,9 @@ parameters = InitParameters(
         CryptoAsset.ETH: 15000.0,
         CryptoAsset.DAI: 80000000.0,
     }],
+
+    reserve_target_weight=[0.5
+                           ],
 
     oracle_pairs=[[
         Pair(CryptoAsset.CELO, Fiat.USD),

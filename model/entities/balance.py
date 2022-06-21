@@ -5,8 +5,11 @@ Balance.zero() == Balance(celo=0, cusd=0)
 Balance(celo=2, cusd=10) + Balance(celo=5, cusd=0) = Balance(celo=7, cusd=10)
 """
 from typing import Callable, Dict, TYPE_CHECKING
+
+from model.types.base import Fiat
+from model.types.pair import Pair
 if TYPE_CHECKING:
-    from model.types import Currency
+    from model.types.base import Currency
 
 
 class Balance(dict):
@@ -42,6 +45,12 @@ class Balance(dict):
             currency: combinator(self.get(currency, 0), other.get(currency, 0))
             for currency in set(self.keys()).union(other.keys())
         })
+
+    def values_in_usd(self, prev_state):
+        values_in_usd = {
+            key: inventory * Pair(key, Fiat.USD).get_rate(prev_state).value
+            for key, inventory in self.items()}
+        return values_in_usd
 
     @property
     def any_negative(self) -> bool:

@@ -6,17 +6,17 @@ By using a dataclass to represent the State Variables:
 * Ensure that all State Variables are initialized
 """
 from typing import Dict, TypedDict
-from model.entities.balance import Balance
 
-from model.types import (
+
+from model.types.base import (
     CryptoAsset,
     Fiat,
     MentoBuckets,
     MentoExchange,
-    Pair,
     Stable,
 )
-
+from model.types.pair import Pair
+from model.entities.balance import Balance
 from data.historical_values import (
     CELO_SUPPLY_MEAN,
     CUSD_SUPPLY_MEAN,
@@ -78,4 +78,5 @@ initial_state = StateVariables(
     reserve_balance_in_usd=0.0,
     floating_supply_stables_in_usd=0.0,
     reserve_ratio=0.0,
+    collateralisation_ratio=0.0
 )
