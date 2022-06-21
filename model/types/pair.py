@@ -19,7 +19,7 @@ class Rate(NamedTuple):
     def __mul__(self, other: Rate):
         common_ccy = set([self.pair.base, self.pair.quote]).intersection(
             set([other.pair.base, other.pair.quote]))
-        assert common_ccy, "Pairs don't match"
+        assert common_ccy, "Pairs are not compatible"
 
         self_aux = self
         if self.pair.quote == other.pair.quote:
@@ -69,17 +69,17 @@ class Pair(NamedTuple):
         elif isinstance(self.base, CryptoAsset) and isinstance(self.quote, CryptoAsset):
             pairs = [Pair(self.base, Fiat.USD), Pair(self.quote, Fiat.USD)]
         elif isinstance(self.base, Stable) and isinstance(self.quote, Stable):
-            end_pair = self.get_atom_pair(state, match_base=False)
+            end_pair = self.get_simulated_pair(state, match_base=False)
             return [Pair(self.base, end_pair.quote), end_pair]
         elif isinstance(self.base, CryptoAsset) and isinstance(self.quote, Fiat):
             pairs = Pair(self.base, CryptoAsset.CELO).get_pairs(
                 state)
             pairs.extend([Pair(CryptoAsset.CELO, self.quote)])
         elif isinstance(self.base, CryptoAsset) and isinstance(self.quote, Stable):
-            end_pair = self.get_atom_pair(state, match_base=False)
+            end_pair = self.get_simulated_pair(state, match_base=False)
             pairs = [Pair(self.base, end_pair.quote), end_pair]
         elif isinstance(self.base, Stable) and isinstance(self.quote, Fiat):
-            start_pair = self.get_atom_pair(state)
+            start_pair = self.get_simulated_pair(state)
             pairs = [start_pair]
             pairs.extend(
                 Pair(start_pair.quote, self.quote).get_pairs(state))
@@ -87,7 +87,7 @@ class Pair(NamedTuple):
             pairs = self.inverse.get_pairs(state)
         return pairs
 
-    def get_atom_pair(self, state, match_base=True):
+    def get_simulated_pair(self, state, match_base=True):
         def match_reference(x):
             return self.base if x else self.quote
         market_prices = state['market_price']
