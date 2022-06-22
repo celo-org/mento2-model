@@ -1,3 +1,5 @@
+# ⚠ ️Project moved to [mento-protocol/simulation](https://github.com/mento-protocol/simulation). This repo is archived. ⚠️
+
 # cLabs Mento2 Model
 
 A modular dynamical-systems model of the Mento2.0 design, based on the open-source Python library [radCAD](https://github.com/CADLabs/radCAD), an extension to [cadCAD](https://cadcad.org).
