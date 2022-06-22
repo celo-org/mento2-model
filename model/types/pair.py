@@ -40,16 +40,18 @@ class Pair(NamedTuple):
     base: Currency
     quote: Currency
 
-    # pylint: disable = missing-function-docstring;
     def __str__(self):
         return f"{self.base.value}_{self.quote.value}"
-    # pylint: disable = unsubscriptable-object;
 
     @property
     def inverse(self) -> Pair:
         return Pair(self.quote, self.base)
 
     def get_rate(self, state: StateVariables) -> float:
+        """
+        Get the market rate for any pair as long as there's a path
+        of other pairs with prices in market_price
+        """
         if self in state['market_price']:
             rate = Rate(state['market_price'].get(self), self)
         elif self.inverse in state['market_price']:
@@ -63,6 +65,9 @@ class Pair(NamedTuple):
         return rate
 
     def get_pairs(self, state) -> Union[Currency, Pair]:
+        """
+        Get the list of pairs between self.base -> self.quote
+        """
         if isinstance(self.base, Fiat) and isinstance(self.quote, Fiat):
             pairs = [Pair(CryptoAsset.CELO, self.base),
                      Pair(CryptoAsset.CELO, self.quote)]
