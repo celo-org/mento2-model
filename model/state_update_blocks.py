@@ -8,8 +8,9 @@ from model.generators import (
     AccountGenerator,
     OracleRateGenerator,
     MentoExchangeGenerator
-    )
+)
 from model.parts import celo_system
+from model.parts import reserve
 import model.parts.market_prices as market_price
 from model.utils import update_from_signal
 from model.utils.generator import generator_state_update_block
@@ -53,6 +54,21 @@ state_update_block_epoch_rewards = {
     }
 }
 
+state_update_block_reserve_statistics = {
+    "description": """
+        reserve statistics
+    """,
+    'policies': {
+        'reserve_statistics': reserve.p_reserve_statistics
+    },
+    'variables': {
+        'reserve_balance_in_usd': update_from_signal('reserve_balance_in_usd'),
+        'reserve_ratio': update_from_signal('reserve_ratio'),
+        'collateralisation_ratio': update_from_signal('collateralisation_ratio'),
+        'floating_supply_stables_in_usd': update_from_signal('floating_supply_stables_in_usd')
+    }
+}
+
 # Create state_update blocks list
 _state_update_blocks = [
     state_update_block_market_price_change,
@@ -61,6 +77,7 @@ _state_update_blocks = [
     generator_state_update_block(AccountGenerator, "traders"),
     state_update_block_epoch_rewards,
     state_update_block_price_impact,
+    state_update_block_reserve_statistics,
 ]
 
 price_impact_not_last = (state_update_block_price_impact in _state_update_blocks) and (

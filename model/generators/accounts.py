@@ -9,7 +9,7 @@ from typing import List, Dict
 from model.entities.account import Account
 from model.entities.trader import Trader
 from model.entities.balance import Balance
-from model.types import TraderConfig
+from model.types.configs import TraderConfig
 from model.utils import update_from_signal
 from model.utils.generator import Generator, state_update_blocks
 from model.utils.generator_container import GeneratorContainer
@@ -32,11 +32,11 @@ class AccountGenerator(Generator):
     rngp: RNGProvider
 
     def __init__(self,
-                reserve_inventory: Balance,
-                initial_floating_supply: Balance,
-                traders: List[TraderConfig],
-                container: GeneratorContainer,
-                rngp: RNGProvider):
+                 reserve_inventory: Balance,
+                 initial_floating_supply: Balance,
+                 traders: List[TraderConfig],
+                 container: GeneratorContainer,
+                 rngp: RNGProvider):
         self.container = container
         self.rngp = rngp
         self.reserve = self.create_reserve_account(
@@ -116,7 +116,7 @@ class AccountGenerator(Generator):
             account
             for account in self.accounts_by_id.values()
             if isinstance(account, Trader)
-            ]
+        ]
 
     def get(self, account_id) -> Account:
         account = self.accounts_by_id.get(account_id)
@@ -131,7 +131,7 @@ class AccountGenerator(Generator):
         return sum(
             [account.balance for account in self.accounts_by_id.values()],
             Balance.zero()
-            )
+        )
 
     @property
     def floating_supply(self) -> Balance:

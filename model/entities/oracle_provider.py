@@ -4,7 +4,8 @@ Provides OracleProvider class for OracleRateGenerator
 
 from typing import List
 from uuid import UUID
-from model.types import OracleConfig, Pair
+from model.types.configs import OracleConfig
+from model.types.pair import Pair
 from model.constants import blocktime_seconds
 from model.utils.rng_provider import RNGProvider
 

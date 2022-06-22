@@ -10,22 +10,24 @@ from typing import List, Dict, TypedDict
 from QuantLib import GeometricBrownianMotionProcess
 
 from model.entities.balance import Balance
-from model.types import (
+from model.types.base import (
     CryptoAsset,
     Currency,
     Fiat,
-    ImpactDelayConfig,
     ImpactDelayType,
-    MarketPriceConfig,
     MarketPriceModel,
     MentoExchange,
+    OracleType,
+    Stable,
+    TraderType,
+)
+from model.types.pair import Pair
+from model.types.configs import (
+    MarketPriceConfig,
     MentoExchangeConfig,
     OracleConfig,
-    OracleType,
-    Pair,
-    Stable,
     TraderConfig,
-    TraderType,
+    ImpactDelayConfig
 )
 from model.utils.rng_provider import RNGProvider
 
@@ -49,6 +51,7 @@ class Parameters(TypedDict):
     variance_market_price: Dict[Currency, Dict[Fiat, float]]
     traders: List[TraderConfig]
     reserve_inventory: Dict[Currency, float]
+    reserve_target_weight: float
     oracles: List[OracleConfig]
 
 
@@ -69,6 +72,7 @@ class InitParameters(TypedDict):
     variance_market_price: List[Dict[Currency, Dict[Fiat, float]]]
     traders: List[List[TraderConfig]]
     reserve_inventory: List[Dict[Currency, float]]
+    reserve_target_weight: List[float]
     oracle_pairs: List[List[Pair]]
     oracles: List[List[OracleConfig]]
 
@@ -245,8 +249,14 @@ parameters = InitParameters(
     ],
 
     reserve_inventory=[{
-        CryptoAsset.CELO: 12000000,
+        CryptoAsset.CELO: 10000000.0,
+        CryptoAsset.BTC: 1000.0,
+        CryptoAsset.ETH: 15000.0,
+        CryptoAsset.DAI: 80000000.0,
     }],
+
+    reserve_target_weight=[0.5
+                           ],
 
     oracle_pairs=[[
         Pair(CryptoAsset.CELO, Fiat.USD),

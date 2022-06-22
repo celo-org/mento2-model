@@ -8,7 +8,7 @@ import numpy as np
 from experiments.simulation_configuration import TOTAL_BLOCKS
 from model.system_parameters import Parameters
 
-from model.types import MarketPriceModel
+from model.types.base import MarketPriceModel
 from model.utils.data_feed import DATA_FOLDER, DataFeed
 from model.utils.generator import Generator
 from model.utils.price_impact_valuator import PriceImpactValuator

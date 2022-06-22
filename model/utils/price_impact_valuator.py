@@ -5,7 +5,8 @@ from typing import Callable, Dict, List
 import numpy as np
 
 from model.system_parameters import Parameters
-from model.types import Fiat, ImpactDelayType, Pair, PriceImpact
+from model.types.base import Fiat, ImpactDelayType, PriceImpact
+from model.types.pair import Pair
 
 PRICE_IMPACT_FUNCTION: Dict[PriceImpact, Callable] = {
     PriceImpact.ROOT_QUANTITY:
