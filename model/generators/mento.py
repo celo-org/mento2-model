@@ -161,8 +161,8 @@ class MentoExchangeGenerator(Generator):
 
         prev_bucket = prev_state["mento_buckets"][exchange]
         next_bucket = MentoBuckets(
-            stable=prev_bucket.stable + delta_stable,
-            reserve_asset=prev_bucket.reserve_asset + delta_reserve_asset
+            stable=prev_bucket['stable'] + delta_stable,
+            reserve_asset=prev_bucket['reserve_asset'] + delta_reserve_asset
         )
 
         delta = Balance({

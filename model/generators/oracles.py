@@ -12,7 +12,7 @@ from model.types.pair import Pair
 from model.types.configs import OracleConfig
 from model.utils import update_from_signal
 from model.utils.generator import Generator, state_update_blocks
-from model.utils.rng_provider import rngp
+from model.utils.rng_provider import RNGProvider
 
 ORACLES_NS = uuid4()
 
@@ -28,27 +28,29 @@ class OracleRateGenerator(Generator):
     oracles_by_id: Dict[UUID, OracleProvider]
     oracles_by_pair: Dict[Pair, List[OracleProvider]]
     oracle_pairs: List[Pair]
+    rngp: RNGProvider
 
     def __init__(
         self,
         oracles: List[OracleConfig],
-        oracle_pairs: List[Pair]
+        oracle_pairs: List[Pair],
+        rngp: RNGProvider
     ):
         self.input = None
-        self.rng = rngp.get_rng("OracleGenerator")
+        self.rngp = rngp
         self.oracle_pairs = oracle_pairs
         self.oracles_by_pair = {pair: [] for pair in oracle_pairs}
         self.oracles_by_id = {}
         for oracle_config in oracles:
             for index in range(oracle_config.count):
-                self.create_oracle(index, oracle_config)
+                self.create_oracle(index, oracle_config, self.oracle_pairs)
 
     @classmethod
     def from_parameters(cls, params, _initial_state, _container):
-        oracle_generator = cls(params['oracles'], params['oracle_pairs'])
+        oracle_generator = cls(params['oracles'], params['oracle_pairs'], params['rngp'])
         return oracle_generator
 
-    def create_oracle(self, index: int, oracle_config: OracleConfig):
+    def create_oracle(self, index: int, oracle_config: OracleConfig, oracle_pairs: List[Pair]):
         """
         Creates Oracle Providers
         """
@@ -57,9 +59,11 @@ class OracleRateGenerator(Generator):
 
         oracle_provider = OracleProvider(name=oracle_name,
                                          oracle_id=oracle_id,
-                                         config=oracle_config)
+                                         config=oracle_config,
+                                         pairs=oracle_pairs,
+                                         rngp=self.rngp)
         self.oracles_by_id[oracle_id] = oracle_provider
-        for pair in oracle_config.pairs:
+        for pair in self.oracle_pairs:
             self.oracles_by_pair[pair].append(oracle_provider)
 
     def exchange_rate(self, state_history, prev_state):

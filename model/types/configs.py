@@ -2,7 +2,7 @@
 Typing for Configs
 """
 
-from typing import Any, NamedTuple, Set
+from typing import Any, NamedTuple
 from model.entities.balance import Balance
 
 from model.types.base import (AggregationMethod,
@@ -47,8 +47,6 @@ class OracleConfig(NamedTuple):
     delay: int
     reporting_interval: int
     price_threshold: int
-    pairs: Set[Pair]
-
 
 class ImpactDelayConfig(NamedTuple):
     model: ImpactDelayType

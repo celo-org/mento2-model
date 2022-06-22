@@ -13,6 +13,7 @@ from model.types.configs import TraderConfig
 from model.utils import update_from_signal
 from model.utils.generator import Generator, state_update_blocks
 from model.utils.generator_container import GeneratorContainer
+from model.utils.rng_provider import RNGProvider
 
 ACCOUNTS_NS = uuid4()
 
@@ -28,13 +29,16 @@ class AccountGenerator(Generator):
     # generator.
     untracked_floating_supply: Balance
     container: GeneratorContainer
+    rngp: RNGProvider
 
     def __init__(self,
                  reserve_inventory: Balance,
                  initial_floating_supply: Balance,
                  traders: List[TraderConfig],
-                 container: GeneratorContainer):
+                 container: GeneratorContainer,
+                 rngp: RNGProvider):
         self.container = container
+        self.rngp = rngp
         self.reserve = self.create_reserve_account(
             initial_balance=reserve_inventory
         )
@@ -55,6 +59,7 @@ class AccountGenerator(Generator):
             Balance(initial_state["floating_supply"]),
             params["traders"],
             container,
+            params["rngp"]
         )
 
         return accounts
@@ -76,7 +81,8 @@ class AccountGenerator(Generator):
             self,
             account_id=uuid5(ACCOUNTS_NS, account_name),
             account_name=account_name,
-            config=config
+            config=config,
+            rngp=self.rngp
         )
         self.accounts_by_id[account.account_id] = account
         return account

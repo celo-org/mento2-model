@@ -10,7 +10,6 @@ from typing import List, Dict, TypedDict
 from QuantLib import GeometricBrownianMotionProcess
 
 from model.entities.balance import Balance
-
 from model.types.base import (
     CryptoAsset,
     Currency,
@@ -30,6 +29,7 @@ from model.types.configs import (
     TraderConfig,
     ImpactDelayConfig
 )
+from model.utils.rng_provider import RNGProvider
 
 
 class Parameters(TypedDict):
@@ -38,6 +38,8 @@ class Parameters(TypedDict):
     after the parameter sweep.
     Used as type annotation for functions that take params.
     """
+    rng_seed: int
+    rngp: RNGProvider
     mento_exchanges_config: Dict[Stable, MentoExchangeConfig]
     mento_exchanges_active: List[MentoExchange]
     market_price_model: MarketPriceModel
@@ -58,6 +60,7 @@ class InitParameters(TypedDict):
     Each System Parameter is defined as:
     system parameter key: system parameter type = default system parameter value
     """
+    rng_seed: List[int]
     mento_exchanges_config: List[Dict[Stable, MentoExchangeConfig]]
     mento_exchanges_active: List[List[MentoExchange]]
     market_price_model: List[MarketPriceModel]
@@ -75,6 +78,7 @@ class InitParameters(TypedDict):
 
 
 parameters = InitParameters(
+    rng_seed=[1000],
     # Configuration params for each stable's exchange
     mento_exchanges_config=[{
         MentoExchange.CUSD_CELO: MentoExchangeConfig(
@@ -267,9 +271,8 @@ parameters = InitParameters(
                          delay=10,
                          price_threshold=0.02,
                          reporting_interval=6,
-                         pairs={
-                             Pair(CryptoAsset.CELO, Fiat.USD)
-                         })
+                         ),
         ]
     ]
+
 )

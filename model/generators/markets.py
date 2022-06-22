@@ -13,7 +13,7 @@ from model.utils.data_feed import DATA_FOLDER, DataFeed
 from model.utils.generator import Generator
 from model.utils.price_impact_valuator import PriceImpactValuator
 from model.utils.quantlib_wrapper import QuantLibWrapper
-from model.utils.rng_provider import rngp
+from model.utils.rng_provider import RNGProvider
 
 # raise numpy warnings as errors
 np.seterr(all='raise')
@@ -35,6 +35,7 @@ class MarketPriceGenerator(Generator):
         self,
         model,
         impacted_assets,
+        rngp: RNGProvider,
         increments=None,
     ):
         self.model = model
@@ -49,22 +50,26 @@ class MarketPriceGenerator(Generator):
         if model == MarketPriceModel.QUANTLIB:
             market_price_generator = cls(
                 model,
-                params['impacted_assets']
+                params['impacted_assets'],
+                params['rngp']
             )
+            seed_sequence = params['rngp'].__seed__(["QuantLib"])
+            quant_lib_seed = int(seed_sequence.generate_state(1)[0])
             quant_lib_wrapper = QuantLibWrapper(
                 params['market_price_processes'],
                 params['market_price_correlation_matrix'],
-                TOTAL_BLOCKS
+                TOTAL_BLOCKS,
+                quant_lib_seed
             )
             market_price_generator.increments = quant_lib_wrapper.correlated_returns()
         elif model == MarketPriceModel.PRICE_IMPACT:
-            market_price_generator = cls(model, params['impacted_assets'])
+            market_price_generator = cls(model, params['impacted_assets'], params['rngp'])
         elif model == MarketPriceModel.HIST_SIM:
-            market_price_generator = cls(model, params['impacted_assets'])
+            market_price_generator = cls(model, params['impacted_assets'], params['rngp'])
             market_price_generator.historical_returns()
             logging.info("increments updated")
         elif model == MarketPriceModel.SCENARIO:
-            market_price_generator = cls(model, params['impacted_assets'])
+            market_price_generator = cls(model, params['impacted_assets'], params['rngp'])
             market_price_generator.historical_returns()
             logging.info("increments updated")
         return market_price_generator

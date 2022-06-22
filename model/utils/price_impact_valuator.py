@@ -58,12 +58,12 @@ class PriceImpactValuator():
             average_daily_volume = params["average_daily_volume"][pair]
             impact_fn = PRICE_IMPACT_FUNCTION.get(self.price_impact_model)
             assert impact_fn is not None, f"{self.price_impact_model} does not have a function"
-            price_impact = impact_fn(
+            relative_price_impact = impact_fn(
                 self.supply_changes[pair.base][current_step],
                 variance_daily,
                 average_daily_volume,
             )
-            impacted_prices[pair] += price_impact
+            impacted_prices[pair] *= 1 + relative_price_impact
         return impacted_prices
 
     def impact_delay(
